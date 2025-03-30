@@ -6,7 +6,7 @@ import NumberNode from './AST/NumberNode';
 import ParenthesizedNode from './AST/ParenthesizedNode';
 import StatementsNode from './AST/StatementsNode';
 import VariableNode from './AST/VariableNode';
-import { validFunctions } from './validFunctions';
+import { sqlFunctionsMap, validFunctions } from './validFunctions';
 import Token from './Token';
 import TokenType, {
   tokenTypesBinOperations,
@@ -186,7 +186,7 @@ export default class Parser {
     if (node instanceof FunctionNode) {
       const currentFunction = validFunctions[node.name];
       if (currentFunction) {
-        return `${node.name}(${node.args.map((arg, index) => {
+        return `${sqlFunctionsMap[node.name]}(${node.args.map((arg, index) => {
           const nodeType = arg.type;
           const curArg = this.apiFormat(arg);
 
