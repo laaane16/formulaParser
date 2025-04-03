@@ -1,7 +1,5 @@
 // @ts-check
 import eslint from '@eslint/js';
-import vitest from '@vitest/eslint-plugin';
-import eslintConfigPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -12,7 +10,6 @@ export default tseslint.config(
     ignores: ['**/build/**', '**/tmp/**', '**/coverage/**'],
   },
   eslint.configs.recommended,
-  eslintConfigPrettier,
   {
     extends: [...tseslint.configs.recommended],
 
@@ -43,13 +40,9 @@ export default tseslint.config(
   {
     files: ['__tests__/**'],
 
-    plugins: {
-      vitest,
-    },
+    plugins: {},
 
-    rules: {
-      ...vitest.configs.recommended.rules,
-    },
+    rules: {},
 
     settings: {
       vitest: {
@@ -58,9 +51,7 @@ export default tseslint.config(
     },
 
     languageOptions: {
-      globals: {
-        ...vitest.environments.env.globals,
-      },
+      globals: {},
     },
   },
 );
