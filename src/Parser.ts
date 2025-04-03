@@ -160,18 +160,18 @@ export default class Parser {
   run() {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apiFormat(node: ExpressionNode): any {
+  toSql(node: ExpressionNode): any {
     if (node instanceof NumberNode) {
-      return parseInt(node.number.text);
+      return node.number.text;
     }
     if (node instanceof LiteralNode) {
       return node.literal.text;
     }
     if (node instanceof ParenthesizedNode) {
-      return `(${this.apiFormat(node.expression)})`;
+      return `(${this.toSql(node.expression)})`;
     }
     if (node instanceof BinOperationNode) {
-      return `${this.apiFormat(node.left)} ${node.operator.token.value} ${this.apiFormat(node.right)}`;
+      return `${this.toSql(node.left)} ${node.operator.token.value} ${this.toSql(node.right)}`;
     }
     if (node instanceof VariableNode) {
       if (this.globalVars[node.variable.text]) {
@@ -180,53 +180,76 @@ export default class Parser {
       throw new Error(`Недопустимая переменная на позиции ${this.pos}`);
     }
     if (node instanceof StatementsNode) {
-      return node.codeStrings.map((i) => this.apiFormat(i));
+      return node.codeStrings.map((i) => this.toSql(i));
     }
 
     if (node instanceof FunctionNode) {
       const currentFunction = validFunctions[node.name];
       if (currentFunction) {
-        return `${sqlFunctionsMap[node.name]}(${node.args.map((arg, index) => {
-          const nodeType = arg.type;
-          const curArg = this.apiFormat(arg);
+        for (let i = 0; i < currentFunction.length; i++) {
+          const currentFunctionVariation = currentFunction[i];
+          const sqlFunctionAnalog = sqlFunctionsMap[node.name];
 
-          if (currentFunction.types.length === 0) {
-            // или вернуть пустую функцию, хз
-            throw new Error(
-              `Функция ${node.name} не принимает никаких параметров`,
-            );
-          }
+          try {
+            const res = `${sqlFunctionAnalog}(${node.args.map((arg, index) => {
+              if (currentFunctionVariation.args.length === 0) {
+                throw new Error(
+                  `Функция ${node.name} не принимает никаких параметров на позиции ${this.pos}`,
+                );
+              }
 
-          const currentArgType = currentFunction.types[index];
-          const lastArgType =
-            currentFunction.types[currentFunction.types.length - 1];
+              const argType = arg.type;
+              const argNode = this.toSql(arg);
 
-          if (currentArgType === nodeType || lastArgType === nodeType) {
-            return curArg;
-          }
+              const neededArgType = currentFunctionVariation.args[index].type;
+              const lastArgType =
+                currentFunctionVariation.args[
+                  currentFunctionVariation.args.length - 1
+                ].type;
+              const canArgBeLast =
+                currentFunctionVariation.args.length - 1 <= index;
+              const isMany =
+                currentFunctionVariation.args[
+                  currentFunctionVariation.args.length - 1
+                ].many;
 
-          if (arg instanceof VariableNode) {
-            const variableType = this.globalVars[arg.variable.text].type;
-            if (
-              currentArgType === variableType ||
-              lastArgType === variableType
-            ) {
-              return curArg;
+              if (
+                neededArgType === argType ||
+                (neededArgType === lastArgType && canArgBeLast && isMany)
+              ) {
+                return argNode;
+              }
+
+              if (arg instanceof VariableNode) {
+                const variableType = this.globalVars[arg.variable.text].type;
+                if (
+                  neededArgType === variableType
+                  // || lastArgType === variableType
+                ) {
+                  return argNode;
+                }
+              }
+
+              // if (arg instanceof FunctionNode) {
+              //   const functionInArg = validFunctions[arg.name];
+              //   const returnType = functionInArg
+              //   // const returnType = functionInArg.forEach((i, idx) => i[idx].returnType);
+              //   // if (currentArgType === returnType || lastArgType === returnType) {
+              //   //   return curArg;
+              //   // }
+              // }
+              // throw new Error(
+              //   `Ожидается тип данных ${currentFunctionVariation.args[index]} на позиции ${this.pos}`,
+              // );
+            })})`;
+
+            return res;
+          } catch (e) {
+            if (i === currentFunction.length - 1) {
+              throw new Error(e as string);
             }
           }
-
-          if (arg instanceof FunctionNode) {
-            const functionInArg = validFunctions[arg.name];
-            const returnType = functionInArg.return[0];
-            if (currentArgType === returnType || lastArgType === returnType) {
-              return curArg;
-            }
-          }
-
-          throw new Error(
-            `Ожидается тип данных ${currentFunction.types} на позиции ${this.pos}`,
-          );
-        })})`;
+        }
       }
       throw new Error(`Недопустимое имя функции на позиции ${this.pos}`);
     }

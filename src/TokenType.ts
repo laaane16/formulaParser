@@ -45,9 +45,9 @@ export const tokenTypesList = {
 
   EQUAL: new TokenType('EQUAL', '==', '='), // = PSQL
   NOT_EQUAL: new TokenType('NOT_EQUAL', '!=', '!='), // != PSQL
-  GREATER: new TokenType('GREATER', '>', '>'), // > PSQL
+  GREATER: new TokenType('GREATER', '(?!>=)', '>'), // > PSQL
   GREATER_OR_EQUAL: new TokenType('GREATER_OR_EQUAL', '>=', '>='), // >= PSQL
-  LESS: new TokenType('LESS', '<', '<'), // < PSQL
+  LESS: new TokenType('LESS', '(?!<=)', '<'), // < PSQL
   LESS_OR_EQUAL: new TokenType('LESS_OR_EQUAL', '<=', '<='), // <= PSQL
   AND: new TokenType('AND', '&&', 'AND'), // AND PSQL
   OR: new TokenType('OR', '\\|\\|', 'OR'), // OR PSQL

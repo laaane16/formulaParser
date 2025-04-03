@@ -1,4 +1,4 @@
-import { STATEMENTS_NODE_TYPE } from '../constants';
+import { STATEMENTS_NODE_TYPE } from '../constants/nodeTypes';
 import ExpressionNode from './ExpressionNode';
 
 export default class StatementsNode extends ExpressionNode {

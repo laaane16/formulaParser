@@ -1,6 +1,8 @@
-import { LITERAL_NODE_TYPE, NUMBER_NODE_TYPE } from './constants';
 import Lexer from './Lexer';
 import Parser from './Parser';
+
+const PREFIX = '{{';
+const POSTFIX = '}}';
 
 interface IField {
   fieldId: string;
@@ -9,18 +11,18 @@ interface IField {
 }
 
 const fields: IField[] = [
-  { fieldId: '1', title: 'Поле 1', type: NUMBER_NODE_TYPE },
-  { fieldId: '2', title: 'Поле 2', type: NUMBER_NODE_TYPE },
-  { fieldId: '3', title: 'Поле 3', type: LITERAL_NODE_TYPE },
+  { fieldId: '1', title: 'Поле 1', type: 'number' },
+  { fieldId: '2', title: 'Поле 2', type: 'number' },
+  { fieldId: '3', title: 'Поле 3', type: 'text' },
 ];
 
 const prepareFields = fields.map((field) => ({
-  title: `{{${field.title}}}`,
+  title: `${PREFIX}${field.title}${POSTFIX}`,
   value: field.fieldId,
   type: field.type,
 }));
 
-const code = `({{Поле 1}} -1 || 1 + (({{Поле 2}}))) * (4 + 1) + SUM(1,2,3,{{Поле 2}}, SUM(1,2,SUM(1,{{Поле 2}})))`;
+const code = `CONCAT("a") + 1`;
 
 const lexer = new Lexer(code);
 
@@ -32,4 +34,4 @@ parser.initVars(prepareFields);
 const node = parser.parseCode();
 
 // Пока возвращаем только одну строку
-console.log(parser.apiFormat(node)[0]);
+console.log(parser.toSql(node)[0]);

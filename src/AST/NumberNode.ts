@@ -1,4 +1,4 @@
-import { NUMBER_NODE_TYPE } from '../constants';
+import { NUMBER_NODE_TYPE } from '../constants/nodeTypes';
 import Token from '../Token';
 import ExpressionNode from './ExpressionNode';
 

@@ -1,4 +1,4 @@
-import { FUNCTION_NODE_TYPE } from '../constants';
+import { FUNCTION_NODE_TYPE } from  '../constants/nodeTypes';
 import ExpressionNode from './ExpressionNode';
 
 export default class FunctionNode extends ExpressionNode {
