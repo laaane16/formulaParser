@@ -1,5 +1,5 @@
 {
-  "name": "FormulaSQL",
+  "name": "formulaSQL",
   "version": "0.0.0",
   "engines": {
     "node": ">= 22.11 < 23"
