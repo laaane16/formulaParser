@@ -1,6 +1,6 @@
-# 🧠 Formula2SQL
+# 🧠 Formulex (Formula + Expression + Exec)
 
-**Formula2SQL** is a lightweight library that parses user-defined formulas into SQL expressions or JavaScript functions — and optionally parses SQL back to formulas.
+**Formulex** is a lightweight library that parses user-defined formulas into SQL expressions or JavaScript functions — and optionally parses SQL back to formulas.
 
 Whether you're building a low-code platform, dynamic reporting engine, or a rule-based system, Formula2SQL helps you transform formulas into executable logic.
 
@@ -19,13 +19,13 @@ Whether you're building a low-code platform, dynamic reporting engine, or a rule
 ## 📦 Installation ( TODO: update to real data )
 
 ```bash
-npm install formula2sql
+npm install formulex
 ```
 
 ## 📗 Usage ( TODO: update to real data )
 
 ```js
-import { toSQL, toJS } from 'formula2sql';
+import { toSQL, toJS } from 'Formulex';
 
 const formula = 'price * quantity + tax';
 

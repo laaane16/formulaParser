@@ -7,7 +7,7 @@ const PREFIX = '{{';
 const POSTFIX = '}}';
 
 interface IField {
-  fieldId: string;
+  id: string;
   title: string;
   type: string;
 }
@@ -40,7 +40,7 @@ export default class Parser {
   private prepareFields() {
     return this.fields.map((field) => ({
       title: `${PREFIX}${field.title}${POSTFIX}`,
-      value: field.fieldId,
+      value: field.id,
       type: field.type,
     }));
   }
@@ -63,9 +63,9 @@ export default class Parser {
 // Example usage:
 
 const fields = [
-  { fieldId: '1', title: 'Поле 1', type: 'number' },
-  { fieldId: '2', title: 'Поле 2', type: 'number' },
-  { fieldId: '3', title: 'Поле 3', type: 'text' },
+  { id: '1', title: 'Поле 1', type: 'number' },
+  { id: '2', title: 'Поле 2', type: 'number' },
+  { id: '3', title: 'Поле 3', type: 'text' },
 ];
 
 const expression = 'CONCAT("a") + 1';
