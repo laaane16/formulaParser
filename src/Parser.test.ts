@@ -5,43 +5,117 @@ const PREFIX = '{{';
 const POSTFIX = '}}';
 
 interface IField {
-  fieldId: string;
+  id: string;
   title: string;
   type: string;
 }
 
 const fields: IField[] = [
-  { fieldId: '1', title: 'Поле 1', type: 'number' },
-  { fieldId: '2', title: 'Поле 2', type: 'number' },
-  { fieldId: '3', title: 'Поле 3', type: 'text' },
+  { id: '1', title: 'Поле 1', type: 'number' },
+  { id: '2', title: 'Поле 2', type: 'number' },
+  { id: '3', title: 'Поле 3', type: 'text' },
 ];
 
 const prepareFields = fields.map((field) => ({
   title: `${PREFIX}${field.title}${POSTFIX}`,
-  value: field.fieldId,
+  value: field.id,
   type: field.type,
 }));
 
 describe('bin operator node', () => {
   test('plus', () => {
-    const code = `1 + 1`;
+    const code = '1 + 1';
 
     const lexer = new Lexer(code);
-
     lexer.lexAnalysis();
 
     const parser = new Parser(lexer.tokens);
     parser.initVars(prepareFields);
-
     const node = parser.parseCode();
+
     const result = parser.toSql(node)[0];
+
     expect(result).toBe('1 + 1');
   });
 });
 
 describe('function node', () => {
-  test('function with simple correct params', () => {
+  test('function CONCAT can`t be without params', () => {
     const code = `CONCAT()`;
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    try {
+      const result = parser.toSql(node)[0];
+      throw new Error('Должна быть ошибка');
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      // TODO: Fix the position, the error position is relative to '('
+      expect((e as Error).message).toBe(
+        'Функция CONCAT не принимает никаких параметров на позиции 3',
+      );
+    }
+  });
+
+  test('function CONCAT can work with string', () => {
+    const code = 'CONCAT("test")';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('CONCAT("test")');
+  });
+
+  test('function CONCAT can work with many args which has type string', () => {
+    const code = 'CONCAT("test", "test2", "test3")';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('CONCAT("test","test2","test3")');
+  });
+
+  test('function CONCAT can`t work with many args which not all has type string', () => {
+    const code = 'CONCAT("test", "test2", 1)';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    try {
+      const result = parser.toSql(node)[0];
+      throw new Error('Должна быть ошибка');
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      // TODO: Fix the position, the error position is relative to '('
+      expect((e as Error).message).toBe('Неожиданный тип данных на позиции 8');
+    }
+  });
+
+  test('function CONCAT can`t work with number', () => {
+    const code = `CONCAT(1)`;
 
     const lexer = new Lexer(code);
 
@@ -51,7 +125,29 @@ describe('function node', () => {
     parser.initVars(prepareFields);
 
     const node = parser.parseCode();
+    try {
+      const result = parser.toSql(node)[0];
+      throw new Error('Должна быть ошибка');
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      // TODO: Fix the position, the error position is relative to '('
+      expect((e as Error).message).toBe('Неожиданный тип данных на позиции 4');
+    }
+  });
+
+  test('function RANDOM can be without params', () => {
+    const code = 'RANDOM()';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
     const result = parser.toSql(node)[0];
-    expect(result).toBe('CONCAT()');
+
+    expect(result).toBe('RANDOM()');
   });
 });
