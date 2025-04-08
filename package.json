@@ -4,6 +4,9 @@
   "engines": {
     "node": ">= 22.11 < 23"
   },
+  "dependencies": {
+    "tslib": "~2.8"
+  },
   "devDependencies": {
     "@eslint/js": "~9.17",
     "@types/eslint__js": "~8.42",
@@ -13,7 +16,9 @@
     "eslint": "~9.17",
     "eslint-config-prettier": "~9.1",
     "globals": "~15.14",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
+    "lint-staged": "^15.5.0",
     "nodemon": "^3.1.9",
     "prettier": "~3.4",
     "rimraf": "~6.0",
@@ -32,14 +37,18 @@
     "build:watch": "tsc -w -p tsconfig.json",
     "build:release": "npm run clean && tsc -p tsconfig.release.json",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "jest",
     "test:coverage": "vitest run unit --config config/vitest.config.ts --coverage.enabled --coverage.all",
-    "prettier": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --write",
-    "prettier:check": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
-    "test:watch": "vitest unit"
+    "format": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
+    "format:fix": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --write",
+    "prepare": "husky"
   },
-  "dependencies": {
-    "tslib": "~2.8"
+  "lint-staged": {
+    "*.{ts,js,md}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "volta": {
     "node": "22.12.0"
