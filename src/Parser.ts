@@ -1,3 +1,6 @@
+// TODO: In some cases, the error returns an incorrect position, see Parser.test.ts
+// TODO: Refactor errors to use the error class from the lib/exceptions
+
 import BinOperationNode from './AST/BinOperationNode';
 import ExpressionNode from './AST/ExpressionNode';
 import FunctionNode from './AST/FunctionNode';
@@ -59,7 +62,6 @@ export default class Parser {
   // '({{Поле1}} + {{Поле2}})'
   parseFunctionArgs(): ExpressionNode[] {
     const result = [];
-
     let currentNode = this.parseFormula();
     if (!currentNode) {
       return [];
@@ -104,6 +106,10 @@ export default class Parser {
     if (func) {
       const leftPar = this.match(tokenTypesList.LPAR);
       if (leftPar) {
+        const isBracketsEmpty = !!this.match(tokenTypesList.RPAR);
+        if (isBracketsEmpty) {
+          return new FunctionNode(func.text, []);
+        }
         const args = this.parseFunctionArgs();
         this.require(tokenTypesList.RPAR);
         return new FunctionNode(func.text, args);
@@ -189,19 +195,27 @@ export default class Parser {
         for (let i = 0; i < currentFunction.length; i++) {
           const currentFunctionVariation = currentFunction[i];
           const sqlFunctionAnalog = sqlFunctionsMap[node.name];
-
           try {
+            if (
+              node.args.length === 0 &&
+              currentFunctionVariation.args.length !== 0
+            ) {
+              throw new Error(
+                `Функция ${node.name} не принимает никаких параметров на позиции ${this.pos}`,
+              );
+            }
+
             const res = `${sqlFunctionAnalog}(${node.args.map((arg, index) => {
               if (currentFunctionVariation.args.length === 0) {
                 throw new Error(
                   `Функция ${node.name} не принимает никаких параметров на позиции ${this.pos}`,
                 );
               }
+              const neededArgType = currentFunctionVariation.args[index]?.type;
 
               const argType = arg.type;
               const argNode = this.toSql(arg);
 
-              const neededArgType = currentFunctionVariation.args[index].type;
               const lastArgType =
                 currentFunctionVariation.args[
                   currentFunctionVariation.args.length - 1
@@ -214,8 +228,8 @@ export default class Parser {
                 ].many;
 
               if (
-                neededArgType === argType ||
-                (neededArgType === lastArgType && canArgBeLast && isMany)
+                argType === neededArgType ||
+                (argType === lastArgType && canArgBeLast && isMany)
               ) {
                 return argNode;
               }
@@ -229,6 +243,8 @@ export default class Parser {
                   return argNode;
                 }
               }
+
+              throw new Error(`Неожиданный тип данных на позиции ${this.pos}`);
 
               // if (arg instanceof FunctionNode) {
               //   const functionInArg = validFunctions[arg.name];
@@ -245,9 +261,10 @@ export default class Parser {
 
             return res;
           } catch (e) {
-            if (i === currentFunction.length - 1) {
-              throw new Error(e as string);
+            if (e instanceof Error && i === currentFunction.length - 1) {
+              throw new Error(e.message);
             }
+            throw new Error(`Непредвиденная ошибка ${e}`);
           }
         }
       }

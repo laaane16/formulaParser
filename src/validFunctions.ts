@@ -1,4 +1,8 @@
-import { LITERAL_NODE_TYPE, NodeTypesValues } from './constants/nodeTypes';
+import {
+  LITERAL_NODE_TYPE,
+  NodeTypesValues,
+  NUMBER_NODE_TYPE,
+} from './constants/nodeTypes';
 
 interface IArg {
   // name: string, не думаю что нужен
@@ -28,6 +32,14 @@ export const validFunctions: Record<string, VariableFunction> = {
         },
       ],
       returnType: LITERAL_NODE_TYPE,
+      jsFn: () => '',
+      sqlFn: () => '',
+    },
+  ],
+  RANDOM: [
+    {
+      args: [],
+      returnType: NUMBER_NODE_TYPE,
       jsFn: () => '',
       sqlFn: () => '',
     },
