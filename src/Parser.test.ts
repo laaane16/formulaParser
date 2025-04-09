@@ -42,6 +42,13 @@ describe('number node', () => {
 
     expect(result).toBe('10001');
   });
+
+  test('float number', () => {
+    const code = '1.123';
+    const result = parseToSql(code);
+
+    expect(result).toBe('1.123');
+  });
 });
 
 describe('literal node', () => {

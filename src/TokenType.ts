@@ -10,7 +10,7 @@ export default class TokenType {
 
 export const tokenTypesList = {
   // DATA TYPES
-  NUMBER: new TokenType('NUMBER', '[0-9]+'),
+  NUMBER: new TokenType('NUMBER', '[0-9]+\\.*[0-9]*'),
   STRING: new TokenType('STRING', '"((?:\\\\.|[^"\\\\])*)"'),
   // VARIABLES: {{...}}
   VARIABLE: new TokenType('VARIABLE', '{{((?:\\\\.|[^{\\\\])+)}}'),
