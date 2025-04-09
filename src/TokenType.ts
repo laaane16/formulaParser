@@ -1,13 +1,10 @@
 export default class TokenType {
   regex: string;
   name: string;
-  value?: string;
 
-  // TODO: move value to AST nodes, because token type for lexic analyze not semantic
-  constructor(name: string, regex: string, value?: string) {
-    this.regex = regex;
+  constructor(name: string, regex: string) {
     this.name = name;
-    this.value = value;
+    this.regex = regex;
   }
 }
 
@@ -27,31 +24,30 @@ export const tokenTypesList = {
   RPAR: new TokenType('RPAR', '\\)'),
   VIRGULE: new TokenType('VIRGULE', ','),
 
-  // TODO: ПОДКЛЮЧИТЬ
   // UNAR_OPERATORS
-  NOT: new TokenType('NOT', '!', 'NOT'), // NOT psql
+  NOT: new TokenType('NOT', '(?!\\!=)!'), // NOT psql
 
   // TODO: ПОДКЛЮЧИТЬ
   // KEYWORDS
-  TRUE: new TokenType('KEYWORD', 'true', 'TRUE'),
-  FALSE: new TokenType('KEYWORD', 'true', 'TRUE'),
+  TRUE: new TokenType('KEYWORD', 'true'), // TRUE psql
+  FALSE: new TokenType('KEYWORD', 'true'), // TRUE psql
 
   //BIN_OPERATORS
-  PLUS: new TokenType('PLUS', '\\+', '+'), // + PSQL
-  MINUS: new TokenType('MINUS', '-', '-'), // - PSQL
-  MULTIPLY: new TokenType('MULTIPLY', '\\*', '*'), // * PSQL
-  DIVISION: new TokenType('DIVISION', '/', '/'), // / PSQL
-  REMAINDER: new TokenType('REMAINDER', '%', '%'), // % PSQL
-  POWER: new TokenType('POWER', '^', '^'), // ^ PSQL
+  PLUS: new TokenType('PLUS', '\\+'), // + PSQL
+  MINUS: new TokenType('MINUS', '-'), // - PSQL
+  MULTIPLY: new TokenType('MULTIPLY', '\\*'), // * PSQL
+  DIVISION: new TokenType('DIVISION', '/'), // / PSQL
+  REMAINDER: new TokenType('REMAINDER', '%'), // % PSQL
+  POWER: new TokenType('POWER', '\\^'), // ^ PSQL
 
-  EQUAL: new TokenType('EQUAL', '==', '='), // = PSQL
-  NOT_EQUAL: new TokenType('NOT_EQUAL', '!=', '!='), // != PSQL
-  GREATER: new TokenType('GREATER', '(?!>=)', '>'), // > PSQL
-  GREATER_OR_EQUAL: new TokenType('GREATER_OR_EQUAL', '>=', '>='), // >= PSQL
-  LESS: new TokenType('LESS', '(?!<=)', '<'), // < PSQL
-  LESS_OR_EQUAL: new TokenType('LESS_OR_EQUAL', '<=', '<='), // <= PSQL
-  AND: new TokenType('AND', '&&', 'AND'), // AND PSQL
-  OR: new TokenType('OR', '\\|\\|', 'OR'), // OR PSQL
+  EQUAL: new TokenType('EQUAL', '=='), // = PSQL
+  NOT_EQUAL: new TokenType('NOT_EQUAL', '\\!='), // != PSQL
+  GREATER: new TokenType('GREATER', '(?!>=)>'), // > PSQL
+  GREATER_OR_EQUAL: new TokenType('GREATER_OR_EQUAL', '>='), // >= PSQL
+  LESS: new TokenType('LESS', '(?!<=)<'), // < PSQL
+  LESS_OR_EQUAL: new TokenType('LESS_OR_EQUAL', '<='), // <= PSQL
+  AND: new TokenType('AND', '&&'), // AND PSQL
+  OR: new TokenType('OR', '\\|\\|'), // OR PSQL
 };
 
 export const tokenTypesBinOperations = [
@@ -70,3 +66,5 @@ export const tokenTypesBinOperations = [
   tokenTypesList.AND,
   tokenTypesList.OR,
 ];
+
+export const tokenTypesUnarOperations = [tokenTypesList.NOT];

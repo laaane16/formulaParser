@@ -4,9 +4,8 @@ import ExpressionNode from './ExpressionNode';
 export default class StatementsNode extends ExpressionNode {
   codeStrings: ExpressionNode[] = [];
 
-  constructor() {
-    // TODO: throw the correct position
-    super(STATEMENTS_NODE_TYPE, 0, 0);
+  constructor(end: number) {
+    super(STATEMENTS_NODE_TYPE, 0, end);
   }
 
   addNode(node: ExpressionNode): void {

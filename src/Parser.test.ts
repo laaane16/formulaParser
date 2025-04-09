@@ -35,7 +35,219 @@ describe('bin operator node', () => {
 
     const result = parser.toSql(node)[0];
 
-    expect(result).toBe('1+1');
+    expect(result).toBe('1 + 1');
+  });
+
+  test('minus', () => {
+    const code = '1 - 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 - 1');
+  });
+
+  test('multiply', () => {
+    const code = '1 * 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 * 1');
+  });
+
+  test('division', () => {
+    const code = '1 / 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 / 1');
+  });
+
+  test('remainder', () => {
+    const code = '1 % 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 % 1');
+  });
+
+  test('power', () => {
+    const code = '1 ^ 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+    console.log(lexer.tokens);
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 ^ 1');
+  });
+
+  test('equal', () => {
+    const code = '1 == 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 = 1');
+  });
+
+  test('not equal', () => {
+    const code = '1 != 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 != 1');
+  });
+
+  test('greater', () => {
+    const code = '1 > 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 > 1');
+  });
+
+  test('greater or equal', () => {
+    const code = '1 >= 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 >= 1');
+  });
+
+  test('less', () => {
+    const code = '1 < 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 < 1');
+  });
+
+  test('less or equal', () => {
+    const code = '1 <= 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 <= 1');
+  });
+
+  test('and', () => {
+    const code = '1 && 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 AND 1');
+  });
+
+  test('or', () => {
+    const code = '1 || 1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('1 OR 1');
+  });
+});
+
+describe('unar operator node', () => {
+  test('not', () => {
+    const code = '!1';
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+
+    const result = parser.toSql(node)[0];
+
+    expect(result).toBe('!1');
   });
 });
 

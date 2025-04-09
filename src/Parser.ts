@@ -13,7 +13,10 @@ import Token from './Token';
 import TokenType, {
   tokenTypesBinOperations,
   tokenTypesList,
+  tokenTypesUnarOperations,
 } from './TokenType';
+import { binOperatorToSqlMap } from './constants/binOperatorToSqlMap';
+import UnarOperationNode from './AST/UnarOperationNode';
 
 interface IVar {
   title: string;
@@ -38,44 +41,35 @@ export default class Parser {
     );
   }
 
-  match(...expected: TokenType[]): Token | null {
-    if (this.pos < this.tokens.length) {
-      const currentToken = this.tokens[this.pos];
+  parseCode(): StatementsNode {
+    const lastToken = this.tokens[this.tokens.length - 1];
+    const statementEnd = lastToken.pos + lastToken.text.length;
 
-      if (expected.find((i) => i.name === currentToken.token.name)) {
-        this.pos += 1;
-        return currentToken;
-      }
+    const root = new StatementsNode(statementEnd);
+
+    while (this.pos < this.tokens.length) {
+      const codeStringNode = this.parseExpression();
+      // Если вдруг формуле понадобится быть многострочной
+      // this.require(СИМВОЛ_ОКОНЧАНИЯ_СТРОКИ)
+      root.addNode(codeStringNode);
     }
-
-    return null;
+    return root;
   }
 
-  require(...expected: TokenType[]): Token {
-    const token = this.match(...expected);
-    if (!token) {
-      throw new Error(`На позиции ${this.pos} ожидается ${expected[0].name}`);
-    }
-    return token;
-  }
-  // '({{Поле1}} + {{Поле2}})'
-  parseFunctionArgs(): ExpressionNode[] {
-    const result = [];
-    let currentNode = this.parseFormula();
-    if (!currentNode) {
-      return [];
+  parseExpression(): ExpressionNode {
+    // 1 || "" || FN()
+    //`{{Поле 1}} + {{Поле 2}} - SUM({{Поле 3}}, {{Field_4}}) + 1`;
+    const currentNode = this.getCurrentNode();
+
+    const operator = this.match(...tokenTypesBinOperations);
+    if (!operator) {
+      return currentNode;
     }
 
-    result.push(currentNode);
+    const rightNode = this.parseFormula();
+    const binaryNode = new BinOperationNode(operator, currentNode, rightNode);
 
-    let virgule = this.match(tokenTypesList.VIRGULE);
-    while (virgule) {
-      currentNode = this.parseFormula();
-      result.push(currentNode);
-      virgule = this.match(tokenTypesList.VIRGULE);
-    }
-
-    return result;
+    return binaryNode;
   }
 
   getCurrentNode(): ExpressionNode {
@@ -118,6 +112,12 @@ export default class Parser {
       );
     }
 
+    const unarOperator = this.match(...tokenTypesUnarOperations);
+    if (unarOperator) {
+      const node = this.parseFormula();
+      return new UnarOperationNode(unarOperator, node);
+    }
+
     throw new Error(`Неожиданный синтаксис на ${this.pos}`);
   }
 
@@ -134,35 +134,46 @@ export default class Parser {
 
     return leftNode;
   }
-
-  parseExpression(): ExpressionNode {
-    // 1 || "" || FN()
-    //`{{Поле 1}} + {{Поле 2}} - SUM({{Поле 3}}, {{Field_4}}) + 1`;
-    const currentNode = this.getCurrentNode();
-
-    const operator = this.match(...tokenTypesBinOperations);
-    if (!operator) {
-      return currentNode;
+  // '({{Поле1}} + {{Поле2}})'
+  parseFunctionArgs(): ExpressionNode[] {
+    const result = [];
+    let currentNode = this.parseFormula();
+    if (!currentNode) {
+      return [];
     }
 
-    const rightNode = this.parseFormula();
-    const binaryNode = new BinOperationNode(operator, currentNode, rightNode);
+    result.push(currentNode);
 
-    return binaryNode;
-  }
-
-  parseCode(): StatementsNode {
-    const root = new StatementsNode();
-    while (this.pos < this.tokens.length) {
-      const codeStringNode = this.parseExpression();
-      // Если вдруг формуле понадобится быть многострочной
-      // this.require(СИМВОЛ_ОКОНЧАНИЯ_СТРОКИ)
-      root.addNode(codeStringNode);
+    let virgule = this.match(tokenTypesList.VIRGULE);
+    while (virgule) {
+      currentNode = this.parseFormula();
+      result.push(currentNode);
+      virgule = this.match(tokenTypesList.VIRGULE);
     }
-    return root;
+
+    return result;
   }
 
-  run() {}
+  match(...expected: TokenType[]): Token | null {
+    if (this.pos < this.tokens.length) {
+      const currentToken = this.tokens[this.pos];
+
+      if (expected.find((i) => i.name === currentToken.token.name)) {
+        this.pos += 1;
+        return currentToken;
+      }
+    }
+
+    return null;
+  }
+
+  require(...expected: TokenType[]): Token {
+    const token = this.match(...expected);
+    if (!token) {
+      throw new Error(`На позиции ${this.pos} ожидается ${expected[0].name}`);
+    }
+    return token;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toSql(node: ExpressionNode): any {
@@ -175,8 +186,14 @@ export default class Parser {
     if (node instanceof ParenthesizedNode) {
       return `(${this.toSql(node.expression)})`;
     }
+
+    if (node instanceof UnarOperationNode) {
+      // maybe need space
+      return `${node.operator.text}${this.toSql(node.operand)}`;
+    }
+
     if (node instanceof BinOperationNode) {
-      return `${this.toSql(node.left)}${node.operator.token.value}${this.toSql(node.right)}`;
+      return `${this.toSql(node.left)} ${binOperatorToSqlMap[node.operator.token.name] || node.operator.text} ${this.toSql(node.right)}`;
     }
     if (node instanceof VariableNode) {
       if (this.globalVars[node.variable.text]) {
