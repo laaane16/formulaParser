@@ -43,7 +43,14 @@ export default tseslint.config(
 
     plugins: {},
 
-    rules: {},
+    rules: {
+      'prettier/prettier': [
+        'warn',
+        {
+          endOfLine: 'auto',
+        },
+      ],
+    },
 
     settings: {
       vitest: {
