@@ -1,4 +1,10 @@
 // TODO: Refactor errors to use the error class from the lib/exceptions
+import Token from './Token';
+import TokenType, {
+  tokenTypesBinOperations,
+  tokenTypesList,
+  tokenTypesUnarOperations,
+} from './TokenType';
 
 import BinOperationNode from './AST/BinOperationNode';
 import ExpressionNode from './AST/ExpressionNode';
@@ -8,15 +14,10 @@ import NumberNode from './AST/NumberNode';
 import ParenthesizedNode from './AST/ParenthesizedNode';
 import StatementsNode from './AST/StatementsNode';
 import VariableNode from './AST/VariableNode';
-import { sqlFunctionsMap, validFunctions } from './validFunctions';
-import Token from './Token';
-import TokenType, {
-  tokenTypesBinOperations,
-  tokenTypesList,
-  tokenTypesUnarOperations,
-} from './TokenType';
-import { binOperatorToSqlMap } from './constants/binOperatorToSqlMap';
 import UnarOperationNode from './AST/UnarOperationNode';
+
+import { sqlFunctionsMap, validFunctions } from './validFunctions';
+import { binOperatorToSqlMap } from './constants/binOperatorToSqlMap';
 
 interface IVar {
   title: string;
@@ -49,7 +50,7 @@ export default class Parser {
 
     while (this.pos < this.tokens.length) {
       const codeStringNode = this.parseExpression();
-      // Если вдруг формуле понадобится быть многострочной
+      // if we need make formula multiline, uncomment this string and add in tokens symbol, which mean end of line
       // this.require(СИМВОЛ_ОКОНЧАНИЯ_СТРОКИ)
       root.addNode(codeStringNode);
     }
@@ -57,8 +58,6 @@ export default class Parser {
   }
 
   parseExpression(): ExpressionNode {
-    // 1 || "" || FN()
-    //`{{Поле 1}} + {{Поле 2}} - SUM({{Поле 3}}, {{Field_4}}) + 1`;
     const currentNode = this.getCurrentNode();
 
     const operator = this.match(...tokenTypesBinOperations);
@@ -73,21 +72,63 @@ export default class Parser {
   }
 
   getCurrentNode(): ExpressionNode {
+    const parsersForPossibleResults = [
+      this.parseLiteralNode,
+      this.parseNumberNode,
+      this.parseVariableNode,
+      this.parseUnarOperatorNode,
+      this.parseParenthesizedNode,
+      this.parseFunctionNode,
+    ];
+
+    for (const parseFn of parsersForPossibleResults) {
+      // with call method typescript  gets confused
+      const possibleResult = parseFn.bind(this)();
+      if (possibleResult !== null) {
+        return possibleResult;
+      }
+    }
+
+    throw new Error(`Неожиданный синтаксис на ${this.pos}`);
+  }
+
+  parseLiteralNode(): LiteralNode | null {
     const string = this.match(tokenTypesList.STRING);
     if (string) {
       return new LiteralNode(string);
     }
 
+    return null;
+  }
+
+  parseNumberNode(): NumberNode | null {
     const number = this.match(tokenTypesList.NUMBER);
     if (number) {
       return new NumberNode(number);
     }
 
+    return null;
+  }
+
+  parseVariableNode(): VariableNode | null {
     const variable = this.match(tokenTypesList.VARIABLE);
     if (variable) {
       return new VariableNode(variable);
     }
 
+    return null;
+  }
+
+  parseUnarOperatorNode(): UnarOperationNode | null {
+    const unarOperator = this.match(...tokenTypesUnarOperations);
+    if (unarOperator) {
+      const node = this.parseFormula();
+      return new UnarOperationNode(unarOperator, node);
+    }
+
+    return null;
+  }
+  parseParenthesizedNode(): ParenthesizedNode | null {
     const leftPar = this.match(tokenTypesList.LPAR);
     if (leftPar) {
       const node = this.parseFormula();
@@ -95,6 +136,10 @@ export default class Parser {
       return new ParenthesizedNode(node);
     }
 
+    return null;
+  }
+
+  parseFunctionNode(): FunctionNode | null {
     const func = this.match(tokenTypesList.FUNCTION);
     if (func) {
       const leftPar = this.match(tokenTypesList.LPAR);
@@ -111,30 +156,9 @@ export default class Parser {
         `Ожидалось перечисление аргументов на позиции ${this.pos}`,
       );
     }
-
-    const unarOperator = this.match(...tokenTypesUnarOperations);
-    if (unarOperator) {
-      const node = this.parseFormula();
-      return new UnarOperationNode(unarOperator, node);
-    }
-
-    throw new Error(`Неожиданный синтаксис на ${this.pos}`);
+    return null;
   }
 
-  parseFormula(): ExpressionNode {
-    let leftNode = this.getCurrentNode();
-    let operator = this.match(...tokenTypesBinOperations);
-    let rightNode;
-
-    while (operator) {
-      rightNode = this.parseFormula();
-      leftNode = new BinOperationNode(operator, leftNode, rightNode);
-      operator = this.match(...tokenTypesBinOperations);
-    }
-
-    return leftNode;
-  }
-  // '({{Поле1}} + {{Поле2}})'
   parseFunctionArgs(): ExpressionNode[] {
     const result = [];
     let currentNode = this.parseFormula();
@@ -152,6 +176,20 @@ export default class Parser {
     }
 
     return result;
+  }
+
+  parseFormula(): ExpressionNode {
+    let leftNode = this.getCurrentNode();
+    let operator = this.match(...tokenTypesBinOperations);
+    let rightNode;
+
+    while (operator) {
+      rightNode = this.parseFormula();
+      leftNode = new BinOperationNode(operator, leftNode, rightNode);
+      operator = this.match(...tokenTypesBinOperations);
+    }
+
+    return leftNode;
   }
 
   match(...expected: TokenType[]): Token | null {
