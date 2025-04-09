@@ -269,14 +269,14 @@ export default class Parser {
               currentFunctionVariation.args.length !== 0
             ) {
               throw new Error(
-                `Функция ${node.name} на позиции ${node.start} не принимает никаких параметров`,
+                `В функцию ${node.name} на позиции ${node.start} нужно добавить аргумент типа ${currentFunctionVariation.args[0].type}`,
               );
             }
 
             const res = `${sqlFunctionAnalog}(${node.args.map((arg, index) => {
               if (currentFunctionVariation.args.length === 0) {
                 throw new Error(
-                  `Функция ${node.name} не принимает никаких параметров на позиции ${arg.start}`,
+                  `Функция ${node.name} не принимает никаких  на позиции ${arg.start}`,
                 );
               }
               const neededArgType = currentFunctionVariation.args[index]?.type;
@@ -312,21 +312,30 @@ export default class Parser {
                 }
               }
 
+              if (arg instanceof FunctionNode) {
+                const functionInArg = validFunctions[arg.name];
+                if (!functionInArg) {
+                  throw new Error(
+                    `Недопустимое имя функции ${arg.name} на позиции ${arg.func.pos}`,
+                  );
+                }
+                for (let i = 0; i < functionInArg.length; i++) {
+                  const currentFunctionInArgVariation = functionInArg[i];
+                  if (
+                    currentFunctionInArgVariation.returnType ===
+                      neededArgType ||
+                    (currentFunctionInArgVariation.returnType === lastArgType &&
+                      canArgBeLast &&
+                      isMany)
+                  ) {
+                    return this.toSql(arg);
+                  }
+                }
+              }
+
               throw new Error(
                 `Неожиданный тип данных ${arg.type} в функции ${node.name} на позиции ${arg.start + 1}`,
               );
-
-              // if (arg instanceof FunctionNode) {
-              //   const functionInArg = validFunctions[arg.name];
-              //   const returnType = functionInArg
-              //   // const returnType = functionInArg.forEach((i, idx) => i[idx].returnType);
-              //   // if (currentArgType === returnType || lastArgType === returnType) {
-              //   //   return curArg;
-              //   // }
-              // }
-              // throw new Error(
-              //   `Ожидается тип данных ${currentFunctionVariation.args[index]} на позиции ${this.pos}`,
-              // );
             })})`;
 
             return res;

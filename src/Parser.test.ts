@@ -218,7 +218,7 @@ describe('function node', () => {
       expect(e).toBeInstanceOf(Error);
 
       expect((e as Error).message).toBe(
-        'Функция CONCAT на позиции 0 не принимает никаких параметров',
+        'В функцию CONCAT на позиции 0 нужно добавить аргумент типа text',
       );
     }
   });
