@@ -9,10 +9,12 @@ export const PARENTHESIZED_NODE_TYPE = 'ParenthesizedNode';
 export const STATEMENTS_NODE_TYPE = 'StatementsNode';
 export const UNAR_OPERATION_NODE_TYPE = 'UnarOperationNode';
 export const VARIABLE_NODE_TYPE = 'VariableNode';
+export const KEYWORD_NODE_TYPE = 'KeywordNode';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const NODE_TYPES = {
   BIN_OPERATION: BIN_OPERATION_NODE_TYPE,
+  KEYWORD: KEYWORD_NODE_TYPE,
   FUNCTION: FUNCTION_NODE_TYPE,
   LITERAL: LITERAL_NODE_TYPE,
   NUMBER: NUMBER_NODE_TYPE,

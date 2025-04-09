@@ -27,10 +27,9 @@ export const tokenTypesList = {
   // UNAR_OPERATORS
   NOT: new TokenType('NOT', '(?!\\!=)!'), // NOT psql
 
-  // TODO: ПОДКЛЮЧИТЬ
   // KEYWORDS
-  TRUE: new TokenType('KEYWORD', 'true'), // TRUE psql
-  FALSE: new TokenType('KEYWORD', 'true'), // TRUE psql
+  TRUE: new TokenType('TRUE', 'true'), // TRUE psql
+  FALSE: new TokenType('FALSE', 'false'), // TRUE psql
 
   //BIN_OPERATORS
   PLUS: new TokenType('PLUS', '\\+'), // + PSQL
@@ -68,3 +67,5 @@ export const tokenTypesBinOperations = [
 ];
 
 export const tokenTypesUnarOperations = [tokenTypesList.NOT];
+
+export const tokenTypesKeywords = [tokenTypesList.TRUE, tokenTypesList.FALSE];

@@ -2,6 +2,7 @@
 import Token from './Token';
 import TokenType, {
   tokenTypesBinOperations,
+  tokenTypesKeywords,
   tokenTypesList,
   tokenTypesUnarOperations,
 } from './TokenType';
@@ -18,6 +19,7 @@ import UnarOperationNode from './AST/UnarOperationNode';
 
 import { sqlFunctionsMap, validFunctions } from './validFunctions';
 import { binOperatorToSqlMap } from './constants/binOperatorToSqlMap';
+import KeywordNode from './AST/KeywordNode';
 
 interface IVar {
   title: string;
@@ -75,6 +77,7 @@ export default class Parser {
     const parsersForPossibleResults = [
       this.parseLiteralNode,
       this.parseNumberNode,
+      this.parseKeywordNode,
       this.parseVariableNode,
       this.parseUnarOperatorNode,
       this.parseParenthesizedNode,
@@ -105,6 +108,15 @@ export default class Parser {
     const number = this.match(tokenTypesList.NUMBER);
     if (number) {
       return new NumberNode(number);
+    }
+
+    return null;
+  }
+
+  parseKeywordNode(): KeywordNode | null {
+    const keyword = this.match(...tokenTypesKeywords);
+    if (keyword) {
+      return new KeywordNode(keyword);
     }
 
     return null;
@@ -221,17 +233,8 @@ export default class Parser {
     if (node instanceof LiteralNode) {
       return node.literal.text;
     }
-    if (node instanceof ParenthesizedNode) {
-      return `(${this.toSql(node.expression)})`;
-    }
-
-    if (node instanceof UnarOperationNode) {
-      // maybe need space
-      return `${node.operator.text}${this.toSql(node.operand)}`;
-    }
-
-    if (node instanceof BinOperationNode) {
-      return `${this.toSql(node.left)} ${binOperatorToSqlMap[node.operator.token.name] || node.operator.text} ${this.toSql(node.right)}`;
+    if (node instanceof KeywordNode) {
+      return node.keyword.text;
     }
     if (node instanceof VariableNode) {
       if (this.globalVars[node.variable.text]) {
@@ -241,10 +244,19 @@ export default class Parser {
         `Недопустимая переменная ${node.variable.text} на позиции ${node.start}`,
       );
     }
+    if (node instanceof ParenthesizedNode) {
+      return `(${this.toSql(node.expression)})`;
+    }
+    if (node instanceof UnarOperationNode) {
+      // maybe need space
+      return `${node.operator.text}${this.toSql(node.operand)}`;
+    }
+    if (node instanceof BinOperationNode) {
+      return `${this.toSql(node.left)} ${binOperatorToSqlMap[node.operator.token.name] || node.operator.text} ${this.toSql(node.right)}`;
+    }
     if (node instanceof StatementsNode) {
       return node.codeStrings.map((i) => this.toSql(i));
     }
-
     if (node instanceof FunctionNode) {
       const currentFunction = validFunctions[node.name];
       if (currentFunction) {
