@@ -3,6 +3,7 @@ export default class TokenType {
   name: string;
   value?: string;
 
+  // TODO: move value to AST nodes, because token type for lexic analyze not semantic
   constructor(name: string, regex: string, value?: string) {
     this.regex = regex;
     this.name = name;

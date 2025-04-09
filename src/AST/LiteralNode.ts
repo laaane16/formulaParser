@@ -6,7 +6,7 @@ export default class LiteralNode extends ExpressionNode {
   literal: Token;
 
   constructor(literal: Token) {
-    super(LITERAL_NODE_TYPE);
+    super(LITERAL_NODE_TYPE, literal.pos, literal.pos + literal.text.length);
     this.literal = literal;
   }
 }

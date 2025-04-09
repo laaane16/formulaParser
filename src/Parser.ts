@@ -108,11 +108,11 @@ export default class Parser {
       if (leftPar) {
         const isBracketsEmpty = !!this.match(tokenTypesList.RPAR);
         if (isBracketsEmpty) {
-          return new FunctionNode(func.text, []);
+          return new FunctionNode(func, func.text, []);
         }
         const args = this.parseFunctionArgs();
         this.require(tokenTypesList.RPAR);
-        return new FunctionNode(func.text, args);
+        return new FunctionNode(func, func.text, args);
       }
       throw new Error(
         `Ожидалось перечисление аргументов на позиции ${this.pos}`,
@@ -183,7 +183,9 @@ export default class Parser {
       if (this.globalVars[node.variable.text]) {
         return `$${this.globalVars[node.variable.text].value}`;
       }
-      throw new Error(`Недопустимая переменная на позиции ${this.pos}`);
+      throw new Error(
+        `Недопустимая переменная ${node.variable.text} на позиции ${node.start}`,
+      );
     }
     if (node instanceof StatementsNode) {
       return node.codeStrings.map((i) => this.toSql(i));
@@ -201,14 +203,14 @@ export default class Parser {
               currentFunctionVariation.args.length !== 0
             ) {
               throw new Error(
-                `Функция ${node.name} не принимает никаких параметров на позиции ${this.pos}`,
+                `Функция ${node.name} на позиции ${node.start} не принимает никаких параметров`,
               );
             }
 
             const res = `${sqlFunctionAnalog}(${node.args.map((arg, index) => {
               if (currentFunctionVariation.args.length === 0) {
                 throw new Error(
-                  `Функция ${node.name} не принимает никаких параметров на позиции ${this.pos}`,
+                  `Функция ${node.name} не принимает никаких параметров на позиции ${arg.start}`,
                 );
               }
               const neededArgType = currentFunctionVariation.args[index]?.type;
@@ -244,7 +246,9 @@ export default class Parser {
                 }
               }
 
-              throw new Error(`Неожиданный тип данных на позиции ${this.pos}`);
+              throw new Error(
+                `Неожиданный тип данных ${arg.type} в функции ${node.name} на позиции ${arg.start + 1}`,
+              );
 
               // if (arg instanceof FunctionNode) {
               //   const functionInArg = validFunctions[arg.name];
@@ -268,13 +272,11 @@ export default class Parser {
           }
         }
       }
-      throw new Error(`Недопустимое имя функции на позиции ${this.pos}`);
+      throw new Error(
+        `Недопустимое имя функции ${node.name} на позиции ${node.func.pos}`,
+      );
     }
 
-    throw new Error(`Недопустимый синтаксис на позиции ${this.pos}`);
+    throw new Error(`Недопустимый синтаксис на позиции ${node.start}`);
   }
-
-  // toSql() {
-
-  // }
 }

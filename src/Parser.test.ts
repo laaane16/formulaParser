@@ -40,6 +40,26 @@ describe('bin operator node', () => {
 });
 
 describe('function node', () => {
+  test('function TESTFUNC don`t support', () => {
+    const code = `TESTFUNC()`;
+
+    const lexer = new Lexer(code);
+    lexer.lexAnalysis();
+    const parser = new Parser(lexer.tokens);
+    parser.initVars(prepareFields);
+    const node = parser.parseCode();
+    try {
+      const result = parser.toSql(node)[0];
+      throw new Error('Должна быть ошибка');
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      expect((e as Error).message).toBe(
+        'Недопустимое имя функции TESTFUNC на позиции 0',
+      );
+    }
+  });
+
   test('function CONCAT can`t be without params', () => {
     const code = `CONCAT()`;
 
@@ -56,9 +76,8 @@ describe('function node', () => {
     } catch (e: unknown) {
       expect(e).toBeInstanceOf(Error);
 
-      // TODO: Fix the position, the error position is relative to '('
       expect((e as Error).message).toBe(
-        'Функция CONCAT не принимает никаких параметров на позиции 3',
+        'Функция CONCAT на позиции 0 не принимает никаких параметров',
       );
     }
   });
@@ -109,8 +128,9 @@ describe('function node', () => {
     } catch (e: unknown) {
       expect(e).toBeInstanceOf(Error);
 
-      // TODO: Fix the position, the error position is relative to '('
-      expect((e as Error).message).toBe('Неожиданный тип данных на позиции 8');
+      expect((e as Error).message).toBe(
+        'Неожиданный тип данных number в функции CONCAT на позиции 25',
+      );
     }
   });
 
@@ -131,8 +151,9 @@ describe('function node', () => {
     } catch (e: unknown) {
       expect(e).toBeInstanceOf(Error);
 
-      // TODO: Fix the position, the error position is relative to '('
-      expect((e as Error).message).toBe('Неожиданный тип данных на позиции 4');
+      expect((e as Error).message).toBe(
+        'Неожиданный тип данных number в функции CONCAT на позиции 8',
+      );
     }
   });
 

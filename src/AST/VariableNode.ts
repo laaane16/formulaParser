@@ -6,7 +6,11 @@ export default class VariableNode extends ExpressionNode {
   variable: Token;
 
   constructor(variable: Token) {
-    super(VARIABLE_NODE_TYPE);
+    super(
+      VARIABLE_NODE_TYPE,
+      variable.pos,
+      variable.pos + variable.text.length,
+    );
     this.variable = variable;
   }
 }

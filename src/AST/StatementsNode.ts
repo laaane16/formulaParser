@@ -5,7 +5,8 @@ export default class StatementsNode extends ExpressionNode {
   codeStrings: ExpressionNode[] = [];
 
   constructor() {
-    super(STATEMENTS_NODE_TYPE);
+    // TODO: throw the correct position
+    super(STATEMENTS_NODE_TYPE, 0, 0);
   }
 
   addNode(node: ExpressionNode): void {

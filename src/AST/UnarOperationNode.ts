@@ -7,7 +7,7 @@ export default class UnarOperationNode extends ExpressionNode {
   operand: ExpressionNode;
 
   constructor(operator: Token, operand: ExpressionNode) {
-    super(UNAR_OPERATION_NODE_TYPE);
+    super(UNAR_OPERATION_NODE_TYPE, operator.pos, operator.pos + operand.end);
     this.operator = operator;
     this.operand = operand;
   }
