@@ -1,4 +1,3 @@
-// TODO: In some cases, the error returns an incorrect position, see Parser.test.ts
 // TODO: Refactor errors to use the error class from the lib/exceptions
 
 import BinOperationNode from './AST/BinOperationNode';
@@ -177,7 +176,7 @@ export default class Parser {
       return `(${this.toSql(node.expression)})`;
     }
     if (node instanceof BinOperationNode) {
-      return `${this.toSql(node.left)} ${node.operator.token.value} ${this.toSql(node.right)}`;
+      return `${this.toSql(node.left)}${node.operator.token.value}${this.toSql(node.right)}`;
     }
     if (node instanceof VariableNode) {
       if (this.globalVars[node.variable.text]) {

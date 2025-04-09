@@ -35,7 +35,7 @@ describe('bin operator node', () => {
 
     const result = parser.toSql(node)[0];
 
-    expect(result).toBe('1 + 1');
+    expect(result).toBe('1+1');
   });
 });
 
