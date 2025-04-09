@@ -276,7 +276,7 @@ export default class Parser {
             const res = `${sqlFunctionAnalog}(${node.args.map((arg, index) => {
               if (currentFunctionVariation.args.length === 0) {
                 throw new Error(
-                  `Функция ${node.name} не принимает никаких  на позиции ${arg.start}`,
+                  `Функция ${node.name} не принимает никаких аргументов на позиции ${arg.start}`,
                 );
               }
               const neededArgType = currentFunctionVariation.args[index]?.type;
@@ -321,14 +321,26 @@ export default class Parser {
                 }
                 for (let i = 0; i < functionInArg.length; i++) {
                   const currentFunctionInArgVariation = functionInArg[i];
-                  if (
-                    currentFunctionInArgVariation.returnType ===
-                      neededArgType ||
-                    (currentFunctionInArgVariation.returnType === lastArgType &&
-                      canArgBeLast &&
-                      isMany)
-                  ) {
-                    return this.toSql(arg);
+
+                  try {
+                    if (
+                      currentFunctionInArgVariation.returnType ===
+                        neededArgType ||
+                      (currentFunctionInArgVariation.returnType ===
+                        lastArgType &&
+                        canArgBeLast &&
+                        isMany)
+                    ) {
+                      return this.toSql(arg);
+                    }
+                    throw new Error(
+                      `Функция ${arg.name} не может использоваться, как аргумент функции ${node.name}, так как возвращает ${currentFunctionInArgVariation.returnType} на позиции ${arg.start + 1}`,
+                    );
+                  } catch (e) {
+                    if (e instanceof Error && i === functionInArg.length - 1) {
+                      throw new Error(e.message);
+                    }
+                    throw new Error(`Непредвиденная ошибка ${e}`);
                   }
                 }
               }
