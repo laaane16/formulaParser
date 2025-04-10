@@ -1,7 +1,7 @@
-import ExpressionNode from '../../AST/ExpressionNode';
+import ExpressionNode from '../../../AST/ExpressionNode';
 import { ValidNumberFunctionsNames } from './types';
 
-export const numberFunctionsToJsMap: Record<
+export const numberFunctionsToSqlMap: Record<
   ValidNumberFunctionsNames,
   (args: ExpressionNode[]) => string
 > = {
@@ -13,5 +13,5 @@ export const numberFunctionsToJsMap: Record<
   // POWER: (args) => '',
   // ROUND: (args) => '',
   // SQRT: (args) => '',
-  RANDOM: (args) => '',
+  RANDOM: (args) => `RANDOM()`,
 };

@@ -1,13 +1,11 @@
-import ExpressionNode from '../../AST/ExpressionNode';
+import ExpressionNode from '../../../AST/ExpressionNode';
 import { ValidTextFunctionsNames } from './types';
 
-export const textFunctionsToSqlMap: Record<
+export const textFunctionsToJsMap: Record<
   ValidTextFunctionsNames,
   (args: ExpressionNode[]) => string
 > = {
-  CONCAT: (args) => {
-    return `CONCAT(${args.map((i) => i)})`;
-  },
+  CONCAT: (args) => '',
   TRIM: (args) => '',
   SEARCH: (args) => '',
   REPLACE: (args) => '',

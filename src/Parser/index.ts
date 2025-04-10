@@ -17,10 +17,10 @@ import StatementsNode from '../AST/StatementsNode';
 import VariableNode from '../AST/VariableNode';
 import UnarOperationNode from '../AST/UnarOperationNode';
 
-import { allFunctions } from '../functions';
-import { binOperatorToSqlMap } from '../operators/binOperatorToSqlMap';
+import { allFunctions } from './functions';
+import { binOperatorToSqlMap } from './operators/binOperatorToSqlMap';
 import KeywordNode from '../AST/KeywordNode';
-import { ValidFunctionsNames } from '../functions/types';
+import { ValidFunctionsNames } from './functions/types';
 
 interface IVar {
   title: string;
