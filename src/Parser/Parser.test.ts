@@ -1,5 +1,5 @@
-import Lexer from './Lexer';
-import Parser from './Parser';
+import Lexer from '../Lexer';
+import Parser from '../Parser';
 
 const PREFIX = '{{';
 const POSTFIX = '}}';

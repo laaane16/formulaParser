@@ -1,25 +1,26 @@
 // TODO: Refactor errors to use the error class from the lib/exceptions
-import Token from './Token';
+import Token from '../Lexer/Token';
 import TokenType, {
   tokenTypesBinOperations,
   tokenTypesKeywords,
   tokenTypesList,
   tokenTypesUnarOperations,
-} from './TokenType';
+} from '../Lexer/TokenType';
 
-import BinOperationNode from './AST/BinOperationNode';
-import ExpressionNode from './AST/ExpressionNode';
-import FunctionNode from './AST/FunctionNode';
-import LiteralNode from './AST/LiteralNode';
-import NumberNode from './AST/NumberNode';
-import ParenthesizedNode from './AST/ParenthesizedNode';
-import StatementsNode from './AST/StatementsNode';
-import VariableNode from './AST/VariableNode';
-import UnarOperationNode from './AST/UnarOperationNode';
+import BinOperationNode from '../AST/BinOperationNode';
+import ExpressionNode from '../AST/ExpressionNode';
+import FunctionNode from '../AST/FunctionNode';
+import LiteralNode from '../AST/LiteralNode';
+import NumberNode from '../AST/NumberNode';
+import ParenthesizedNode from '../AST/ParenthesizedNode';
+import StatementsNode from '../AST/StatementsNode';
+import VariableNode from '../AST/VariableNode';
+import UnarOperationNode from '../AST/UnarOperationNode';
 
-import { sqlFunctionsMap, validFunctions } from './validFunctions';
-import { binOperatorToSqlMap } from './constants/binOperatorToSqlMap';
-import KeywordNode from './AST/KeywordNode';
+import { allFunctions } from '../functions';
+import { binOperatorToSqlMap } from '../operators/binOperatorToSqlMap';
+import KeywordNode from '../AST/KeywordNode';
+import { ValidFunctionsNames } from '../functions/types';
 
 interface IVar {
   title: string;
@@ -258,11 +259,12 @@ export default class Parser {
       return node.codeStrings.map((i) => this.toSql(i));
     }
     if (node instanceof FunctionNode) {
-      const currentFunction = validFunctions[node.name];
+      // may use as, because next stroke check valid func
+      const currentFunction = allFunctions[node.name as ValidFunctionsNames];
       if (currentFunction) {
         for (let i = 0; i < currentFunction.length; i++) {
           const currentFunctionVariation = currentFunction[i];
-          const sqlFunctionAnalog = sqlFunctionsMap[node.name];
+          // const sqlFunctionAnalog = sqlFunctionsMap[node.name];
           try {
             if (
               node.args.length === 0 &&
@@ -272,8 +274,7 @@ export default class Parser {
                 `В функцию ${node.name} на позиции ${node.start} нужно добавить аргумент типа ${currentFunctionVariation.args[0].type}`,
               );
             }
-
-            const res = `${sqlFunctionAnalog}(${node.args.map((arg, index) => {
+            const functionArgs = node.args.map((arg, index) => {
               if (currentFunctionVariation.args.length === 0) {
                 throw new Error(
                   `Функция ${node.name} не принимает никаких аргументов на позиции ${arg.start}`,
@@ -313,7 +314,9 @@ export default class Parser {
               }
 
               if (arg instanceof FunctionNode) {
-                const functionInArg = validFunctions[arg.name];
+                // may use as, because next stroke check valid func
+                const functionInArg =
+                  allFunctions[arg.name as ValidFunctionsNames];
                 if (!functionInArg) {
                   throw new Error(
                     `Недопустимое имя функции ${arg.name} на позиции ${arg.func.pos}`,
@@ -348,7 +351,10 @@ export default class Parser {
               throw new Error(
                 `Неожиданный тип данных ${arg.type} в функции ${node.name} на позиции ${arg.start + 1}`,
               );
-            })})`;
+            });
+            const res = currentFunctionVariation.sqlFn(functionArgs);
+
+            // const res = `${sqlFunctionAnalog}()`;
 
             return res;
           } catch (e) {

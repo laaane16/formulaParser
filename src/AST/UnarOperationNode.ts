@@ -1,5 +1,5 @@
 import { UNAR_OPERATION_NODE_TYPE } from '../constants/nodeTypes';
-import Token from '../Token';
+import Token from '../Lexer/Token';
 import ExpressionNode from './ExpressionNode';
 
 export default class UnarOperationNode extends ExpressionNode {

@@ -68,7 +68,7 @@ const fields = [
   { id: '3', title: 'Поле 3', type: 'text' },
 ];
 
-const expression = 'CONCAT("a") + 1';
+const expression = '{{Поле 3}} + 1';
 
 const parser = new Parser(expression, fields);
 const sqlQuery = parser.toSql();

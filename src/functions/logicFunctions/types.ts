@@ -1,0 +1,1 @@
+export type ValidLogicFunctionsNames = 'IF';
