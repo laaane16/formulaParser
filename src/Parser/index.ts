@@ -22,6 +22,15 @@ import { binOperatorToSqlMap } from './operators/binOperatorToSqlMap';
 import KeywordNode from '../AST/KeywordNode';
 import { ValidFunctionsNames } from './functions/types';
 import { FORMATS } from '../constants/formats';
+import {
+  KEYWORD_NODE_TYPE,
+  LITERAL_NODE_TYPE,
+  NODE_TYPES,
+  NodeTypesValues,
+  NUMBER_NODE_TYPE,
+  UNKNOWN_NODE_TYPE,
+  VARIABLE_NODE_TYPE,
+} from '../constants/nodeTypes';
 
 interface IVar {
   title: string;
@@ -227,15 +236,97 @@ export default class Parser {
     return token;
   }
 
+  getNodeType(
+    node: ExpressionNode,
+  ): Set<string> | NodeTypesValues | typeof UNKNOWN_NODE_TYPE {
+    if (node instanceof NumberNode) {
+      return NUMBER_NODE_TYPE;
+    }
+    if (node instanceof LiteralNode) {
+      return LITERAL_NODE_TYPE;
+    }
+    if (node instanceof KeywordNode) {
+      return KEYWORD_NODE_TYPE;
+    }
+    if (node instanceof VariableNode) {
+      return VARIABLE_NODE_TYPE;
+    }
+    if (node instanceof ParenthesizedNode) {
+      return this.getNodeType(node.expression);
+    }
+    if (node instanceof UnarOperationNode) {
+      return this.getNodeType(node.operand);
+    }
+    if (node instanceof BinOperationNode) {
+      const leftNodeType = this.getNodeType(node.left);
+      const rightNodeType = this.getNodeType(node.right);
+
+      // right now we do operations with funcs that may returns different types impossible
+      if (typeof leftNodeType === 'string') {
+        if (
+          typeof rightNodeType === 'string' &&
+          leftNodeType === rightNodeType &&
+          leftNodeType !== UNKNOWN_NODE_TYPE
+        ) {
+          return leftNodeType;
+        } else if (rightNodeType instanceof Set) {
+          if (rightNodeType.has(leftNodeType) && rightNodeType.size === 1) {
+            return leftNodeType;
+          }
+        }
+      } else {
+        if (typeof rightNodeType === 'string') {
+          if (leftNodeType.has(rightNodeType) && leftNodeType.size === 1) {
+            return leftNodeType;
+          }
+        } else {
+          // const leftNodeTypeValues = leftNodeType.values();
+          // const rightNodeTypeValues = rightNodeType.values();
+          const possibleResults = [];
+          leftNodeType.forEach((i) => {
+            rightNodeType.forEach((j) => {
+              if (i === j) {
+                possibleResults.push(i);
+              }
+            });
+          });
+
+          if (
+            possibleResults.length === 1 &&
+            rightNodeType.size === 1 &&
+            leftNodeType.size === 1
+          ) {
+            return leftNodeType;
+          }
+        }
+      }
+
+      return UNKNOWN_NODE_TYPE;
+    }
+    if (node instanceof FunctionNode) {
+      const currentFunction = allFunctions[node.name as ValidFunctionsNames];
+      if (!currentFunction) {
+        return new Set(UNKNOWN_NODE_TYPE);
+      }
+      const possibleReturnTypes = currentFunction.map((i) => i.returnType);
+
+      return new Set(possibleReturnTypes);
+    }
+
+    return new Set(UNKNOWN_NODE_TYPE);
+  }
+
   stringifyAst(
     node: ExpressionNode,
     format: (typeof FORMATS)[keyof typeof FORMATS],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
+    if (node instanceof StatementsNode) {
+      return node.codeStrings.map((i) => this.stringifyAst(i, format));
+    }
     if (node instanceof NumberNode) {
       return node.number.text;
     }
-
     if (node instanceof LiteralNode) {
       if (format === FORMATS.SQL) {
         return `'${node.literal.text.slice(1, -1)}'`;
@@ -261,14 +352,23 @@ export default class Parser {
       return `(${this.stringifyAst(node.expression, format)})`;
     }
     if (node instanceof UnarOperationNode) {
-      // maybe need space
+      // maybe need space and type check!!!
       return `${node.operator.text}${this.stringifyAst(node.operand, format)}`;
     }
     if (node instanceof BinOperationNode) {
-      return `${this.stringifyAst(node.left, format)} ${binOperatorToSqlMap[node.operator.token.name] || node.operator.text} ${this.stringifyAst(node.right, format)}`;
-    }
-    if (node instanceof StatementsNode) {
-      return node.codeStrings.map((i) => this.stringifyAst(i, format));
+      const nodeType = this.getNodeType(node);
+
+      if (nodeType === UNKNOWN_NODE_TYPE) {
+        throw new Error(
+          `Неожиданный тип данных в ${node.operator.text} на позиции ${node.operator.pos}`,
+        );
+      }
+
+      const operator =
+        binOperatorToSqlMap[node.operator.token.name] || node.operator.text;
+      const leftNode = this.stringifyAst(node.left, format);
+      const rightNode = this.stringifyAst(node.right, format);
+      return `${leftNode} ${operator} ${rightNode}`;
     }
     if (node instanceof FunctionNode) {
       // may use as, because next stroke check valid func

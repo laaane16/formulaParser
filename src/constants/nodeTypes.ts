@@ -11,8 +11,9 @@ export const UNAR_OPERATION_NODE_TYPE = 'UnarOperationNode';
 export const VARIABLE_NODE_TYPE = 'VariableNode';
 export const KEYWORD_NODE_TYPE = 'KeywordNode';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const NODE_TYPES = {
+export const UNKNOWN_NODE_TYPE = 'unknown';
+
+export const NODE_TYPES = {
   BIN_OPERATION: BIN_OPERATION_NODE_TYPE,
   KEYWORD: KEYWORD_NODE_TYPE,
   FUNCTION: FUNCTION_NODE_TYPE,
