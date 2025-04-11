@@ -18,7 +18,7 @@ import VariableNode from '../AST/VariableNode';
 import UnarOperationNode from '../AST/UnarOperationNode';
 
 import { allFunctions } from './functions';
-import { binOperatorToSqlMap } from './operators/binOperatorToSqlMap';
+import { binOperatorToSqlMap } from './binOperators/toSql';
 import KeywordNode from '../AST/KeywordNode';
 import { ValidFunctionsNames } from './functions/types';
 import { FORMATS } from '../constants/formats';
@@ -31,6 +31,7 @@ import {
   UNKNOWN_NODE_TYPE,
   VARIABLE_NODE_TYPE,
 } from '../constants/nodeTypes';
+import { unarOperatorToSqlMap } from './unarOperators/toSql';
 
 interface IVar {
   title: string;
@@ -316,7 +317,7 @@ export default class Parser {
       return new Set(possibleReturnTypes);
     }
 
-    return new Set(UNKNOWN_NODE_TYPE);
+    return UNKNOWN_NODE_TYPE;
   }
 
   stringifyAst(
@@ -355,15 +356,19 @@ export default class Parser {
       return `(${this.stringifyAst(node.expression, format)})`;
     }
     if (node instanceof UnarOperationNode) {
-      // maybe need space and type check!!!
-      return `${node.operator.text}${this.stringifyAst(node.operand, format)}`;
+      // maybe need type check!!!
+      if (format === FORMATS.SQL) {
+        return `${unarOperatorToSqlMap[node.operator.token.name] || node.operator.text} ${this.stringifyAst(node.operand, format)}`;
+      } else {
+        return `${node.operator.text} ${this.stringifyAst(node.operand, format)}`;
+      }
     }
     if (node instanceof BinOperationNode) {
       const nodeType = this.getNodeType(node);
 
       if (nodeType === UNKNOWN_NODE_TYPE) {
         throw new Error(
-          `Неожиданный тип данных в ${node.operator.text} на позиции ${node.operator.pos}`,
+          `Неожиданный тип данных при ${node.operator.text} на позиции ${node.right.start}`,
         );
       }
 

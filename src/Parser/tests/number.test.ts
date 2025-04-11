@@ -1,4 +1,4 @@
-import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
+import { stringifyAstToSql } from './helpers/stringifyAstToSql';
 
 describe('number node to sql', () => {
   test('natural number', () => {

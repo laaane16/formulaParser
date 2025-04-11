@@ -8,7 +8,7 @@ import { isNil } from './lib/isNil';
 const PREFIX = '{{';
 const POSTFIX = '}}';
 
-interface IField {
+export interface IField {
   id: string;
   title: string;
   type: string;
@@ -31,7 +31,7 @@ export default class Parser {
     if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
-    if (fields.length === 0) FormulaError.requiredParamsError(['fields']);
+    // if (fields.length === 0) FormulaError.requiredParamsError(['fields']);
     this.fields = fields;
   }
 
@@ -107,5 +107,5 @@ const parser = new Parser(expression, fields);
 // const sqlQuery = parser.toSql();
 // console.log(sqlQuery); // Outputs the generated SQL query
 
-const jsFormula = parser.toJs();
-console.log(parser.runJs(jsFormula, values));
+// const jsFormula = parser.toJs();
+// console.log(parser.runJs(jsFormula, values));

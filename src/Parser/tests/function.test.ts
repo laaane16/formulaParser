@@ -1,6 +1,87 @@
-import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
+import { stringifyAstToSql } from './helpers/stringifyAstToSql';
+import { stringifyAstToJs } from './helpers/stringifyAstToJs';
 
-describe('function node', () => {
+describe('function node to sql', () => {
+  test('function CONCAT can work with string', () => {
+    const code = 'CONCAT("test")';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe("CONCAT('test')");
+  });
+
+  test('function CONCAT can work with many args which has type string', () => {
+    const code = 'CONCAT("test", "test2", "test3")';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe("CONCAT('test','test2','test3')");
+  });
+
+  test(`function CONCAT can work with string`, () => {
+    //  case: CONCAT(CONCAT("1"), CONCAT("2")), funcs in args returns strings
+
+    const code = `CONCAT(CONCAT("1"), CONCAT("2"))`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe("CONCAT(CONCAT('1'),CONCAT('2'))");
+  });
+
+  test(`function CONCAT can work with string`, () => {
+    // case: CONCAT(CONCAT(CONCAT(CONCAT(CONCAT("2"))))), func should can work with high nesting funcs in args
+    const code = `CONCAT(CONCAT(CONCAT(CONCAT(CONCAT("2")))))`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe("CONCAT(CONCAT(CONCAT(CONCAT(CONCAT('2')))))");
+  });
+
+  test('function RANDOM can be without params', () => {
+    const code = 'RANDOM()';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe('RANDOM()');
+  });
+});
+
+describe('function node to js', () => {
+  test('function CONCAT can work with string', () => {
+    const code = 'CONCAT("test")';
+    const result = stringifyAstToJs(code);
+
+    expect(result).toBe('"test"');
+  });
+
+  test('function CONCAT can work with many args which has type string', () => {
+    const code = 'CONCAT("test", "test2", "test3")';
+    const result = stringifyAstToJs(code);
+
+    expect(result).toBe('"test" + "test2" + "test3"');
+  });
+
+  test(`function CONCAT can work with string`, () => {
+    //  case: CONCAT(CONCAT("1"), CONCAT("2")), funcs in args returns strings
+
+    const code = `CONCAT(CONCAT("1"), CONCAT("2"))`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe('"1" + "2"');
+  });
+
+  test(`function CONCAT can work with string`, () => {
+    // case: CONCAT(CONCAT(CONCAT(CONCAT(CONCAT("2"))))), func should can work with high nesting funcs in args
+    const code = `CONCAT(CONCAT(CONCAT(CONCAT(CONCAT("2")))))`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe('"2"');
+  });
+
+  // test('function RANDOM can be without params', () => {
+  //   const code = 'RANDOM()';
+  //   const result = stringifyAstToSql(code);
+
+  //   expect(result).toBe('RANDOM()');
+  // });
+});
+
+describe('function node errors', () => {
   test('function TESTFUNC don`t support', () => {
     const code = `TESTFUNC()`;
 
@@ -29,20 +110,6 @@ describe('function node', () => {
         'В функцию CONCAT на позиции 0 нужно добавить аргумент типа text',
       );
     }
-  });
-
-  test('function CONCAT can work with string', () => {
-    const code = 'CONCAT("test")';
-    const result = stringifyAstToSql(code);
-
-    expect(result).toBe("CONCAT('test')");
-  });
-
-  test('function CONCAT can work with many args which has type string', () => {
-    const code = 'CONCAT("test", "test2", "test3")';
-    const result = stringifyAstToSql(code);
-
-    expect(result).toBe("CONCAT('test','test2','test3')");
   });
 
   test('function CONCAT can`t work with many args which not all has type string', () => {
@@ -92,23 +159,6 @@ describe('function node', () => {
     }
   });
 
-  test(`function CONCAT can work with string`, () => {
-    //  case: CONCAT(CONCAT("1"), CONCAT("2")), funcs in args returns strings
-
-    const code = `CONCAT(CONCAT("1"), CONCAT("2"))`;
-
-    const result = stringifyAstToSql(code);
-    expect(result).toBe("CONCAT(CONCAT('1'),CONCAT('2'))");
-  });
-
-  test(`function CONCAT can work with string`, () => {
-    // case: CONCAT(CONCAT(CONCAT(CONCAT(CONCAT("2"))))), func should can work with high nesting funcs in args
-    const code = `CONCAT(CONCAT(CONCAT(CONCAT(CONCAT("2")))))`;
-
-    const result = stringifyAstToSql(code);
-    expect(result).toBe("CONCAT(CONCAT(CONCAT(CONCAT(CONCAT('2')))))");
-  });
-
   test(`func should can work with high nesting funcs in args, but if the chain somewhere returns the wrong type we interrupt it`, () => {
     const code = `CONCAT(CONCAT(CONCAT(RANDOM(CONCAT("2")))))`;
 
@@ -122,13 +172,6 @@ describe('function node', () => {
         'Функция RANDOM не принимает никаких аргументов на позиции 28',
       );
     }
-  });
-
-  test('function RANDOM can be without params', () => {
-    const code = 'RANDOM()';
-    const result = stringifyAstToSql(code);
-
-    expect(result).toBe('RANDOM()');
   });
 
   test('function RANDOM can`t be with params', () => {
