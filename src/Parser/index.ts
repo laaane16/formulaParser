@@ -237,7 +237,7 @@ export default class Parser {
     }
 
     if (node instanceof LiteralNode) {
-      if (format === 'sql') {
+      if (format === FORMATS.SQL) {
         return `'${node.literal.text.slice(1, -1)}'`;
       }
       return `${node.literal.text}`;
@@ -247,7 +247,11 @@ export default class Parser {
     }
     if (node instanceof VariableNode) {
       if (this.globalVars[node.variable.text]) {
-        return `$${this.globalVars[node.variable.text].value}`;
+        if (format === FORMATS.JS) {
+          return `VARIABLES.$${this.globalVars[node.variable.text].value}`;
+        } else {
+          return `$${this.globalVars[node.variable.text].value}`;
+        }
       }
       throw new Error(
         `Недопустимая переменная ${node.variable.text} на позиции ${node.start}`,
@@ -360,7 +364,6 @@ export default class Parser {
                 `Неожиданный тип данных ${arg.type} в функции ${node.name} на позиции ${arg.start + 1}`,
               );
             });
-            console.log(functionArgs);
             const res = currentFunctionVariation[`${format}Fn`](functionArgs);
             return res;
           } catch (e) {

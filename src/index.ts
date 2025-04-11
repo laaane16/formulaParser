@@ -77,6 +77,12 @@ export default class Parser {
     const [parser, node] = this.prepareParser();
     return parser.stringifyAst(node, FORMATS.JS)[0]; // Currently, returns only the first JS line
   }
+
+  // fields in stringify to ast converts in VARIABLES.$[VARIABLE_ID]
+  runJs(jsFormula: string, values: Record<string, unknown>): unknown {
+    const runFormula = new Function('VARIABLES', `return ${jsFormula}`)(values);
+    return runFormula;
+  }
 }
 
 // Example usage:
@@ -87,11 +93,17 @@ const fields = [
   { id: '3', title: 'Поле 3', type: 'text' },
 ];
 
-const expression = 'REPEAT("x", 3)';
+const values = {
+  $1: 1000,
+  $2: 5000,
+  $3: 'testtext',
+};
+
+const expression = 'REPEAT(REPEAT({{Поле 3}},2),2)';
 
 const parser = new Parser(expression, fields);
-const sqlQuery = parser.toJs();
-console.log(sqlQuery); // Outputs the generated SQL query
+// const sqlQuery = parser.toSql();
+// console.log(sqlQuery); // Outputs the generated SQL query
 
-// const runFormula = new Function(`return ${sqlQuery}`);
-// console.log(runFormula());
+const jsFormula = parser.toJs();
+console.log(parser.runJs(jsFormula, values));
