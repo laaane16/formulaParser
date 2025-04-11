@@ -38,7 +38,7 @@
     "build:release": "npm run clean && tsc -p tsconfig.release.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "jest",
+    "test": "jest --coverage",
     "test:coverage": "vitest run unit --config config/vitest.config.ts --coverage.enabled --coverage.all",
     "format": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
     "format:fix": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --write",

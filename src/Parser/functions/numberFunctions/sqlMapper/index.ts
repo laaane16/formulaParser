@@ -1,9 +1,8 @@
-import ExpressionNode from '../../../AST/ExpressionNode';
-import { ValidNumberFunctionsNames } from './types';
+import { ValidNumberFunctionsNames } from '../types';
 
 export const numberFunctionsToSqlMap: Record<
   ValidNumberFunctionsNames,
-  (args: ExpressionNode[]) => string
+  (args: string[]) => string
 > = {
   // ABS: (args) => '',
   // CEIL: (args) => '',

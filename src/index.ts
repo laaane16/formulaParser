@@ -1,5 +1,7 @@
+import StatementsNode from './AST/StatementsNode';
 import Lexer from './Lexer';
 import ParserCore from './Parser';
+import { FORMATS } from './constants/formats';
 import { FormulaError } from './lib/exceptions';
 import { isNil } from './lib/isNil';
 
@@ -37,7 +39,7 @@ export default class Parser {
    * Prepares the field mappings for use in the parsing process.
    * @returns {Array<{ title: string, value: string, type: string }>} The mapped field objects.
    */
-  private prepareFields() {
+  private prepareFields(): { title: string; value: string; type: string }[] {
     return this.fields.map((field) => ({
       title: `${PREFIX}${field.title}${POSTFIX}`,
       value: field.id,
@@ -46,17 +48,34 @@ export default class Parser {
   }
 
   /**
-   * Converts the input expression into an SQL query.
-   * @returns {string} The generated SQL query.
+   * lexic analyze code and parse to ast
    */
-  toSql(): string {
+  prepareParser(): [ParserCore, StatementsNode] {
     this.lexer.lexAnalysis();
     const parser = new ParserCore(this.lexer.tokens);
 
     parser.initVars(this.prepareFields());
     const node = parser.parseCode();
 
-    return parser.toSql(node)[0]; // Currently, returns only the first SQL line
+    return [parser, node];
+  }
+
+  /**
+   * Converts the input expression into an SQL query.
+   * @returns {string} The generated SQL query.
+   */
+  toSql(): string {
+    const [parser, node] = this.prepareParser();
+    return parser.stringifyAst(node, FORMATS.SQL)[0]; // Currently, returns only the first SQL line
+  }
+
+  /**
+   * Converts the input expression into an Js format.
+   * @returns {string} The generated Js string, which can evaluate.
+   */
+  toJs(): string {
+    const [parser, node] = this.prepareParser();
+    return parser.stringifyAst(node, FORMATS.JS)[0]; // Currently, returns only the first JS line
   }
 }
 
@@ -68,9 +87,11 @@ const fields = [
   { id: '3', title: 'Поле 3', type: 'text' },
 ];
 
-const expression = '{{Поле 3}} + 1';
+const expression = 'REPEAT("x", 3)';
 
 const parser = new Parser(expression, fields);
-const sqlQuery = parser.toSql();
-
+const sqlQuery = parser.toJs();
 console.log(sqlQuery); // Outputs the generated SQL query
+
+// const runFormula = new Function(`return ${sqlQuery}`);
+// console.log(runFormula());

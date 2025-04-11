@@ -21,6 +21,7 @@ import { allFunctions } from './functions';
 import { binOperatorToSqlMap } from './operators/binOperatorToSqlMap';
 import KeywordNode from '../AST/KeywordNode';
 import { ValidFunctionsNames } from './functions/types';
+import { FORMATS } from '../constants/formats';
 
 interface IVar {
   title: string;
@@ -226,13 +227,20 @@ export default class Parser {
     return token;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  toSql(node: ExpressionNode): any {
+  stringifyAst(
+    node: ExpressionNode,
+    format: (typeof FORMATS)[keyof typeof FORMATS],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): any {
     if (node instanceof NumberNode) {
       return node.number.text;
     }
+
     if (node instanceof LiteralNode) {
-      return node.literal.text;
+      if (format === 'sql') {
+        return `'${node.literal.text.slice(1, -1)}'`;
+      }
+      return `${node.literal.text}`;
     }
     if (node instanceof KeywordNode) {
       return node.keyword.text;
@@ -246,17 +254,17 @@ export default class Parser {
       );
     }
     if (node instanceof ParenthesizedNode) {
-      return `(${this.toSql(node.expression)})`;
+      return `(${this.stringifyAst(node.expression, format)})`;
     }
     if (node instanceof UnarOperationNode) {
       // maybe need space
-      return `${node.operator.text}${this.toSql(node.operand)}`;
+      return `${node.operator.text}${this.stringifyAst(node.operand, format)}`;
     }
     if (node instanceof BinOperationNode) {
-      return `${this.toSql(node.left)} ${binOperatorToSqlMap[node.operator.token.name] || node.operator.text} ${this.toSql(node.right)}`;
+      return `${this.stringifyAst(node.left, format)} ${binOperatorToSqlMap[node.operator.token.name] || node.operator.text} ${this.stringifyAst(node.right, format)}`;
     }
     if (node instanceof StatementsNode) {
-      return node.codeStrings.map((i) => this.toSql(i));
+      return node.codeStrings.map((i) => this.stringifyAst(i, format));
     }
     if (node instanceof FunctionNode) {
       // may use as, because next stroke check valid func
@@ -283,7 +291,7 @@ export default class Parser {
               const neededArgType = currentFunctionVariation.args[index]?.type;
 
               const argType = arg.type;
-              const argNode = this.toSql(arg);
+              const argNode = this.stringifyAst(arg, format);
 
               const lastArgType =
                 currentFunctionVariation.args[
@@ -334,7 +342,7 @@ export default class Parser {
                         canArgBeLast &&
                         isMany)
                     ) {
-                      return this.toSql(arg);
+                      return this.stringifyAst(arg, format);
                     }
                     throw new Error(
                       `Функция ${arg.name} не может использоваться, как аргумент функции ${node.name}, так как возвращает ${currentFunctionInArgVariation.returnType} на позиции ${arg.start + 1}`,
@@ -352,10 +360,8 @@ export default class Parser {
                 `Неожиданный тип данных ${arg.type} в функции ${node.name} на позиции ${arg.start + 1}`,
               );
             });
-            const res = currentFunctionVariation.sqlFn(functionArgs);
-
-            // const res = `${sqlFunctionAnalog}()`;
-
+            console.log(functionArgs);
+            const res = currentFunctionVariation[`${format}Fn`](functionArgs);
             return res;
           } catch (e) {
             if (e instanceof Error && i === currentFunction.length - 1) {

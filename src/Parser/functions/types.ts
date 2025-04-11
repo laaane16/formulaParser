@@ -18,8 +18,8 @@ export interface IArg {
 export interface IFunction {
   args: IArg[];
   returnType: NodeTypesValues; // ?maybe func
-  jsFn: (args: ExpressionNode[]) => string;
-  sqlFn: (args: ExpressionNode[]) => string;
+  jsFn: (args: string[]) => string;
+  sqlFn: (args: string[]) => string;
 }
 
 export type ValidFunctionsNames =
