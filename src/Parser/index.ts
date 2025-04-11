@@ -50,6 +50,9 @@ export default class Parser {
   }
 
   initVars(variables: IVar[]): void {
+    if (!variables) {
+      return;
+    }
     variables.forEach(
       (i) => (this.globalVars[i.title] = { value: i.value, type: i.type }),
     );
