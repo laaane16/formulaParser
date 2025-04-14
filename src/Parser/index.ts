@@ -32,7 +32,8 @@ import {
   VARIABLE_NODE_TYPE,
 } from '../constants/nodeTypes';
 import { unarOperatorToSqlMap } from './unarOperators/toSql';
-
+import IfStatementNode from '../AST/IfStatementNode';
+import { ifStatementMap } from './if';
 interface IVar {
   title: string;
   value: string;
@@ -96,6 +97,7 @@ export default class Parser {
       this.parseVariableNode,
       this.parseUnarOperatorNode,
       this.parseParenthesizedNode,
+      this.parseIfStatementNode,
       this.parseFunctionNode,
     ];
 
@@ -111,7 +113,7 @@ export default class Parser {
   }
 
   parseLiteralNode(): LiteralNode | null {
-    const string = this.match(tokenTypesList.STRING);
+    const string = this.match(tokenTypesList.get('STRING') as TokenType);
     if (string) {
       return new LiteralNode(string);
     }
@@ -120,7 +122,7 @@ export default class Parser {
   }
 
   parseNumberNode(): NumberNode | null {
-    const number = this.match(tokenTypesList.NUMBER);
+    const number = this.match(tokenTypesList.get('NUMBER') as TokenType);
     if (number) {
       return new NumberNode(number);
     }
@@ -138,7 +140,7 @@ export default class Parser {
   }
 
   parseVariableNode(): VariableNode | null {
-    const variable = this.match(tokenTypesList.VARIABLE);
+    const variable = this.match(tokenTypesList.get('VARIABLE') as TokenType);
     if (variable) {
       return new VariableNode(variable);
     }
@@ -155,28 +157,77 @@ export default class Parser {
 
     return null;
   }
+
   parseParenthesizedNode(): ParenthesizedNode | null {
-    const leftPar = this.match(tokenTypesList.LPAR);
+    const leftPar = this.match(tokenTypesList.get('LPAR') as TokenType);
     if (leftPar) {
       const node = this.parseFormula();
-      this.require(tokenTypesList.RPAR);
+      this.require(tokenTypesList.get('RPAR') as TokenType);
       return new ParenthesizedNode(node);
     }
 
     return null;
   }
 
-  parseFunctionNode(): FunctionNode | null {
-    const func = this.match(tokenTypesList.FUNCTION);
-    if (func) {
-      const leftPar = this.match(tokenTypesList.LPAR);
+  parseIfStatementNode(): IfStatementNode | null {
+    const ifStatement = this.match(tokenTypesList.get('IF') as TokenType);
+    if (ifStatement) {
+      const leftPar = this.match(tokenTypesList.get('LPAR') as TokenType);
       if (leftPar) {
-        const isBracketsEmpty = !!this.match(tokenTypesList.RPAR);
+        const isBracketsEmpty = !!this.match(
+          tokenTypesList.get('RPAR') as TokenType,
+        );
+        if (isBracketsEmpty) {
+          throw new Error(
+            `Пустой условный оператор на позиции ${ifStatement.pos}`,
+          );
+        }
+
+        const result = [];
+        let currentNode = this.parseFormula();
+        if (currentNode) {
+          result.push(currentNode);
+
+          let virguleCount = 0;
+          let virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
+          while (virgule) {
+            if (virguleCount >= 2) {
+              throw new Error(
+                `Неожиданное количество аргументов на позиции ${virgule.pos + 1}`,
+              );
+            }
+            virguleCount++;
+            currentNode = this.parseFormula();
+            result.push(currentNode);
+            virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
+          }
+        }
+
+        this.require(tokenTypesList.get('RPAR') as TokenType);
+        return new IfStatementNode(
+          ifStatement,
+          result[0],
+          result[1],
+          result[2],
+        );
+      }
+    }
+    return null;
+  }
+
+  parseFunctionNode(): FunctionNode | null {
+    const func = this.match(tokenTypesList.get('FUNCTION') as TokenType);
+    if (func) {
+      const leftPar = this.match(tokenTypesList.get('LPAR') as TokenType);
+      if (leftPar) {
+        const isBracketsEmpty = !!this.match(
+          tokenTypesList.get('RPAR') as TokenType,
+        );
         if (isBracketsEmpty) {
           return new FunctionNode(func, func.text, []);
         }
         const args = this.parseFunctionArgs();
-        this.require(tokenTypesList.RPAR);
+        this.require(tokenTypesList.get('RPAR') as TokenType);
         return new FunctionNode(func, func.text, args);
       }
       throw new Error(
@@ -195,11 +246,11 @@ export default class Parser {
 
     result.push(currentNode);
 
-    let virgule = this.match(tokenTypesList.VIRGULE);
+    let virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
     while (virgule) {
       currentNode = this.parseFormula();
       result.push(currentNode);
-      virgule = this.match(tokenTypesList.VIRGULE);
+      virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
     }
 
     return result;
@@ -347,11 +398,20 @@ export default class Parser {
         );
       }
 
+      // НУЖНО ВЫБИРАТЬ В ЗАВИСИМОСТИ ОТ ФОРМАТА
       const operator =
         binOperatorToSqlMap[node.operator.token.name] || node.operator.text;
       const leftNode = this.stringifyAst(node.left, format);
       const rightNode = this.stringifyAst(node.right, format);
       return `${leftNode} ${operator} ${rightNode}`;
+    }
+    if (node instanceof IfStatementNode) {
+      const test = this.stringifyAst(node.test, format);
+
+      const consequent = this.stringifyAst(node.consequent, format);
+      const alternate = this.stringifyAst(node.alternate, format);
+
+      return ifStatementMap[`${format}Fn`](test, consequent, alternate);
     }
     if (node instanceof FunctionNode) {
       // may use as, because next stroke check valid func

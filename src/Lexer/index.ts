@@ -15,7 +15,7 @@ export default class Lexer {
       /* empty */
     }
     this.tokens = this.tokens.filter(
-      (i) => i.token.name !== tokenTypesList.SPACE.name,
+      (i) => i.token.name !== tokenTypesList.get('SPACE')?.name,
     );
     return this.tokens;
   }
@@ -25,13 +25,13 @@ export default class Lexer {
       return false;
     }
 
-    const tokenTypesValues = Object.values(tokenTypesList);
+    const tokenTypesValues = Array.from(tokenTypesList);
     for (const tokenType of tokenTypesValues) {
-      const regex = new RegExp('^' + tokenType.regex);
+      const regex = new RegExp('^' + tokenType[1].regex);
       const result = this.code.substring(this.pos).match(regex);
 
       if (result && result[0]) {
-        this.tokens.push(new Token(tokenType, result[0], this.pos));
+        this.tokens.push(new Token(tokenType[1], result[0], this.pos));
         this.pos += result[0].length;
         return true;
       }

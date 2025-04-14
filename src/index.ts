@@ -102,8 +102,8 @@ const values = {
 // const expression = 'REPEAT(REPEAT({{Поле 3}},2),2) + 1 + 2 + (1 + 1)';
 const expression =
   // 'LEN(REPEAT(REPEAT({{Поле 3}},2),2)) + 1+  LEN(REPEAT("zxc", 1))';
-  '1 + 1 * 2';
-
+  // '1 + 1 * 2';
+  'IF(2 > 1, "test", "test2")';
 const parser = new Parser(expression, fields);
 
 const sqlQuery = parser.toSql();
