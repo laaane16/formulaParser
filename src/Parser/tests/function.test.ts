@@ -33,6 +33,27 @@ describe('function node to sql', () => {
     expect(result).toBe("CONCAT(CONCAT(CONCAT(CONCAT(CONCAT('2')))))");
   });
 
+  test(`function CONCAT can work with number`, () => {
+    const code = `CONCAT(1)`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe('CONCAT(1)');
+  });
+
+  test(`function CONCAT can work with number and string`, () => {
+    const code = `CONCAT(1, "")`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe("CONCAT(1,'')");
+  });
+
+  test(`function CONCAT can work with number and string`, () => {
+    const code = `CONCAT(RANDOM(), CONCAT("", 1))`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe("CONCAT(RANDOM(),CONCAT('',1))");
+  });
+
   test('function RANDOM can be without params', () => {
     const code = 'RANDOM()';
     const result = stringifyAstToSql(code);
@@ -72,13 +93,6 @@ describe('function node to js', () => {
     const result = stringifyAstToJs(code);
     expect(result).toBe('"2"');
   });
-
-  // test('function RANDOM can be without params', () => {
-  //   const code = 'RANDOM()';
-  //   const result = stringifyAstToSql(code);
-
-  //   expect(result).toBe('RANDOM()');
-  // });
 });
 
 describe('function node errors', () => {
@@ -107,13 +121,13 @@ describe('function node errors', () => {
       expect(e).toBeInstanceOf(Error);
 
       expect((e as Error).message).toBe(
-        'В функцию CONCAT на позиции 0 нужно добавить аргумент типа text',
+        'В функцию CONCAT на позиции 0 нужно добавить аргумент типа text,number',
       );
     }
   });
 
-  test('function CONCAT can`t work with many args which not all has type string', () => {
-    const code = 'CONCAT("test", "test2", 1)';
+  test('function CONCAT can`t work with many args which not all has type string or num', () => {
+    const code = 'CONCAT("test", "test2", true)';
 
     try {
       const result = stringifyAstToSql(code);
@@ -122,13 +136,13 @@ describe('function node errors', () => {
       expect(e).toBeInstanceOf(Error);
 
       expect((e as Error).message).toBe(
-        'Неожиданный тип данных number в функции CONCAT на позиции 25',
+        'Неожиданный тип данных KeywordNode в функции CONCAT на позиции 25',
       );
     }
   });
 
-  test('function CONCAT can`t work with number', () => {
-    const code = `CONCAT(1)`;
+  test('function CONCAT can`t work with keyword', () => {
+    const code = `CONCAT(false)`;
 
     try {
       const result = stringifyAstToSql(code);
@@ -137,24 +151,7 @@ describe('function node errors', () => {
       expect(e).toBeInstanceOf(Error);
 
       expect((e as Error).message).toBe(
-        'Неожиданный тип данных number в функции CONCAT на позиции 8',
-      );
-    }
-  });
-
-  test(`function CONCAT can't work with number`, () => {
-    // case: CONCAT(RANDOM()), func in args random return number
-
-    const code = `CONCAT(RANDOM())`;
-
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Функция RANDOM не может использоваться, как аргумент функции CONCAT, так как возвращает number на позиции 8',
+        'Неожиданный тип данных KeywordNode в функции CONCAT на позиции 8',
       );
     }
   });

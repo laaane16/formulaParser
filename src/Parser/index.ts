@@ -240,20 +240,18 @@ export default class Parser {
     return token;
   }
 
-  getNodeType(
-    node: ExpressionNode,
-  ): Set<string> | NodeTypesValues | typeof UNKNOWN_NODE_TYPE {
+  getNodeType(node: ExpressionNode): Set<string> {
     if (node instanceof NumberNode) {
-      return NUMBER_NODE_TYPE;
+      return new Set([NUMBER_NODE_TYPE]);
     }
     if (node instanceof LiteralNode) {
-      return LITERAL_NODE_TYPE;
+      return new Set([LITERAL_NODE_TYPE]);
     }
     if (node instanceof KeywordNode) {
-      return KEYWORD_NODE_TYPE;
+      return new Set([KEYWORD_NODE_TYPE]);
     }
     if (node instanceof VariableNode) {
-      return VARIABLE_NODE_TYPE;
+      return new Set([VARIABLE_NODE_TYPE]);
     }
     if (node instanceof ParenthesizedNode) {
       return this.getNodeType(node.expression);
@@ -266,58 +264,36 @@ export default class Parser {
       const rightNodeType = this.getNodeType(node.right);
 
       // right now we do operations with funcs that may returns different types impossible
-      if (typeof leftNodeType === 'string') {
-        if (
-          typeof rightNodeType === 'string' &&
-          leftNodeType === rightNodeType &&
-          leftNodeType !== UNKNOWN_NODE_TYPE
-        ) {
-          return leftNodeType;
-        } else if (rightNodeType instanceof Set) {
-          if (rightNodeType.has(leftNodeType) && rightNodeType.size === 1) {
-            return leftNodeType;
+      const possibleResults = [];
+      leftNodeType.forEach((i) => {
+        rightNodeType.forEach((j) => {
+          if (i === j) {
+            possibleResults.push(i);
           }
-        }
-      } else {
-        if (typeof rightNodeType === 'string') {
-          if (leftNodeType.has(rightNodeType) && leftNodeType.size === 1) {
-            return leftNodeType;
-          }
-        } else {
-          // const leftNodeTypeValues = leftNodeType.values();
-          // const rightNodeTypeValues = rightNodeType.values();
-          const possibleResults = [];
-          leftNodeType.forEach((i) => {
-            rightNodeType.forEach((j) => {
-              if (i === j) {
-                possibleResults.push(i);
-              }
-            });
-          });
+        });
+      });
 
-          if (
-            possibleResults.length === 1 &&
-            rightNodeType.size === 1 &&
-            leftNodeType.size === 1
-          ) {
-            return leftNodeType;
-          }
-        }
+      if (
+        possibleResults.length === 1 &&
+        rightNodeType.size === 1 &&
+        leftNodeType.size === 1
+      ) {
+        return leftNodeType;
       }
 
-      return UNKNOWN_NODE_TYPE;
+      return new Set([UNKNOWN_NODE_TYPE]);
     }
     if (node instanceof FunctionNode) {
       const currentFunction = allFunctions[node.name as ValidFunctionsNames];
       if (!currentFunction) {
-        return new Set(UNKNOWN_NODE_TYPE);
+        return new Set([UNKNOWN_NODE_TYPE]);
       }
       const possibleReturnTypes = currentFunction.map((i) => i.returnType);
 
       return new Set(possibleReturnTypes);
     }
 
-    return UNKNOWN_NODE_TYPE;
+    return new Set([UNKNOWN_NODE_TYPE]);
   }
 
   stringifyAst(
@@ -365,8 +341,7 @@ export default class Parser {
     }
     if (node instanceof BinOperationNode) {
       const nodeType = this.getNodeType(node);
-
-      if (nodeType === UNKNOWN_NODE_TYPE) {
+      if (nodeType.has(UNKNOWN_NODE_TYPE)) {
         throw new Error(
           `Неожиданный тип данных при ${node.operator.text} на позиции ${node.right.start}`,
         );
@@ -401,7 +376,6 @@ export default class Parser {
                 );
               }
               const neededArgType = currentFunctionVariation.args[index]?.type;
-
               const argType = arg.type;
               const argNode = this.stringifyAst(arg, format);
 
@@ -416,11 +390,29 @@ export default class Parser {
                   currentFunctionVariation.args.length - 1
                 ].many;
 
-              if (
-                argType === neededArgType ||
-                (argType === lastArgType && canArgBeLast && isMany)
-              ) {
-                return argNode;
+              // i don't know how work in different situations
+              if (Array.isArray(neededArgType)) {
+                for (const argVariant of neededArgType) {
+                  if (
+                    argVariant === argType ||
+                    (argType === lastArgType && canArgBeLast && isMany)
+                  ) {
+                    return argNode;
+                  }
+                }
+              } else if (Array.isArray(lastArgType)) {
+                for (const argVariant of lastArgType) {
+                  if (argVariant === argType) {
+                    return argNode;
+                  }
+                }
+              } else {
+                if (
+                  argType === neededArgType ||
+                  (argType === lastArgType && canArgBeLast && isMany)
+                ) {
+                  return argNode;
+                }
               }
 
               if (arg instanceof VariableNode) {
@@ -446,16 +438,41 @@ export default class Parser {
                   const currentFunctionInArgVariation = functionInArg[i];
 
                   try {
-                    if (
-                      currentFunctionInArgVariation.returnType ===
-                        neededArgType ||
-                      (currentFunctionInArgVariation.returnType ===
-                        lastArgType &&
-                        canArgBeLast &&
-                        isMany)
-                    ) {
-                      return this.stringifyAst(arg, format);
+                    if (Array.isArray(neededArgType)) {
+                      for (const argVariant of neededArgType) {
+                        if (
+                          argVariant ===
+                            currentFunctionInArgVariation.returnType ||
+                          (currentFunctionInArgVariation.returnType ===
+                            lastArgType &&
+                            canArgBeLast &&
+                            isMany)
+                        ) {
+                          return this.stringifyAst(arg, format);
+                        }
+                      }
+                    } else if (Array.isArray(lastArgType)) {
+                      for (const argVariant of lastArgType) {
+                        if (
+                          argVariant ===
+                          currentFunctionInArgVariation.returnType
+                        ) {
+                          return this.stringifyAst(arg, format);
+                        }
+                      }
+                    } else {
+                      if (
+                        currentFunctionInArgVariation.returnType ===
+                          neededArgType ||
+                        (currentFunctionInArgVariation.returnType ===
+                          lastArgType &&
+                          canArgBeLast &&
+                          isMany)
+                      ) {
+                        return this.stringifyAst(arg, format);
+                      }
                     }
+
                     throw new Error(
                       `Функция ${arg.name} не может использоваться, как аргумент функции ${node.name}, так как возвращает ${currentFunctionInArgVariation.returnType} на позиции ${arg.start + 1}`,
                     );
