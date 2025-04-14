@@ -54,6 +54,29 @@ describe('function node to sql', () => {
     expect(result).toBe("CONCAT(RANDOM(),CONCAT('',1))");
   });
 
+  test(`function CONCAT can work with expression in args`, () => {
+    const code = `CONCAT(1 + 1)`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe('CONCAT(1 + 1)');
+  });
+
+  test(`function CONCAT can work with expression in args`, () => {
+    const code = `CONCAT(CONCAT("", "test") + CONCAT("", 1, 2))`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe("CONCAT(CONCAT('','test') + CONCAT('',1,2))");
+  });
+
+  test(`function CONCAT can work with parenthsized expression in args`, () => {
+    const code = `CONCAT((1 + 1 + 1 + RANDOM()), CONCAT("", 1, 2, "test"), (RANDOM() + RANDOM()))`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe(
+      "CONCAT((1 + 1 + 1 + RANDOM()),CONCAT('',1,2,'test'),(RANDOM() + RANDOM()))",
+    );
+  });
+
   test('function RANDOM can be without params', () => {
     const code = 'RANDOM()';
     const result = stringifyAstToSql(code);
@@ -92,6 +115,50 @@ describe('function node to js', () => {
 
     const result = stringifyAstToJs(code);
     expect(result).toBe('"2"');
+  });
+
+  test(`function CONCAT can work with number`, () => {
+    const code = `CONCAT(1)`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe('1');
+  });
+
+  test(`function CONCAT can work with number and string`, () => {
+    const code = `CONCAT(1, "")`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe('1 + ""');
+  });
+
+  test(`function CONCAT can work with number and string`, () => {
+    const code = `CONCAT(RANDOM(), CONCAT("", 1))`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe('Math.random() + "" + 1');
+  });
+
+  test(`function CONCAT can work with expression in args`, () => {
+    const code = `1 + 1`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe('1 + 1');
+  });
+
+  test(`function CONCAT can work with expression in args`, () => {
+    const code = `CONCAT(CONCAT("", "test") + CONCAT("", 1, 2))`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe('"" + "test" + "" + 1 + 2');
+  });
+
+  test(`function CONCAT can work with parenthsized expression in args`, () => {
+    const code = `CONCAT((1 + 1 + 1 + RANDOM()), CONCAT("", 1, 2, "test"), (RANDOM() + RANDOM()))`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe(
+      '(1 + 1 + 1 + Math.random()) + "" + 1 + 2 + "test" + (Math.random() + Math.random())',
+    );
   });
 });
 
@@ -152,6 +219,36 @@ describe('function node errors', () => {
 
       expect((e as Error).message).toBe(
         'Неожиданный тип данных KeywordNode в функции CONCAT на позиции 8',
+      );
+    }
+  });
+
+  test(`function CONCAT can't work with expression which return unknown type in args`, () => {
+    const code = 'CONCAT(1 + "")';
+
+    try {
+      const result = stringifyAstToSql(code);
+      throw new Error('Должна быть ошибка');
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      expect((e as Error).message).toBe(
+        'Неожиданный тип данных при + на позиции 11',
+      );
+    }
+  });
+
+  test(`function CONCAT can't work with parenthsized expression in args which has errors`, () => {
+    const code = `CONCAT((1 + 1 + 1 + RANDOM()), CONCAT("", 1, 2, "test"), (RANDOM() + RANDOM() + ""))`;
+
+    try {
+      const result = stringifyAstToSql(code);
+      throw new Error('Должна быть ошибка');
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      expect((e as Error).message).toBe(
+        'Неожиданный тип данных при + на позиции 69',
       );
     }
   });

@@ -425,6 +425,114 @@ export default class Parser {
                 }
               }
 
+              if (arg instanceof ParenthesizedNode) {
+                const operationResultType = this.getNodeType(arg);
+                if (operationResultType.has(UNKNOWN_NODE_TYPE)) {
+                  throw new Error(
+                    `Неизвестный возвращаемый тип на позиции ${arg.start}`,
+                  );
+                }
+
+                let concidences = 0;
+                if (Array.isArray(neededArgType)) {
+                  for (const argVariant of neededArgType) {
+                    if (operationResultType.has(argVariant)) {
+                      if (operationResultType.size === 1) {
+                        return argNode;
+                      } else {
+                        concidences++;
+                      }
+                    }
+                  }
+                  if (
+                    concidences === neededArgType.length &&
+                    concidences === operationResultType.size
+                  ) {
+                    return argNode;
+                  }
+                } else if (Array.isArray(lastArgType)) {
+                  for (const argVariant of lastArgType) {
+                    if (operationResultType.has(argVariant)) {
+                      if (operationResultType.size === 1) {
+                        return argNode;
+                      } else {
+                        concidences++;
+                      }
+                    }
+                  }
+                  if (
+                    concidences === lastArgType.length &&
+                    concidences === operationResultType.size
+                  ) {
+                    return argNode;
+                  }
+                } else {
+                  if (
+                    (operationResultType.has(neededArgType) ||
+                      (operationResultType.has(lastArgType) &&
+                        canArgBeLast &&
+                        isMany)) &&
+                    operationResultType.size === 1
+                  ) {
+                    return argNode;
+                  }
+                }
+              }
+
+              if (arg instanceof BinOperationNode) {
+                const operationResultType = this.getNodeType(arg);
+                if (operationResultType.has(UNKNOWN_NODE_TYPE)) {
+                  throw new Error(
+                    `Неизвестный возвращаемый тип на позиции ${arg.start}`,
+                  );
+                }
+
+                let concidences = 0;
+                if (Array.isArray(neededArgType)) {
+                  for (const argVariant of neededArgType) {
+                    if (operationResultType.has(argVariant)) {
+                      if (operationResultType.size === 1) {
+                        return argNode;
+                      } else {
+                        concidences++;
+                      }
+                    }
+                  }
+                  if (
+                    concidences === neededArgType.length &&
+                    concidences === operationResultType.size
+                  ) {
+                    return argNode;
+                  }
+                } else if (Array.isArray(lastArgType)) {
+                  for (const argVariant of lastArgType) {
+                    if (operationResultType.has(argVariant)) {
+                      if (operationResultType.size === 1) {
+                        return argNode;
+                      } else {
+                        concidences++;
+                      }
+                    }
+                  }
+                  if (
+                    concidences === lastArgType.length &&
+                    concidences === operationResultType.size
+                  ) {
+                    return argNode;
+                  }
+                } else {
+                  if (
+                    (operationResultType.has(neededArgType) ||
+                      (operationResultType.has(lastArgType) &&
+                        canArgBeLast &&
+                        isMany)) &&
+                    operationResultType.size === 1
+                  ) {
+                    return argNode;
+                  }
+                }
+              }
+
               if (arg instanceof FunctionNode) {
                 // may use as, because next stroke check valid func
                 const functionInArg =

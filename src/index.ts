@@ -101,11 +101,15 @@ const values = {
 
 // const expression = 'REPEAT(REPEAT({{Поле 3}},2),2) + 1 + 2 + (1 + 1)';
 const expression =
-  'LEN(REPEAT(REPEAT({{Поле 3}},2),2)) + 1+  LEN(REPEAT("zxc", 1))';
+  // 'LEN(REPEAT(REPEAT({{Поле 3}},2),2)) + 1+  LEN(REPEAT("zxc", 1))';
+  '1 + 1 * 2';
 
 const parser = new Parser(expression, fields);
-// const sqlQuery = parser.toSql();
-// console.log(sqlQuery); // Outputs the generated SQL query
 
-// const jsFormula = parser.toJs();
-// console.log(parser.runJs(jsFormula, values));
+const sqlQuery = parser.toSql();
+console.log('SQL:', sqlQuery); // Outputs the generated SQL query
+
+const jsFormula = parser.toJs();
+console.log('JS:', jsFormula); // Outputs the generated JS query
+
+console.log('RUN JS:', parser.runJs(jsFormula, values));

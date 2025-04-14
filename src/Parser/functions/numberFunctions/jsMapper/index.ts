@@ -12,5 +12,5 @@ export const numberFunctionsToJsMap: Record<
   // POWER: (args) => '',
   // ROUND: (args) => '',
   // SQRT: (args) => '',
-  RANDOM: (args) => '',
+  RANDOM: (args) => 'Math.random()',
 };
