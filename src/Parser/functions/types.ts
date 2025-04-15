@@ -17,7 +17,7 @@ export interface IArg {
 
 export interface IFunction {
   args: IArg[];
-  returnType: NodeTypesValues; // ?maybe func
+  returnType: NodeTypesValues; // ?maybe func or array
   jsFn: (args: string[]) => string;
   sqlFn: (args: string[]) => string;
 }
