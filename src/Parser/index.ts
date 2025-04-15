@@ -446,7 +446,7 @@ export default class Parser {
         if (format === FORMATS.JS) {
           return `VARIABLES[${this.globalVars[node.variable.text].value}]`;
         } else {
-          return `$${this.globalVars[node.variable.text].value}`;
+          return `{${this.globalVars[node.variable.text].value}}`;
         }
       }
       throw new Error(
