@@ -73,6 +73,7 @@ export const tokenTypesBinOperations: TokenType[] = [
 
 export const tokenTypesUnarOperations = [
   tokenTypesList.get('NOT') as TokenType,
+  tokenTypesList.get('MINUS') as TokenType,
 ];
 
 export const tokenTypesKeywords = [

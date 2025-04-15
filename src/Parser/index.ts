@@ -21,7 +21,8 @@ import IfStatementNode from '../AST/IfStatementNode';
 
 import { allFunctions } from './functions';
 import { ValidFunctionsNames } from './functions/types';
-import { unarOperatorToSqlMap } from './unarOperators/toSql';
+import { allUnarOperators } from './unarOperators';
+import { ValidUnarOperatorsNames } from './unarOperators/types';
 import { ifStatementMap } from './if';
 import { allBinOperators } from './binOperators';
 import { ValidBinOperatorsNames } from './binOperators/types';
@@ -455,12 +456,29 @@ export default class Parser {
       return `(${this.stringifyAst(node.expression, format)})`;
     }
     if (node instanceof UnarOperationNode) {
-      // maybe need type check!!!
-      if (format === FORMATS.SQL) {
-        return `${unarOperatorToSqlMap[node.operator.token.name] || node.operator.text} ${this.stringifyAst(node.operand, format)}`;
-      } else {
-        return `${node.operator.text} ${this.stringifyAst(node.operand, format)}`;
+      const operator =
+        allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
+      const operand = this.stringifyAst(node.operand, format);
+
+      if (operator.possibleTypes.length === 0) {
+        return operator[`${format}Fn`](operand);
       }
+
+      let isOperandValid = false;
+      const operatorType = this.getNodeType(node);
+      operatorType.forEach((i) => {
+        if (operator.possibleTypes.find((j) => j === i)) {
+          isOperandValid = true;
+        }
+      });
+
+      if (isOperandValid) {
+        return operator[`${format}Fn`](operand);
+      }
+
+      throw new Error(
+        `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operand.start}`,
+      );
     }
     if (node instanceof BinOperationNode) {
       const operator =
