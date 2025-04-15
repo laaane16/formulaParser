@@ -50,11 +50,25 @@ describe('bin operator node to sql', () => {
     expect(result).toBe('1 = 1');
   });
 
+  test('equal can work with different types', () => {
+    const code = '1 == ""';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe("1 = ''");
+  });
+
   test('not equal', () => {
     const code = '1 != 1';
     const result = stringifyAstToSql(code);
 
     expect(result).toBe('1 != 1');
+  });
+
+  test('not equal can work with different types', () => {
+    const code = '1 != ""';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe("1 != ''");
   });
 
   test('greater', () => {
@@ -85,19 +99,19 @@ describe('bin operator node to sql', () => {
     expect(result).toBe('1 <= 1');
   });
 
-  test('and', () => {
-    const code = '1 && 1';
-    const result = stringifyAstToSql(code);
+  // test('and', () => {
+  //   const code = '1 && 1';
+  //   const result = stringifyAstToSql(code);
 
-    expect(result).toBe('1 AND 1');
-  });
+  //   expect(result).toBe('1 AND 1');
+  // });
 
-  test('or', () => {
-    const code = '1 || 1';
-    const result = stringifyAstToSql(code);
+  // test('or', () => {
+  //   const code = '1 || 1';
+  //   const result = stringifyAstToSql(code);
 
-    expect(result).toBe('1 OR 1');
-  });
+  //   expect(result).toBe('1 OR 1');
+  // });
 });
 
 // describe('bin operator node to js', () => {

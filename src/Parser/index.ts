@@ -16,24 +16,25 @@ import ParenthesizedNode from '../AST/ParenthesizedNode';
 import StatementsNode from '../AST/StatementsNode';
 import VariableNode from '../AST/VariableNode';
 import UnarOperationNode from '../AST/UnarOperationNode';
+import KeywordNode from '../AST/KeywordNode';
+import IfStatementNode from '../AST/IfStatementNode';
 
 import { allFunctions } from './functions';
-import { binOperatorToSqlMap } from './binOperators/toSql';
-import KeywordNode from '../AST/KeywordNode';
 import { ValidFunctionsNames } from './functions/types';
+import { unarOperatorToSqlMap } from './unarOperators/toSql';
+import { ifStatementMap } from './if';
+import { allBinOperators } from './binOperators';
+import { ValidBinOperatorsNames } from './binOperators/types';
+
 import { FORMATS } from '../constants/formats';
 import {
   KEYWORD_NODE_TYPE,
   LITERAL_NODE_TYPE,
-  NODE_TYPES,
-  NodeTypesValues,
   NUMBER_NODE_TYPE,
   UNKNOWN_NODE_TYPE,
   VARIABLE_NODE_TYPE,
 } from '../constants/nodeTypes';
-import { unarOperatorToSqlMap } from './unarOperators/toSql';
-import IfStatementNode from '../AST/IfStatementNode';
-import { ifStatementMap } from './if';
+
 interface IVar {
   title: string;
   value: string;
@@ -334,6 +335,13 @@ export default class Parser {
 
       return new Set([UNKNOWN_NODE_TYPE]);
     }
+    if (node instanceof IfStatementNode) {
+      const consequent = this.getNodeType(node.consequent);
+      const alternate = this.getNodeType(node.alternate);
+      alternate.forEach((i) => consequent.add(i));
+
+      return consequent;
+    }
     if (node instanceof FunctionNode) {
       const currentFunction = allFunctions[node.name as ValidFunctionsNames];
       if (!currentFunction) {
@@ -391,19 +399,21 @@ export default class Parser {
       }
     }
     if (node instanceof BinOperationNode) {
-      const nodeType = this.getNodeType(node);
-      if (nodeType.has(UNKNOWN_NODE_TYPE)) {
-        throw new Error(
-          `Неожиданный тип данных при ${node.operator.text} на позиции ${node.right.start}`,
-        );
+      const operator =
+        allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
+      if (operator.needTypeCheck) {
+        const nodeType = this.getNodeType(node);
+        if (nodeType.has(UNKNOWN_NODE_TYPE)) {
+          throw new Error(
+            `Неожиданный тип данных при ${node.operator.text} на позиции ${node.right.start}`,
+          );
+        }
       }
 
-      // НУЖНО ВЫБИРАТЬ В ЗАВИСИМОСТИ ОТ ФОРМАТА
-      const operator =
-        binOperatorToSqlMap[node.operator.token.name] || node.operator.text;
       const leftNode = this.stringifyAst(node.left, format);
       const rightNode = this.stringifyAst(node.right, format);
-      return `${leftNode} ${operator} ${rightNode}`;
+
+      return operator[`${format}Fn`](leftNode, rightNode);
     }
     if (node instanceof IfStatementNode) {
       const test = this.stringifyAst(node.test, format);
