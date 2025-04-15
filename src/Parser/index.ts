@@ -30,6 +30,7 @@ import { FORMATS } from '../constants/formats';
 import {
   KEYWORD_NODE_TYPE,
   LITERAL_NODE_TYPE,
+  NodeTypesValues,
   NUMBER_NODE_TYPE,
   UNKNOWN_NODE_TYPE,
   VARIABLE_NODE_TYPE,
@@ -355,6 +356,69 @@ export default class Parser {
     return new Set([UNKNOWN_NODE_TYPE]);
   }
 
+  isFunctionArgValid({
+    neededArgType,
+    lastArgType,
+    canArgBeLast,
+    isMany,
+    arg,
+  }: {
+    neededArgType: NodeTypesValues | NodeTypesValues[];
+    lastArgType: NodeTypesValues | NodeTypesValues[];
+    canArgBeLast: boolean;
+    isMany: boolean;
+    arg: ExpressionNode;
+  }): boolean {
+    const operationResultType = this.getNodeType(arg);
+    if (operationResultType.has(UNKNOWN_NODE_TYPE)) {
+      return false;
+    }
+
+    let concidences = 0;
+    if (Array.isArray(neededArgType)) {
+      for (const argVariant of neededArgType) {
+        if (operationResultType.has(argVariant)) {
+          if (operationResultType.size === 1) {
+            return true;
+          } else {
+            concidences++;
+          }
+        }
+      }
+      if (
+        concidences === neededArgType.length &&
+        concidences === operationResultType.size
+      ) {
+        return true;
+      }
+    } else if (Array.isArray(lastArgType)) {
+      for (const argVariant of lastArgType) {
+        if (operationResultType.has(argVariant)) {
+          if (operationResultType.size === 1) {
+            return true;
+          } else {
+            concidences++;
+          }
+        }
+      }
+      if (
+        concidences === lastArgType.length &&
+        concidences === operationResultType.size
+      ) {
+        return true;
+      }
+    } else {
+      if (
+        (operationResultType.has(neededArgType) ||
+          (operationResultType.has(lastArgType) && canArgBeLast && isMany)) &&
+        operationResultType.size === 1
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   stringifyAst(
     node: ExpressionNode,
     format: (typeof FORMATS)[keyof typeof FORMATS],
@@ -401,6 +465,7 @@ export default class Parser {
     if (node instanceof BinOperationNode) {
       const operator =
         allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
+
       if (operator.needTypeCheck) {
         const nodeType = this.getNodeType(node);
         if (nodeType.has(UNKNOWN_NODE_TYPE)) {
@@ -458,148 +523,23 @@ export default class Parser {
               const isMany =
                 currentFunctionVariation.args[
                   currentFunctionVariation.args.length - 1
-                ].many;
+                ].many || false;
 
-              // i don't know how work in different situations
-              if (Array.isArray(neededArgType)) {
-                for (const argVariant of neededArgType) {
-                  if (
-                    argVariant === argType ||
-                    (argType === lastArgType && canArgBeLast && isMany)
-                  ) {
-                    return argNode;
-                  }
-                }
-              } else if (Array.isArray(lastArgType)) {
-                for (const argVariant of lastArgType) {
-                  if (argVariant === argType) {
-                    return argNode;
-                  }
-                }
-              } else {
-                if (
-                  argType === neededArgType ||
-                  (argType === lastArgType && canArgBeLast && isMany)
-                ) {
+              if (!(arg instanceof FunctionNode)) {
+                const isFunctionArgValid = this.isFunctionArgValid({
+                  neededArgType,
+                  lastArgType,
+                  canArgBeLast,
+                  isMany,
+                  arg,
+                });
+
+                if (isFunctionArgValid) {
                   return argNode;
-                }
-              }
-
-              if (arg instanceof VariableNode) {
-                const variableType = this.globalVars[arg.variable.text].type;
-                if (
-                  neededArgType === variableType
-                  // || lastArgType === variableType
-                ) {
-                  return argNode;
-                }
-              }
-
-              if (arg instanceof ParenthesizedNode) {
-                const operationResultType = this.getNodeType(arg);
-                if (operationResultType.has(UNKNOWN_NODE_TYPE)) {
-                  throw new Error(
-                    `Неизвестный возвращаемый тип на позиции ${arg.start}`,
-                  );
-                }
-
-                let concidences = 0;
-                if (Array.isArray(neededArgType)) {
-                  for (const argVariant of neededArgType) {
-                    if (operationResultType.has(argVariant)) {
-                      if (operationResultType.size === 1) {
-                        return argNode;
-                      } else {
-                        concidences++;
-                      }
-                    }
-                  }
-                  if (
-                    concidences === neededArgType.length &&
-                    concidences === operationResultType.size
-                  ) {
-                    return argNode;
-                  }
-                } else if (Array.isArray(lastArgType)) {
-                  for (const argVariant of lastArgType) {
-                    if (operationResultType.has(argVariant)) {
-                      if (operationResultType.size === 1) {
-                        return argNode;
-                      } else {
-                        concidences++;
-                      }
-                    }
-                  }
-                  if (
-                    concidences === lastArgType.length &&
-                    concidences === operationResultType.size
-                  ) {
-                    return argNode;
-                  }
                 } else {
-                  if (
-                    (operationResultType.has(neededArgType) ||
-                      (operationResultType.has(lastArgType) &&
-                        canArgBeLast &&
-                        isMany)) &&
-                    operationResultType.size === 1
-                  ) {
-                    return argNode;
-                  }
-                }
-              }
-
-              if (arg instanceof BinOperationNode) {
-                const operationResultType = this.getNodeType(arg);
-                if (operationResultType.has(UNKNOWN_NODE_TYPE)) {
                   throw new Error(
-                    `Неизвестный возвращаемый тип на позиции ${arg.start}`,
+                    `Неожиданный тип данных ${arg.type} в функции ${node.name} на позиции ${arg.start + 1}`,
                   );
-                }
-
-                let concidences = 0;
-                if (Array.isArray(neededArgType)) {
-                  for (const argVariant of neededArgType) {
-                    if (operationResultType.has(argVariant)) {
-                      if (operationResultType.size === 1) {
-                        return argNode;
-                      } else {
-                        concidences++;
-                      }
-                    }
-                  }
-                  if (
-                    concidences === neededArgType.length &&
-                    concidences === operationResultType.size
-                  ) {
-                    return argNode;
-                  }
-                } else if (Array.isArray(lastArgType)) {
-                  for (const argVariant of lastArgType) {
-                    if (operationResultType.has(argVariant)) {
-                      if (operationResultType.size === 1) {
-                        return argNode;
-                      } else {
-                        concidences++;
-                      }
-                    }
-                  }
-                  if (
-                    concidences === lastArgType.length &&
-                    concidences === operationResultType.size
-                  ) {
-                    return argNode;
-                  }
-                } else {
-                  if (
-                    (operationResultType.has(neededArgType) ||
-                      (operationResultType.has(lastArgType) &&
-                        canArgBeLast &&
-                        isMany)) &&
-                    operationResultType.size === 1
-                  ) {
-                    return argNode;
-                  }
                 }
               }
 

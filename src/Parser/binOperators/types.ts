@@ -1,5 +1,3 @@
-import ExpressionNode from '../../AST/ExpressionNode';
-
 export type ValidBinOperatorsNames =
   | 'PLUS'
   | 'MINUS'
