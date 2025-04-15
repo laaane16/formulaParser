@@ -1,6 +1,10 @@
 {
   "name": "formulex",
   "version": "0.0.0",
+  "main": "build/index.js",
+  "description": "Ast sql/js converter",
+  "author": "Laane & satoru",
+  "license": "MIT",
   "engines": {
     "node": ">= 22.11 < 23"
   },
