@@ -8,7 +8,7 @@ describe('variables to sql', () => {
     const fields: IField[] = [{ id: '1000', title: 'Поле 1', type: 'text' }];
     const result = stringifyAstToSql(code, fields);
 
-    expect(result).toBe('$1000');
+    expect(result).toBe('{1000}');
   });
 });
 
