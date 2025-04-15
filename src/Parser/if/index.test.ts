@@ -12,6 +12,6 @@ describe('toJs', () => {
 describe('toSql', () => {
   test('simple test', () => {
     const res = ifStatementMap.sqlFn('2 > 1', "'test1'", "'test2'");
-    expect(res).toBe(`IF 2 > 1 THEN 'test1' ESLE 'test2' END IF`);
+    expect(res).toBe(`CASE WHEN 2 > 1 THEN 'test1' ELSE 'test2' END`);
   });
 });

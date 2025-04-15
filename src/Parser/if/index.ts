@@ -5,6 +5,6 @@ export const ifStatementMap: Record<string, IFunc> = {
     return `(function(){if (${test}){return ${consequent}}else{return ${alternate}}})()`;
   },
   sqlFn: (test: string, consequent: string, alternate: string) => {
-    return `IF ${test} THEN ${consequent} ESLE ${alternate} END IF`;
+    return `CASE WHEN ${test} THEN ${consequent} ELSE ${alternate} END`;
   },
 };
