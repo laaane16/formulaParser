@@ -99,6 +99,15 @@ describe('bin operator node to sql', () => {
     expect(result).toBe('1 <= 1');
   });
 
+  test('binary operators can work with if', () => {
+    const code = 'IF(2 > 1, 1, 0) + IF(2 < 1, 1, 0)';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe(
+      'CASE WHEN 2 > 1 THEN 1 ELSE 0 END + CASE WHEN 2 < 1 THEN 1 ELSE 0 END',
+    );
+  });
+
   // test('and', () => {
   //   const code = '1 && 1';
   //   const result = stringifyAstToSql(code);
@@ -241,6 +250,21 @@ describe('bin operator node errors', () => {
 
       expect((e as Error).message).toBe(
         'Неожиданный тип данных при + на позиции 4',
+      );
+    }
+  });
+
+  test('binary operators can`t work with IfStatementNode if it may returns different types', () => {
+    const code = 'IF(2 > 1, "", 0) + 1';
+
+    try {
+      const result = stringifyAstToSql(code);
+      throw new Error('Должна быть ошибка');
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      expect((e as Error).message).toBe(
+        'Неожиданный тип данных при + на позиции 19',
       );
     }
   });

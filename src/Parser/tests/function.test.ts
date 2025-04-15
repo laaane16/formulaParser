@@ -83,6 +83,20 @@ describe('function node to sql', () => {
 
     expect(result).toBe('RANDOM()');
   });
+
+  test(`function CONCAT can work with IfStatementNode in args if it return one type`, () => {
+    const code = `CONCAT(IF(2 > 1, "a", "b"))`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe(`CONCAT(CASE WHEN 2 > 1 THEN 'a' ELSE 'b' END)`);
+  });
+
+  test(`function CONCAT can work with IfStatementNode in args if it returns number | text types`, () => {
+    const code = `CONCAT(IF(2 > 1, 1, "b"))`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe(`CONCAT(CASE WHEN 2 > 1 THEN 1 ELSE 'b' END)`);
+  });
 });
 
 describe('function node to js', () => {
@@ -159,6 +173,22 @@ describe('function node to js', () => {
     expect(result).toBe(
       '(1 + 1 + 1 + Math.random()) + "" + 1 + 2 + "test" + (Math.random() + Math.random())',
     );
+  });
+
+  test(`function CONCAT can work with IfStatementNode in args if it return one type`, () => {
+    const code = `CONCAT(IF(2 > 1, "a", "b"))`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe(
+      '(function(){if (2 > 1){return "a"}else{return "b"}})()',
+    );
+  });
+
+  test(`function CONCAT can work with IfStatementNode in args if it returns number | text types`, () => {
+    const code = `CONCAT(IF(2 > 1, 1, "b"))`;
+
+    const result = stringifyAstToJs(code);
+    expect(result).toBe('(function(){if (2 > 1){return 1}else{return "b"}})()');
   });
 });
 
@@ -279,6 +309,22 @@ describe('function node errors', () => {
 
       expect((e as Error).message).toBe(
         'Функция RANDOM не принимает никаких аргументов на позиции 7',
+      );
+    }
+  });
+
+  test('function LOWER can`t work with IfStatementNode if it may return defferent types', () => {
+    const code = 'LOWER(IF(2 > 1, 1, ""))';
+
+    try {
+      const result = stringifyAstToSql(code);
+      throw new Error('Должна быть ошибка');
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      // NEED DIFFERENT ERROR MESSAGE!!!
+      expect((e as Error).message).toBe(
+        'Неожиданный тип данных IfStatementNode в функции LOWER на позиции 7',
       );
     }
   });
