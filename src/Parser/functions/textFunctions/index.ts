@@ -14,8 +14,6 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            // psql know how work with text and numbers in this func
-            // type: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
             type: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
             many: true,
           },
