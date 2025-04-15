@@ -77,6 +77,20 @@ describe('function node to sql', () => {
     );
   });
 
+  test('function CONCAT can work with negative num', () => {
+    const code = `CONCAT(- 1 - 1)`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe('CONCAT(- 1 - 1)');
+  });
+
+  test('function CONCAT can work with negative num', () => {
+    const code = `CONCAT(- (1 - 1))`;
+
+    const result = stringifyAstToSql(code);
+    expect(result).toBe('CONCAT(- (1 - 1))');
+  });
+
   test('function RANDOM can be without params', () => {
     const code = 'RANDOM()';
     const result = stringifyAstToSql(code);
