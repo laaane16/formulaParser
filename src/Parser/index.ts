@@ -305,7 +305,8 @@ export default class Parser {
       return new Set([KEYWORD_NODE_TYPE]);
     }
     if (node instanceof VariableNode) {
-      return new Set([VARIABLE_NODE_TYPE]);
+      const variableType = this.globalVars[node.variable.text].type;
+      return new Set([variableType]);
     }
     if (node instanceof ParenthesizedNode) {
       return this.getNodeType(node.expression);
@@ -443,7 +444,7 @@ export default class Parser {
     if (node instanceof VariableNode) {
       if (this.globalVars[node.variable.text]) {
         if (format === FORMATS.JS) {
-          return `VARIABLES.$${this.globalVars[node.variable.text].value}`;
+          return `VARIABLES[${this.globalVars[node.variable.text].value}]`;
         } else {
           return `$${this.globalVars[node.variable.text].value}`;
         }

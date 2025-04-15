@@ -86,30 +86,26 @@ export default class Parser {
 }
 
 // Example usage:
+// const fields = [
+//   { id: '1', title: 'Поле 1', type: 'number' },
+//   { id: '2', title: 'Поле 2', type: 'number' },
+//   { id: '3', title: 'Поле 3', type: 'text' },
+// ];
 
-const fields = [
-  { id: '1', title: 'Поле 1', type: 'number' },
-  { id: '2', title: 'Поле 2', type: 'number' },
-  { id: '3', title: 'Поле 3', type: 'text' },
-];
+// const values = {
+//   1: 1000,
+//   2: 5000,
+//   3: 'testtext',
+// };
 
-const values = {
-  $1: 1000,
-  $2: 5000,
-  $3: 'testtext',
-};
+// const expression = 'LEN(REPEAT(REPEAT({{Поле 3}},2),2)) + 1+  LEN(REPEAT("zxc", 1))';
 
-// const expression = 'REPEAT(REPEAT({{Поле 3}},2),2) + 1 + 2 + (1 + 1)';
-const expression =
-  // 'LEN(REPEAT(REPEAT({{Поле 3}},2),2)) + 1+  LEN(REPEAT("zxc", 1))';
-  // '1 + 1 * 2';
-  'IF(2 > 1, "test", "test2")';
-const parser = new Parser(expression, fields);
+// const parser = new Parser(expression, fields);
 
-const sqlQuery = parser.toSql();
-console.log('SQL:', sqlQuery); // Outputs the generated SQL query
+// const sqlQuery = parser.toSql();
+// console.log('SQL:', sqlQuery); // Outputs the generated SQL query
 
-const jsFormula = parser.toJs();
-console.log('JS:', jsFormula); // Outputs the generated JS query
+// const jsFormula = parser.toJs();
+// console.log('JS:', jsFormula); // Outputs the generated JS query
 
-console.log('RUN JS:', parser.runJs(jsFormula, values));
+// console.log('RUN JS:', parser.runJs(jsFormula, values));

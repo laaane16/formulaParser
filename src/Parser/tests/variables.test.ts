@@ -18,7 +18,7 @@ describe('variables to js', () => {
     const fields: IField[] = [{ id: '1000', title: 'Поле 1', type: 'text' }];
     const result = stringifyAstToJs(code, fields);
 
-    expect(result).toBe('VARIABLES.$1000');
+    expect(result).toBe('VARIABLES[1000]');
   });
 });
 
