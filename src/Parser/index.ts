@@ -2,7 +2,7 @@
 import Token from '../Lexer/Token';
 import TokenType, {
   tokenTypesBinOperations,
-  tokenTypesKeywords,
+  tokenTypesBoolean,
   tokenTypesList,
   tokenTypesUnarOperations,
 } from '../Lexer/TokenType';
@@ -16,7 +16,7 @@ import ParenthesizedNode from '../AST/ParenthesizedNode';
 import StatementsNode from '../AST/StatementsNode';
 import VariableNode from '../AST/VariableNode';
 import UnarOperationNode from '../AST/UnarOperationNode';
-import KeywordNode from '../AST/KeywordNode';
+import KeywordNode from '../AST/BooleanNode';
 import IfStatementNode from '../AST/IfStatementNode';
 
 import { allFunctions } from './mappers/functions';
@@ -28,14 +28,8 @@ import { allBinOperators } from './mappers/binOperators';
 import { ValidBinOperatorsNames } from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
-import {
-  KEYWORD_NODE_TYPE,
-  LITERAL_NODE_TYPE,
-  NodeTypesValues,
-  NUMBER_NODE_TYPE,
-  UNKNOWN_NODE_TYPE,
-  VARIABLE_NODE_TYPE,
-} from '../constants/nodeTypes';
+import { NodeTypesValues, UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
+import BooleandNode from '../AST/BooleanNode';
 
 interface IVar {
   title: string;
@@ -134,7 +128,7 @@ export default class Parser {
   }
 
   parseKeywordNode(): KeywordNode | null {
-    const keyword = this.match(...tokenTypesKeywords);
+    const keyword = this.match(...tokenTypesBoolean);
     if (keyword) {
       return new KeywordNode(keyword);
     }
@@ -295,14 +289,12 @@ export default class Parser {
   }
 
   getNodeType(node: ExpressionNode): Set<string> {
-    if (node instanceof NumberNode) {
-      return new Set([NUMBER_NODE_TYPE]);
-    }
-    if (node instanceof LiteralNode) {
-      return new Set([LITERAL_NODE_TYPE]);
-    }
-    if (node instanceof KeywordNode) {
-      return new Set([KEYWORD_NODE_TYPE]);
+    if (
+      node instanceof NumberNode ||
+      node instanceof LiteralNode ||
+      node instanceof BooleandNode
+    ) {
+      return new Set([node.type]);
     }
     if (node instanceof VariableNode) {
       const variableType = this.globalVars[node.variable.text].type;

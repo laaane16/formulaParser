@@ -247,7 +247,7 @@ describe('function node errors', () => {
       expect(e).toBeInstanceOf(Error);
 
       expect((e as Error).message).toBe(
-        'Неожиданный тип данных KeywordNode в функции CONCAT на позиции 25',
+        'Неожиданный тип данных BooleanNode в функции CONCAT на позиции 25',
       );
     }
   });
@@ -262,7 +262,7 @@ describe('function node errors', () => {
       expect(e).toBeInstanceOf(Error);
 
       expect((e as Error).message).toBe(
-        'Неожиданный тип данных KeywordNode в функции CONCAT на позиции 8',
+        'Неожиданный тип данных BooleanNode в функции CONCAT на позиции 8',
       );
     }
   });

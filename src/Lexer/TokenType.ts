@@ -76,7 +76,7 @@ export const tokenTypesUnarOperations = [
   tokenTypesList.get('MINUS') as TokenType,
 ];
 
-export const tokenTypesKeywords = [
+export const tokenTypesBoolean = [
   tokenTypesList.get('TRUE') as TokenType,
   tokenTypesList.get('FALSE') as TokenType,
 ];
