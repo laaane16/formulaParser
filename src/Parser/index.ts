@@ -19,13 +19,13 @@ import UnarOperationNode from '../AST/UnarOperationNode';
 import KeywordNode from '../AST/KeywordNode';
 import IfStatementNode from '../AST/IfStatementNode';
 
-import { allFunctions } from './functions';
-import { ValidFunctionsNames } from './functions/types';
-import { allUnarOperators } from './unarOperators';
-import { ValidUnarOperatorsNames } from './unarOperators/types';
-import { ifStatementMap } from './if';
-import { allBinOperators } from './binOperators';
-import { ValidBinOperatorsNames } from './binOperators/types';
+import { allFunctions } from './mappers/functions';
+import { ValidFunctionsNames } from './mappers/functions/types';
+import { allUnarOperators } from './mappers/unarOperators';
+import { ValidUnarOperatorsNames } from './mappers/unarOperators/types';
+import { ifStatementMap } from './mappers/if';
+import { allBinOperators } from './mappers/binOperators';
+import { ValidBinOperatorsNames } from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
 import {

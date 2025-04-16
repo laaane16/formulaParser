@@ -1,7 +1,7 @@
 import {
   LITERAL_NODE_TYPE,
   NUMBER_NODE_TYPE,
-} from '../../../constants/nodeTypes';
+} from '../../../../constants/nodeTypes';
 import { VariableFunction } from '../types';
 
 import { textFunctionsToJsMap } from './jsMapper';

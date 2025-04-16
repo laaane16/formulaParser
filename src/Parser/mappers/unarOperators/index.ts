@@ -1,4 +1,4 @@
-import { NUMBER_NODE_TYPE } from '../../constants/nodeTypes';
+import { NUMBER_NODE_TYPE } from '../../../constants/nodeTypes';
 import { IOperator, ValidUnarOperatorsNames } from './types';
 
 // empty array in possible types means all types are valid
