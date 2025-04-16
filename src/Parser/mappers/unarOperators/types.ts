@@ -1,4 +1,4 @@
-import { NodeTypesValues } from '../../constants/nodeTypes';
+import { NodeTypesValues } from '../../../constants/nodeTypes';
 
 export type ValidUnarOperatorsNames = 'NOT' | 'MINUS';
 

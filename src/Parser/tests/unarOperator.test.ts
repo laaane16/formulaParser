@@ -1,6 +1,12 @@
 import { stringifyAstToJs } from './helpers/stringifyAstToJs';
 import { stringifyAstToSql } from './helpers/stringifyAstToSql';
 
+const fields = [
+  { id: '1', title: 'Поле 1', type: 'number' },
+  { id: '2', title: 'Поле 2', type: 'number' },
+  { id: '3', title: 'Поле 3', type: 'text' },
+];
+
 describe('unar operator node to sql', () => {
   test('not', () => {
     const code = '!1';
@@ -21,6 +27,13 @@ describe('unar operator node to sql', () => {
     const result = stringifyAstToSql(code);
 
     expect(result).toBe(`- 2.234`);
+  });
+
+  test('minus can work with vars which type = number', () => {
+    const code = '- {{Поле 2}}';
+    const result = stringifyAstToSql(code, fields);
+
+    expect(result).toBe(`- {2}`);
   });
 });
 
@@ -45,6 +58,20 @@ describe('unar operator node errros', () => {
     const code = '- ""';
     try {
       const result = stringifyAstToSql(code);
+      throw new Error('Должна быть ошибка');
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+
+      expect((e as Error).message).toBe(
+        'Неожиданный тип данных при - на позиции 2',
+      );
+    }
+  });
+
+  test('minus can`t work with vars which type = string', () => {
+    const code = '- {{Поле 3}}';
+    try {
+      const result = stringifyAstToSql(code, fields);
       throw new Error('Должна быть ошибка');
     } catch (e) {
       expect(e).toBeInstanceOf(Error);

@@ -1,5 +1,11 @@
 import { stringifyAstToSql } from './helpers/stringifyAstToSql';
 
+const fields = [
+  { id: '1', title: 'Поле 1', type: 'number' },
+  { id: '2', title: 'Поле 2', type: 'number' },
+  { id: '3', title: 'Поле 3', type: 'text' },
+];
+
 describe('bin operator node to sql', () => {
   test('plus', () => {
     const code = '1 + 1';
@@ -106,6 +112,13 @@ describe('bin operator node to sql', () => {
     expect(result).toBe(
       'CASE WHEN 2 > 1 THEN 1 ELSE 0 END + CASE WHEN 2 < 1 THEN 1 ELSE 0 END',
     );
+  });
+
+  test('binary operators can work with valid vars, which has equal types', () => {
+    const code = '{{Поле 3}} + {{Поле 3}}';
+    const result = stringifyAstToSql(code, fields);
+
+    expect(result).toBe('{3} + {3}');
   });
 
   // test('and', () => {
@@ -235,6 +248,21 @@ describe('bin operator node errors', () => {
 
       expect((e as Error).message).toBe(
         'Неожиданный тип данных при + на позиции 4',
+      );
+    }
+  });
+
+  test('plus can`t work with vats which has different types', () => {
+    const code = '{{Поле 3}} + {{Поле 2}}';
+
+    try {
+      const result = stringifyAstToSql(code, fields);
+      throw new Error('Должна быть ошибка');
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      expect((e as Error).message).toBe(
+        'Неожиданный тип данных при + на позиции 13',
       );
     }
   });

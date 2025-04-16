@@ -297,8 +297,11 @@ export default class Parser {
       return new Set([node.type]);
     }
     if (node instanceof VariableNode) {
-      const variableType = this.globalVars[node.variable.text].type;
-      return new Set([variableType]);
+      const variableType = this.globalVars[node.variable.text]?.type;
+      if (variableType) {
+        return new Set([variableType]);
+      }
+      return new Set([UNKNOWN_NODE_TYPE]);
     }
     if (node instanceof ParenthesizedNode) {
       return this.getNodeType(node.expression);
