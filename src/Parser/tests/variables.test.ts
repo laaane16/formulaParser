@@ -26,16 +26,9 @@ describe('variables errors', () => {
   test('return error if we write no valid variable', () => {
     const code = '{{Поле 1}}';
     const fields: IField[] = [{ id: '1000', title: 'Поле 2', type: 'text' }];
-    try {
-      const result = stringifyAstToJs(code, fields);
-    } catch (e) {
-      if (e instanceof Error) {
-        expect(e.message).toBe(
-          'Недопустимая переменная {{Поле 1}} на позиции 0',
-        );
-      } else {
-        throw new Error('Непредвиденная ошибка');
-      }
-    }
+
+    expect(() => stringifyAstToJs(code, fields)).toThrow(
+      'Недопустимая переменная {{Поле 1}} на позиции 0',
+    );
   });
 });

@@ -1,7 +1,7 @@
 import { stringifyAstToSql } from './helpers/stringifyAstToSql';
 import { stringifyAstToJs } from './helpers/stringifyAstToJs';
 
-describe('keyword node to sql', () => {
+describe('boolean node to sql', () => {
   test('true', () => {
     const code = 'true';
     const result = stringifyAstToSql(code);
@@ -17,7 +17,7 @@ describe('keyword node to sql', () => {
   });
 });
 
-describe('keyword node to js', () => {
+describe('boolean node to js', () => {
   test('true', () => {
     const code = 'true';
     const result = stringifyAstToJs(code);

@@ -240,60 +240,32 @@ describe('bin operator node errors', () => {
   test('plus can`t work with different types', () => {
     const code = '1 + ""';
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных при + на позиции 4',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Неожиданный тип данных при + на позиции 4',
+    );
   });
 
   test('plus can`t work with vats which has different types', () => {
     const code = '{{Поле 3}} + {{Поле 2}}';
 
-    try {
-      const result = stringifyAstToSql(code, fields);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных при + на позиции 13',
-      );
-    }
+    expect(() => stringifyAstToSql(code, fields)).toThrow(
+      'Неожиданный тип данных при + на позиции 13',
+    );
   });
 
   test('plus can`t work with different types', () => {
     const code = '1 + CONCAT(CONCAT(""))';
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных при + на позиции 4',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Неожиданный тип данных при + на позиции 4',
+    );
   });
 
   test('binary operators can`t work with IfStatementNode if it may returns different types', () => {
     const code = 'IF(2 > 1, "", 0) + 1';
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных при + на позиции 19',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Неожиданный тип данных при + на позиции 19',
+    );
   });
 });

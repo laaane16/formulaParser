@@ -53,32 +53,20 @@ describe('unar operator node to js', () => {
   });
 });
 
-describe('unar operator node errros', () => {
-  test('minus can`t work with string', () => {
+describe('unar operator node errors', () => {
+  test('minus can’t work with string', () => {
     const code = '- ""';
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
 
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных при - на позиции 2',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Неожиданный тип данных при - на позиции 2',
+    );
   });
 
-  test('minus can`t work with vars which type = string', () => {
+  test('minus can’t work with vars which type = string', () => {
     const code = '- {{Поле 3}}';
-    try {
-      const result = stringifyAstToSql(code, fields);
-      throw new Error('Должна быть ошибка');
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
 
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных при - на позиции 2',
-      );
-    }
+    expect(() => stringifyAstToSql(code, fields)).toThrow(
+      'Неожиданный тип данных при - на позиции 2',
+    );
   });
 });

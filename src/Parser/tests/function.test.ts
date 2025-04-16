@@ -207,139 +207,75 @@ describe('function node to js', () => {
 });
 
 describe('function node errors', () => {
-  test('function TESTFUNC don`t support', () => {
+  test('function TESTFUNC don’t support', () => {
     const code = `TESTFUNC()`;
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Недопустимое имя функции TESTFUNC на позиции 0',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Недопустимое имя функции TESTFUNC на позиции 0',
+    );
   });
 
-  test('function CONCAT can`t be without params', () => {
+  test('function CONCAT can’t be without params', () => {
     const code = `CONCAT()`;
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'В функцию CONCAT на позиции 0 нужно добавить аргумент типа text,number',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'В функцию CONCAT на позиции 0 нужно добавить аргумент типа text,number',
+    );
   });
 
-  test('function CONCAT can`t work with many args which not all has type string or num', () => {
+  test('function CONCAT can’t work with many args which not all has type string or num', () => {
     const code = 'CONCAT("test", "test2", true)';
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных BooleanNode в функции CONCAT на позиции 25',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Неожиданный тип данных BooleanNode в функции CONCAT на позиции 25',
+    );
   });
 
-  test('function CONCAT can`t work with keyword', () => {
+  test('function CONCAT can’t work with keyword', () => {
     const code = `CONCAT(false)`;
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных BooleanNode в функции CONCAT на позиции 8',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Неожиданный тип данных BooleanNode в функции CONCAT на позиции 8',
+    );
   });
 
   test(`function CONCAT can't work with expression which return unknown type in args`, () => {
     const code = 'CONCAT(1 + "")';
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных при + на позиции 11',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Неожиданный тип данных при + на позиции 11',
+    );
   });
 
   test(`function CONCAT can't work with parenthsized expression in args which has errors`, () => {
     const code = `CONCAT((1 + 1 + 1 + RANDOM()), CONCAT("", 1, 2, "test"), (RANDOM() + RANDOM() + ""))`;
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных при + на позиции 69',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Неожиданный тип данных при + на позиции 69',
+    );
   });
 
   test(`func should can work with high nesting funcs in args, but if the chain somewhere returns the wrong type we interrupt it`, () => {
     const code = `CONCAT(CONCAT(CONCAT(RANDOM(CONCAT("2")))))`;
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Функция RANDOM не принимает никаких аргументов на позиции 28',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Функция RANDOM не принимает никаких аргументов на позиции 28',
+    );
   });
 
-  test('function RANDOM can`t be with params', () => {
+  test('function RANDOM can’t be with params', () => {
     const code = 'RANDOM(1)';
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      expect((e as Error).message).toBe(
-        'Функция RANDOM не принимает никаких аргументов на позиции 7',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Функция RANDOM не принимает никаких аргументов на позиции 7',
+    );
   });
 
-  test('function LOWER can`t work with IfStatementNode if it may return defferent types', () => {
+  test('function LOWER can’t work with IfStatementNode if it may return different types', () => {
     const code = 'LOWER(IF(2 > 1, 1, ""))';
 
-    try {
-      const result = stringifyAstToSql(code);
-      throw new Error('Должна быть ошибка');
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-
-      // NEED DIFFERENT ERROR MESSAGE!!!
-      expect((e as Error).message).toBe(
-        'Неожиданный тип данных IfStatementNode в функции LOWER на позиции 7',
-      );
-    }
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Неожиданный тип данных IfStatementNode в функции LOWER на позиции 7',
+    );
   });
 });
