@@ -288,132 +288,163 @@ export default class Parser {
     return token;
   }
 
-  getNodeType(node: ExpressionNode): Set<string> {
+  // TODO: add cache for elements that we have bypassed
+  // return all possible return types
+  // for binary operator and funcs operators we return index which founds coincidence
+  getNodeReturnType(node: ExpressionNode): [Set<string>, number?] {
     if (
       node instanceof NumberNode ||
       node instanceof LiteralNode ||
       node instanceof BooleandNode
     ) {
-      return new Set([node.type]);
+      return [new Set([node.type])];
     }
     if (node instanceof VariableNode) {
       const variableType = this.globalVars[node.variable.text]?.type;
       if (variableType) {
-        return new Set([variableType]);
+        return [new Set([variableType])];
       }
-      return new Set([UNKNOWN_NODE_TYPE]);
+      return [new Set([UNKNOWN_NODE_TYPE])];
     }
     if (node instanceof ParenthesizedNode) {
-      return this.getNodeType(node.expression);
+      return this.getNodeReturnType(node.expression);
     }
     if (node instanceof UnarOperationNode) {
-      return this.getNodeType(node.operand);
+      return this.getNodeReturnType(node.operand);
     }
+    // For binary operator and funcs always returns [Set(...), idx]
     if (node instanceof BinOperationNode) {
-      const leftNodeType = this.getNodeType(node.left);
-      const rightNodeType = this.getNodeType(node.right);
-
-      // right now we do operations with funcs that may returns different types impossible
-      const possibleResults = [];
-      leftNodeType.forEach((i) => {
-        rightNodeType.forEach((j) => {
-          if (i === j) {
-            possibleResults.push(i);
-          }
-        });
-      });
-
-      if (
-        possibleResults.length === 1 &&
-        rightNodeType.size === 1 &&
-        leftNodeType.size === 1
-      ) {
-        return leftNodeType;
+      const operator =
+        allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
+      if (!operator) {
+        return [new Set([UNKNOWN_NODE_TYPE])];
       }
 
-      return new Set([UNKNOWN_NODE_TYPE]);
+      const leftNodeType = this.getNodeReturnType(node.left)[0];
+      const rightNodeType = this.getNodeReturnType(node.right)[0];
+
+      if (
+        leftNodeType.has(UNKNOWN_NODE_TYPE) ||
+        rightNodeType.has(UNKNOWN_NODE_TYPE)
+      ) {
+        return [new Set([UNKNOWN_NODE_TYPE])];
+      }
+
+      for (let i = 0; i < operator.length; i++) {
+        const returnTypeVariant = operator[i].returnType;
+        const neededTypeVariant = operator[i].operandType;
+
+        if (neededTypeVariant === null) {
+          return [new Set([returnTypeVariant]), i];
+        }
+
+        if (
+          leftNodeType.has(neededTypeVariant) &&
+          rightNodeType.has(neededTypeVariant) &&
+          leftNodeType.size === 1 &&
+          rightNodeType.size === 1
+        ) {
+          return [new Set([returnTypeVariant]), i];
+        }
+      }
+
+      return [new Set([UNKNOWN_NODE_TYPE])];
     }
+
     if (node instanceof IfStatementNode) {
-      const consequent = this.getNodeType(node.consequent);
-      const alternate = this.getNodeType(node.alternate);
-      alternate.forEach((i) => consequent.add(i));
+      const consequent = this.getNodeReturnType(node.consequent);
+      const alternate = this.getNodeReturnType(node.alternate);
+      alternate[0].forEach((i) => consequent[0].add(i));
 
       return consequent;
     }
     if (node instanceof FunctionNode) {
       const currentFunction = allFunctions[node.name as ValidFunctionsNames];
+
       if (!currentFunction) {
-        return new Set([UNKNOWN_NODE_TYPE]);
+        return [new Set([UNKNOWN_NODE_TYPE])];
       }
-      const possibleReturnTypes = currentFunction.map((i) => i.returnType);
 
-      return new Set(possibleReturnTypes);
-    }
+      // empty args array means func does not accept any arguments
+      if (node.args.length === 0 && currentFunction[0].args.length === 0) {
+        return [new Set(currentFunction[0].returnType), 0];
+      }
 
-    return new Set([UNKNOWN_NODE_TYPE]);
-  }
+      // get all types for node args
+      const nodeArgs: [Set<string>, number?][] = [];
+      for (const arg of node.args) {
+        const argType = this.getNodeReturnType(arg);
 
-  isFunctionArgValid({
-    neededArgType,
-    lastArgType,
-    canArgBeLast,
-    isMany,
-    arg,
-  }: {
-    neededArgType: NodeTypesValues | NodeTypesValues[];
-    lastArgType: NodeTypesValues | NodeTypesValues[];
-    canArgBeLast: boolean;
-    isMany: boolean;
-    arg: ExpressionNode;
-  }): boolean {
-    const operationResultType = this.getNodeType(arg);
-    if (operationResultType.has(UNKNOWN_NODE_TYPE)) {
-      return false;
-    }
-
-    let concidences = 0;
-    if (Array.isArray(neededArgType)) {
-      for (const argVariant of neededArgType) {
-        if (operationResultType.has(argVariant)) {
-          if (operationResultType.size === 1) {
-            return true;
-          } else {
-            concidences++;
-          }
+        if (!argType[0].has(UNKNOWN_NODE_TYPE)) {
+          nodeArgs.push(argType);
+        } else {
+          return [new Set([UNKNOWN_NODE_TYPE])];
         }
       }
-      if (
-        concidences === neededArgType.length &&
-        concidences === operationResultType.size
-      ) {
-        return true;
-      }
-    } else if (Array.isArray(lastArgType)) {
-      for (const argVariant of lastArgType) {
-        if (operationResultType.has(argVariant)) {
-          if (operationResultType.size === 1) {
-            return true;
+
+      // compare the data types of the node and possible implementations of this function
+      for (let i = 0; i < currentFunction.length; i++) {
+        let coincidences = 0;
+        const functionVariant = currentFunction[i];
+        const functionVariantReturnType = functionVariant.returnType;
+        const functionVariantArgs = functionVariant.args;
+        const lastArgType =
+          functionVariantArgs[functionVariantArgs.length - 1]?.type;
+        const isLastArgMany =
+          functionVariantArgs[functionVariantArgs.length - 1]?.many || false;
+
+        if (nodeArgs.length === 0 && functionVariantArgs.length !== 0) {
+          break;
+        }
+
+        // in a loop we go through all the arguments of the node
+        for (let j = 0; j < nodeArgs.length; j++) {
+          const canArgBeLast = functionVariantArgs.length - 1 <= j;
+          const nodeArgType = nodeArgs[j][0];
+          let argVariantsCoincidence = 0;
+          // may be undefined in case with arg which can be many
+          const functionVariantCurrentArg = functionVariantArgs[j];
+          if (functionVariantCurrentArg) {
+            functionVariantCurrentArg.type.forEach((possibleArgType) => {
+              if (nodeArgType.has(possibleArgType)) {
+                argVariantsCoincidence++;
+              }
+            });
+            if (
+              argVariantsCoincidence <= functionVariantCurrentArg.type.length &&
+              argVariantsCoincidence !== 0 &&
+              argVariantsCoincidence === nodeArgType.size
+            ) {
+              coincidences++;
+            }
           } else {
-            concidences++;
+            if (lastArgType) {
+              lastArgType.forEach((possibleArgType) => {
+                if (
+                  nodeArgType.has(possibleArgType) &&
+                  canArgBeLast &&
+                  lastArgType &&
+                  isLastArgMany
+                ) {
+                  argVariantsCoincidence++;
+                }
+              });
+              if (
+                argVariantsCoincidence <= lastArgType.length &&
+                argVariantsCoincidence !== 0 &&
+                argVariantsCoincidence === nodeArgType.size
+              ) {
+                coincidences++;
+              }
+            }
           }
         }
-      }
-      if (
-        concidences === lastArgType.length &&
-        concidences === operationResultType.size
-      ) {
-        return true;
-      }
-    } else {
-      if (
-        (operationResultType.has(neededArgType) ||
-          (operationResultType.has(lastArgType) && canArgBeLast && isMany)) &&
-        operationResultType.size === 1
-      ) {
-        return true;
+        if (coincidences === nodeArgs.length) {
+          return [new Set(functionVariantReturnType), i];
+        }
       }
     }
-    return false;
+    return [new Set([UNKNOWN_NODE_TYPE])];
   }
 
   stringifyAst(
@@ -428,6 +459,7 @@ export default class Parser {
       return node.number.text;
     }
     if (node instanceof LiteralNode) {
+      // replace brackets around format stringify
       if (format === FORMATS.SQL) {
         return `'${node.literal.text.slice(1, -1)}'`;
       }
@@ -456,14 +488,14 @@ export default class Parser {
         allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
       const operand = this.stringifyAst(node.operand, format);
 
-      if (operator.possibleTypes.length === 0) {
+      if (operator.types.length === 0) {
         return operator[`${format}Fn`](operand);
       }
 
       let isOperandValid = false;
-      const operatorType = this.getNodeType(node);
+      const [operatorType] = this.getNodeReturnType(node);
       operatorType.forEach((i) => {
-        if (operator.possibleTypes.find((j) => j === i)) {
+        if (operator.types.find((j) => j === i)) {
           isOperandValid = true;
         }
       });
@@ -479,24 +511,28 @@ export default class Parser {
     if (node instanceof BinOperationNode) {
       const operator =
         allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
-
-      if (operator.needTypeCheck) {
-        const nodeType = this.getNodeType(node);
-        if (nodeType.has(UNKNOWN_NODE_TYPE)) {
-          throw new Error(
-            `Неожиданный тип данных при ${node.operator.text} на позиции ${node.right.start}`,
-          );
-        }
-      }
+      const [operatorType, index] = this.getNodeReturnType(node);
 
       const leftNode = this.stringifyAst(node.left, format);
       const rightNode = this.stringifyAst(node.right, format);
 
-      return operator[`${format}Fn`](leftNode, rightNode);
+      // Maybe change logic for show correct error position
+      if (operatorType.has(UNKNOWN_NODE_TYPE)) {
+        throw new Error(
+          `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operator.pos}`,
+        );
+      }
+
+      if (index !== undefined) {
+        return operator[index][`${format}Fn`](leftNode, rightNode);
+      }
+
+      throw new Error(
+        `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operator.pos}`,
+      );
     }
     if (node instanceof IfStatementNode) {
       const test = this.stringifyAst(node.test, format);
-
       const consequent = this.stringifyAst(node.consequent, format);
       const alternate = this.stringifyAst(node.alternate, format);
 
@@ -506,69 +542,32 @@ export default class Parser {
       // may use as, because next stroke check valid func
       const currentFunction = allFunctions[node.name as ValidFunctionsNames];
       if (currentFunction) {
-        for (let i = 0; i < currentFunction.length; i++) {
-          const currentFunctionVariation = currentFunction[i];
-          // const sqlFunctionAnalog = sqlFunctionsMap[node.name];
-          try {
-            if (
-              node.args.length === 0 &&
-              currentFunctionVariation.args.length !== 0
-            ) {
-              throw new Error(
-                `В функцию ${node.name} на позиции ${node.start} нужно добавить аргумент типа ${currentFunctionVariation.args[0].type}`,
-              );
-            }
-            const functionArgs = node.args.map((arg, index) => {
-              if (currentFunctionVariation.args.length === 0) {
-                throw new Error(
-                  `Функция ${node.name} не принимает никаких аргументов на позиции ${arg.start}`,
-                );
-              }
-              const neededArgType = currentFunctionVariation.args[index]?.type;
-              const argNode = this.stringifyAst(arg, format);
+        const [nodeReturnType, idx] = this.getNodeReturnType(node);
 
-              const lastArgType =
-                currentFunctionVariation.args[
-                  currentFunctionVariation.args.length - 1
-                ].type;
-              const canArgBeLast =
-                currentFunctionVariation.args.length - 1 <= index;
-              const isMany =
-                currentFunctionVariation.args[
-                  currentFunctionVariation.args.length - 1
-                ].many || false;
-
-              const isFunctionArgValid = this.isFunctionArgValid({
-                neededArgType,
-                lastArgType,
-                canArgBeLast,
-                isMany,
-                arg,
-              });
-
-              if (isFunctionArgValid) {
-                return argNode;
-              } else {
-                throw new Error(
-                  `Неожиданный тип данных ${arg.type} в функции ${node.name} на позиции ${arg.start + 1}`,
-                );
-              }
-            });
-            const res = currentFunctionVariation[`${format}Fn`](functionArgs);
-            return res;
-          } catch (e) {
-            if (e instanceof Error && i === currentFunction.length - 1) {
-              throw new Error(e.message);
-            }
-            throw new Error(`Непредвиденная ошибка ${e}`);
-          }
+        if (nodeReturnType.has(UNKNOWN_NODE_TYPE)) {
+          throw new Error(
+            `Неожиданный тип данных в функции ${node.name} на позиции ${node.func.pos}`,
+          );
         }
+
+        if (idx === undefined) {
+          throw new Error('');
+        }
+
+        const functionArgs = node.args.map((arg) => {
+          const argNode = this.stringifyAst(arg, format);
+          return argNode;
+        });
+
+        const res = currentFunction[idx][`${format}Fn`](functionArgs);
+        console.log(res);
+
+        return res;
       }
       throw new Error(
         `Недопустимое имя функции ${node.name} на позиции ${node.func.pos}`,
       );
     }
-
     throw new Error(`Недопустимый синтаксис на позиции ${node.start}`);
   }
 }

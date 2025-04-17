@@ -118,7 +118,7 @@ describe('bin operator node to sql', () => {
     const code = '{{Поле 3}} + {{Поле 3}}';
     const result = stringifyAstToSql(code, fields);
 
-    expect(result).toBe('{3} + {3}');
+    expect(result).toBe('CONCAT({3}, {3})');
   });
 
   // test('and', () => {
@@ -241,7 +241,7 @@ describe('bin operator node errors', () => {
     const code = '1 + ""';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Неожиданный тип данных при + на позиции 4',
+      'Неожиданный тип данных при + на позиции 2',
     );
   });
 
@@ -249,7 +249,7 @@ describe('bin operator node errors', () => {
     const code = '{{Поле 3}} + {{Поле 2}}';
 
     expect(() => stringifyAstToSql(code, fields)).toThrow(
-      'Неожиданный тип данных при + на позиции 13',
+      'Неожиданный тип данных при + на позиции 11',
     );
   });
 
@@ -257,7 +257,7 @@ describe('bin operator node errors', () => {
     const code = '1 + CONCAT(CONCAT(""))';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Неожиданный тип данных при + на позиции 4',
+      'Неожиданный тип данных при + на позиции 2',
     );
   });
 
@@ -265,7 +265,7 @@ describe('bin operator node errors', () => {
     const code = 'IF(2 > 1, "", 0) + 1';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Неожиданный тип данных при + на позиции 19',
+      'Неожиданный тип данных при + на позиции 17',
     );
   });
 });

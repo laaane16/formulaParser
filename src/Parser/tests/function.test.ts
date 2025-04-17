@@ -65,7 +65,7 @@ describe('function node to sql', () => {
     const code = `CONCAT(CONCAT("", "test") + CONCAT("", 1, 2))`;
 
     const result = stringifyAstToSql(code);
-    expect(result).toBe("CONCAT(CONCAT('','test') + CONCAT('',1,2))");
+    expect(result).toBe("CONCAT(CONCAT(CONCAT('','test'), CONCAT('',1,2)))");
   });
 
   test(`function CONCAT can work with parenthsized expression in args`, () => {
@@ -219,7 +219,7 @@ describe('function node errors', () => {
     const code = `CONCAT()`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'В функцию CONCAT на позиции 0 нужно добавить аргумент типа text,number',
+      'Неожиданный тип данных в функции CONCAT на позиции 0',
     );
   });
 
@@ -227,7 +227,7 @@ describe('function node errors', () => {
     const code = 'CONCAT("test", "test2", true)';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Неожиданный тип данных BooleanNode в функции CONCAT на позиции 25',
+      'Неожиданный тип данных в функции CONCAT на позиции 0',
     );
   });
 
@@ -235,7 +235,7 @@ describe('function node errors', () => {
     const code = `CONCAT(false)`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Неожиданный тип данных BooleanNode в функции CONCAT на позиции 8',
+      'Неожиданный тип данных в функции CONCAT на позиции 0',
     );
   });
 
@@ -243,7 +243,7 @@ describe('function node errors', () => {
     const code = 'CONCAT(1 + "")';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Неожиданный тип данных при + на позиции 11',
+      'Неожиданный тип данных в функции CONCAT на позиции 0',
     );
   });
 
@@ -251,7 +251,7 @@ describe('function node errors', () => {
     const code = `CONCAT((1 + 1 + 1 + RANDOM()), CONCAT("", 1, 2, "test"), (RANDOM() + RANDOM() + ""))`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Неожиданный тип данных при + на позиции 69',
+      'Неожиданный тип данных в функции CONCAT на позиции 0',
     );
   });
 
@@ -259,7 +259,7 @@ describe('function node errors', () => {
     const code = `CONCAT(CONCAT(CONCAT(RANDOM(CONCAT("2")))))`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Функция RANDOM не принимает никаких аргументов на позиции 28',
+      'Неожиданный тип данных в функции CONCAT на позиции 0',
     );
   });
 
@@ -267,7 +267,7 @@ describe('function node errors', () => {
     const code = 'RANDOM(1)';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Функция RANDOM не принимает никаких аргументов на позиции 7',
+      'Неожиданный тип данных в функции RANDOM на позиции 0',
     );
   });
 
@@ -275,7 +275,7 @@ describe('function node errors', () => {
     const code = 'LOWER(IF(2 > 1, 1, ""))';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Неожиданный тип данных IfStatementNode в функции LOWER на позиции 7',
+      'Неожиданный тип данных в функции LOWER на позиции 0',
     );
   });
 });

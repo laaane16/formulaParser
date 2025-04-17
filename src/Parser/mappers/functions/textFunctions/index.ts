@@ -18,7 +18,7 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
             many: true,
           },
         ],
-        returnType: LITERAL_NODE_TYPE,
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.CONCAT,
         sqlFn: textFunctionsToSqlMap.CONCAT,
       },
@@ -28,16 +28,16 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         args: [
           {
             // maybe need reserved word, because this arg in ['leading' | 'trailing' | 'both']
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
         ],
-        returnType: LITERAL_NODE_TYPE,
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.TRIM,
         // trim(both 'xyz' from 'yxTomxx')
         sqlFn: textFunctionsToSqlMap.TRIM,
@@ -47,13 +47,13 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
         ],
-        returnType: NUMBER_NODE_TYPE,
+        returnType: [NUMBER_NODE_TYPE],
         jsFn: textFunctionsToJsMap.SEARCH,
         // position(substring in string)
         sqlFn: textFunctionsToSqlMap.SEARCH,
@@ -63,16 +63,16 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
         ],
-        returnType: LITERAL_NODE_TYPE,
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.REPLACE,
         sqlFn: textFunctionsToSqlMap.REPLACE,
       },
@@ -81,10 +81,10 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
         ],
-        returnType: LITERAL_NODE_TYPE,
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.LOWER,
         sqlFn: textFunctionsToSqlMap.LOWER,
       },
@@ -93,10 +93,10 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
         ],
-        returnType: LITERAL_NODE_TYPE,
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.UPPER,
         sqlFn: textFunctionsToSqlMap.UPPER,
       },
@@ -105,13 +105,13 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
           {
-            type: NUMBER_NODE_TYPE,
+            type: [NUMBER_NODE_TYPE],
           },
         ],
-        returnType: LITERAL_NODE_TYPE,
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.REPEAT,
         sqlFn: textFunctionsToSqlMap.REPEAT,
       },
@@ -120,16 +120,16 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
           {
-            type: NUMBER_NODE_TYPE,
+            type: [NUMBER_NODE_TYPE],
           },
           {
-            type: NUMBER_NODE_TYPE,
+            type: [NUMBER_NODE_TYPE],
           },
         ],
-        returnType: LITERAL_NODE_TYPE,
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.SUBSTRING,
         // substring('Thomas' from 2 for 3)
         sqlFn: textFunctionsToSqlMap.SUBSTRING,
@@ -139,13 +139,13 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
           {
-            type: NUMBER_NODE_TYPE,
+            type: [NUMBER_NODE_TYPE],
           },
         ],
-        returnType: LITERAL_NODE_TYPE,
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.LEFT,
         sqlFn: textFunctionsToSqlMap.LEFT,
       },
@@ -154,13 +154,13 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
           {
-            type: NUMBER_NODE_TYPE,
+            type: [NUMBER_NODE_TYPE],
           },
         ],
-        returnType: LITERAL_NODE_TYPE,
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.RIGHT,
         sqlFn: textFunctionsToSqlMap.RIGHT,
       },
@@ -169,10 +169,10 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: LITERAL_NODE_TYPE,
+            type: [LITERAL_NODE_TYPE],
           },
         ],
-        returnType: NUMBER_NODE_TYPE,
+        returnType: [NUMBER_NODE_TYPE],
         jsFn: textFunctionsToJsMap.LEN,
         sqlFn: textFunctionsToSqlMap.LEN,
       },

@@ -5,7 +5,7 @@ export type ValidUnarOperatorsNames = 'NOT' | 'MINUS';
 type IFormatterFunc = (operand: string) => string;
 
 export interface IOperator {
-  possibleTypes: NodeTypesValues[];
+  types: NodeTypesValues[];
   jsFn: IFormatterFunc;
   sqlFn: IFormatterFunc;
 }
