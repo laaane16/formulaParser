@@ -3,13 +3,12 @@
   "version": "0.0.0",
   "main": "build/index.js",
   "description": "Ast sql/js converter",
-  "author": "Laane & satoru",
+  "author": "laaane16 & SatoruFF",
   "license": "MIT",
+  "types": "build/index.d.ts",  
+  "files": ["build"], 
   "engines": {
     "node": ">= 22.11 < 23"
-  },
-  "dependencies": {
-    "tslib": "~2.8"
   },
   "devDependencies": {
     "@eslint/js": "~9.17",

@@ -1,4 +1,4 @@
-import { IField } from '../..';
+import { IField } from '../../main';
 import { stringifyAstToJs } from './helpers/stringifyAstToJs';
 import { stringifyAstToSql } from './helpers/stringifyAstToSql';
 

@@ -1,11 +1,11 @@
-import Parser, { IField } from '../../..';
+import Parser, { IField } from '../../../main';
 
-export const stringifyAstToJs = (
+export const stringifyAstToSql = (
   code: string,
   fields: IField[] = [],
 ): string => {
   const parser = new Parser(code, fields ?? []);
-  const sqlQuery = parser.toJs();
+  const sqlQuery = parser.toSql();
 
   return sqlQuery;
 };

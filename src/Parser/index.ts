@@ -560,8 +560,6 @@ export default class Parser {
         });
 
         const res = currentFunction[idx][`${format}Fn`](functionArgs);
-        console.log(res);
-
         return res;
       }
       throw new Error(
