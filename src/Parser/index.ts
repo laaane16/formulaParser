@@ -18,6 +18,7 @@ import VariableNode from '../AST/VariableNode';
 import UnarOperationNode from '../AST/UnarOperationNode';
 import KeywordNode from '../AST/BooleanNode';
 import IfStatementNode from '../AST/IfStatementNode';
+import BooleandNode from '../AST/BooleanNode';
 
 import { allFunctions } from './mappers/functions';
 import { ValidFunctionsNames } from './mappers/functions/types';
@@ -28,8 +29,7 @@ import { allBinOperators } from './mappers/binOperators';
 import { ValidBinOperatorsNames } from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
-import { NodeTypesValues, UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
-import BooleandNode from '../AST/BooleanNode';
+import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
 
 interface IVar {
   title: string;
@@ -37,12 +37,15 @@ interface IVar {
   type: string;
 }
 
+type ParserVar = Omit<IVar, 'title'>;
+
+type INodeReturnType = [Set<string>, number?];
+
 export default class Parser {
   tokens: Token[];
   pos: number = 0;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  globalVars: Record<string, any> = {};
+  globalVars: Record<string, ParserVar> = {};
+  returnTypesCache: Record<string, INodeReturnType> = {};
 
   constructor(tokens: Token[]) {
     this.tokens = tokens;
@@ -53,7 +56,11 @@ export default class Parser {
       return;
     }
     variables.forEach(
-      (i) => (this.globalVars[i.title] = { value: i.value, type: i.type }),
+      (i) =>
+        (this.globalVars[i.title] = {
+          value: i.value,
+          type: i.type,
+        }),
     );
   }
 
@@ -66,7 +73,7 @@ export default class Parser {
     while (this.pos < this.tokens.length) {
       const codeStringNode = this.parseExpression();
       // if we need make formula multiline, uncomment this string and add in tokens symbol, which mean end of line
-      // this.require(СИМВОЛ_ОКОНЧАНИЯ_СТРОКИ)
+      // this.require(END_LINE_SYMBOL)
       root.addNode(codeStringNode);
     }
     return root;
@@ -288,10 +295,136 @@ export default class Parser {
     return token;
   }
 
-  // TODO: add cache for elements that we have bypassed
+  stringifyAst(
+    node: ExpressionNode,
+    format: (typeof FORMATS)[keyof typeof FORMATS],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): any {
+    if (node instanceof StatementsNode) {
+      return node.codeStrings.map((i) => this.stringifyAst(i, format));
+    }
+    if (node instanceof NumberNode) {
+      return node.number.text;
+    }
+    if (node instanceof LiteralNode) {
+      // replace brackets around format stringify
+      if (format === FORMATS.SQL) {
+        return `'${node.literal.text.slice(1, -1)}'`;
+      }
+      return `${node.literal.text}`;
+    }
+    if (node instanceof KeywordNode) {
+      return node.keyword.text;
+    }
+    if (node instanceof VariableNode) {
+      if (this.globalVars[node.variable.text]) {
+        if (format === FORMATS.JS) {
+          return `VARIABLES[${this.globalVars[node.variable.text].value}]`;
+        } else {
+          return `{${this.globalVars[node.variable.text].value}}`;
+        }
+      }
+      throw new Error(
+        `Недопустимая переменная ${node.variable.text} на позиции ${node.start}`,
+      );
+    }
+    if (node instanceof ParenthesizedNode) {
+      return `(${this.stringifyAst(node.expression, format)})`;
+    }
+    if (node instanceof UnarOperationNode) {
+      const operator =
+        allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
+      const operand = this.stringifyAst(node.operand, format);
+
+      if (operator.types.length === 0) {
+        return operator[`${format}Fn`](operand);
+      }
+
+      let isOperandValid = false;
+      const [operatorType] = this.getReturnType(node);
+      operatorType.forEach((i) => {
+        if (operator.types.find((j) => j === i)) {
+          isOperandValid = true;
+        }
+      });
+
+      if (isOperandValid) {
+        return operator[`${format}Fn`](operand);
+      }
+
+      throw new Error(
+        `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operand.start}`,
+      );
+    }
+    if (node instanceof BinOperationNode) {
+      const operator =
+        allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
+      const [operatorType, index] = this.getReturnType(node);
+
+      const leftNode = this.stringifyAst(node.left, format);
+      const rightNode = this.stringifyAst(node.right, format);
+
+      // Maybe change logic for show correct error position
+      if (operatorType.has(UNKNOWN_NODE_TYPE)) {
+        throw new Error(
+          `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operator.pos}`,
+        );
+      }
+
+      if (index !== undefined) {
+        return operator[index][`${format}Fn`](leftNode, rightNode);
+      }
+
+      throw new Error(
+        `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operator.pos}`,
+      );
+    }
+    if (node instanceof IfStatementNode) {
+      const test = this.stringifyAst(node.test, format);
+      const consequent = this.stringifyAst(node.consequent, format);
+      const alternate = this.stringifyAst(node.alternate, format);
+
+      return ifStatementMap[`${format}Fn`](test, consequent, alternate);
+    }
+    if (node instanceof FunctionNode) {
+      // may use as, because next stroke check valid func
+      const currentFunction = allFunctions[node.name as ValidFunctionsNames];
+      if (currentFunction) {
+        const [nodeReturnType, idx] = this.getReturnType(node);
+
+        if (nodeReturnType.has(UNKNOWN_NODE_TYPE)) {
+          throw new Error(
+            `Неожиданный тип данных в функции ${node.name} на позиции ${node.func.pos}`,
+          );
+        }
+
+        if (idx === undefined) {
+          throw new Error('');
+        }
+
+        const functionArgs = node.args.map((arg) => {
+          const argNode = this.stringifyAst(arg, format);
+          return argNode;
+        });
+
+        const res = currentFunction[idx][`${format}Fn`](functionArgs);
+        return res;
+      }
+      throw new Error(
+        `Недопустимое имя функции ${node.name} на позиции ${node.func.pos}`,
+      );
+    }
+    throw new Error(`Недопустимый синтаксис на позиции ${node.start}`);
+  }
+
+  // TODO: this func need refactor, in every condition block we repeat code: setReturnType, return res ...
   // return all possible return types
   // for binary operator and funcs operators we return index which founds coincidence
-  getNodeReturnType(node: ExpressionNode): [Set<string>, number?] {
+  getReturnType(node: ExpressionNode): [Set<string>, number?] {
+    const typeFromCache = this.getCachedReturnType(node.start, node.end);
+    if (typeFromCache) {
+      return typeFromCache;
+    }
     if (
       node instanceof NumberNode ||
       node instanceof LiteralNode ||
@@ -307,27 +440,35 @@ export default class Parser {
       return [new Set([UNKNOWN_NODE_TYPE])];
     }
     if (node instanceof ParenthesizedNode) {
-      return this.getNodeReturnType(node.expression);
+      const res = this.getReturnType(node.expression);
+      this.setReturnTypeInCache(res, node.start, node.end);
+      return res;
     }
     if (node instanceof UnarOperationNode) {
-      return this.getNodeReturnType(node.operand);
+      const res = this.getReturnType(node.operand);
+      this.setReturnTypeInCache(res, node.start, node.end);
+      return res;
     }
     // For binary operator and funcs always returns [Set(...), idx]
     if (node instanceof BinOperationNode) {
       const operator =
         allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
       if (!operator) {
-        return [new Set([UNKNOWN_NODE_TYPE])];
+        const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
+        this.setReturnTypeInCache(res, node.start, node.end);
+        return res;
       }
 
-      const leftNodeType = this.getNodeReturnType(node.left)[0];
-      const rightNodeType = this.getNodeReturnType(node.right)[0];
+      const leftNodeType = this.getReturnType(node.left)[0];
+      const rightNodeType = this.getReturnType(node.right)[0];
 
       if (
         leftNodeType.has(UNKNOWN_NODE_TYPE) ||
         rightNodeType.has(UNKNOWN_NODE_TYPE)
       ) {
-        return [new Set([UNKNOWN_NODE_TYPE])];
+        const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
+        this.setReturnTypeInCache(res, node.start, node.end);
+        return res;
       }
 
       for (let i = 0; i < operator.length; i++) {
@@ -335,7 +476,9 @@ export default class Parser {
         const neededTypeVariant = operator[i].operandType;
 
         if (neededTypeVariant === null) {
-          return [new Set([returnTypeVariant]), i];
+          const res: INodeReturnType = [new Set([returnTypeVariant]), i];
+          this.setReturnTypeInCache(res, node.start, node.end);
+          return res;
         }
 
         if (
@@ -344,41 +487,54 @@ export default class Parser {
           leftNodeType.size === 1 &&
           rightNodeType.size === 1
         ) {
-          return [new Set([returnTypeVariant]), i];
+          const res: INodeReturnType = [new Set([returnTypeVariant]), i];
+          this.setReturnTypeInCache(res, node.start, node.end);
+          return res;
         }
       }
-
-      return [new Set([UNKNOWN_NODE_TYPE])];
+      const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
+      this.setReturnTypeInCache(res, node.start, node.end);
+      return res;
     }
-
     if (node instanceof IfStatementNode) {
-      const consequent = this.getNodeReturnType(node.consequent);
-      const alternate = this.getNodeReturnType(node.alternate);
+      const consequent = this.getReturnType(node.consequent);
+      const alternate = this.getReturnType(node.alternate);
       alternate[0].forEach((i) => consequent[0].add(i));
 
+      this.setReturnTypeInCache(consequent, node.start, node.end);
       return consequent;
     }
     if (node instanceof FunctionNode) {
       const currentFunction = allFunctions[node.name as ValidFunctionsNames];
 
       if (!currentFunction) {
-        return [new Set([UNKNOWN_NODE_TYPE])];
+        const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
+        this.setReturnTypeInCache(res, node.start, node.end);
+        return res;
       }
 
       // empty args array means func does not accept any arguments
       if (node.args.length === 0 && currentFunction[0].args.length === 0) {
-        return [new Set(currentFunction[0].returnType), 0];
+        const res: INodeReturnType = [
+          new Set(currentFunction[0].returnType),
+          0,
+        ];
+        this.setReturnTypeInCache(res, node.start, node.end);
+        return res;
       }
 
       // get all types for node args
       const nodeArgs: [Set<string>, number?][] = [];
       for (const arg of node.args) {
-        const argType = this.getNodeReturnType(arg);
+        const argType = this.getReturnType(arg);
+        // this.setNodeTypeInCache(argType, arg.start);
 
         if (!argType[0].has(UNKNOWN_NODE_TYPE)) {
           nodeArgs.push(argType);
         } else {
-          return [new Set([UNKNOWN_NODE_TYPE])];
+          const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
+          this.setReturnTypeInCache(res, node.start, node.end);
+          return res;
         }
       }
 
@@ -440,132 +596,26 @@ export default class Parser {
           }
         }
         if (coincidences === nodeArgs.length) {
-          return [new Set(functionVariantReturnType), i];
+          const res: INodeReturnType = [new Set(functionVariantReturnType), i];
+          this.setReturnTypeInCache(res, node.start, node.end);
+          return res;
         }
       }
     }
-    return [new Set([UNKNOWN_NODE_TYPE])];
+    const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
+    this.setReturnTypeInCache(res, node.start, node.end);
+    return res;
   }
 
-  stringifyAst(
-    node: ExpressionNode,
-    format: (typeof FORMATS)[keyof typeof FORMATS],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): any {
-    if (node instanceof StatementsNode) {
-      return node.codeStrings.map((i) => this.stringifyAst(i, format));
-    }
-    if (node instanceof NumberNode) {
-      return node.number.text;
-    }
-    if (node instanceof LiteralNode) {
-      // replace brackets around format stringify
-      if (format === FORMATS.SQL) {
-        return `'${node.literal.text.slice(1, -1)}'`;
-      }
-      return `${node.literal.text}`;
-    }
-    if (node instanceof KeywordNode) {
-      return node.keyword.text;
-    }
-    if (node instanceof VariableNode) {
-      if (this.globalVars[node.variable.text]) {
-        if (format === FORMATS.JS) {
-          return `VARIABLES[${this.globalVars[node.variable.text].value}]`;
-        } else {
-          return `{${this.globalVars[node.variable.text].value}}`;
-        }
-      }
-      throw new Error(
-        `Недопустимая переменная ${node.variable.text} на позиции ${node.start}`,
-      );
-    }
-    if (node instanceof ParenthesizedNode) {
-      return `(${this.stringifyAst(node.expression, format)})`;
-    }
-    if (node instanceof UnarOperationNode) {
-      const operator =
-        allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
-      const operand = this.stringifyAst(node.operand, format);
+  getCachedReturnType(start: number, end: number): INodeReturnType {
+    return this.returnTypesCache[`${start}${end}`];
+  }
 
-      if (operator.types.length === 0) {
-        return operator[`${format}Fn`](operand);
-      }
-
-      let isOperandValid = false;
-      const [operatorType] = this.getNodeReturnType(node);
-      operatorType.forEach((i) => {
-        if (operator.types.find((j) => j === i)) {
-          isOperandValid = true;
-        }
-      });
-
-      if (isOperandValid) {
-        return operator[`${format}Fn`](operand);
-      }
-
-      throw new Error(
-        `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operand.start}`,
-      );
-    }
-    if (node instanceof BinOperationNode) {
-      const operator =
-        allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
-      const [operatorType, index] = this.getNodeReturnType(node);
-
-      const leftNode = this.stringifyAst(node.left, format);
-      const rightNode = this.stringifyAst(node.right, format);
-
-      // Maybe change logic for show correct error position
-      if (operatorType.has(UNKNOWN_NODE_TYPE)) {
-        throw new Error(
-          `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operator.pos}`,
-        );
-      }
-
-      if (index !== undefined) {
-        return operator[index][`${format}Fn`](leftNode, rightNode);
-      }
-
-      throw new Error(
-        `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operator.pos}`,
-      );
-    }
-    if (node instanceof IfStatementNode) {
-      const test = this.stringifyAst(node.test, format);
-      const consequent = this.stringifyAst(node.consequent, format);
-      const alternate = this.stringifyAst(node.alternate, format);
-
-      return ifStatementMap[`${format}Fn`](test, consequent, alternate);
-    }
-    if (node instanceof FunctionNode) {
-      // may use as, because next stroke check valid func
-      const currentFunction = allFunctions[node.name as ValidFunctionsNames];
-      if (currentFunction) {
-        const [nodeReturnType, idx] = this.getNodeReturnType(node);
-
-        if (nodeReturnType.has(UNKNOWN_NODE_TYPE)) {
-          throw new Error(
-            `Неожиданный тип данных в функции ${node.name} на позиции ${node.func.pos}`,
-          );
-        }
-
-        if (idx === undefined) {
-          throw new Error('');
-        }
-
-        const functionArgs = node.args.map((arg) => {
-          const argNode = this.stringifyAst(arg, format);
-          return argNode;
-        });
-
-        const res = currentFunction[idx][`${format}Fn`](functionArgs);
-        return res;
-      }
-      throw new Error(
-        `Недопустимое имя функции ${node.name} на позиции ${node.func.pos}`,
-      );
-    }
-    throw new Error(`Недопустимый синтаксис на позиции ${node.start}`);
+  setReturnTypeInCache(
+    type: INodeReturnType,
+    start: number,
+    end: number,
+  ): void {
+    this.returnTypesCache[`${start}${end}`] = type;
   }
 }
