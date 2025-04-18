@@ -88,13 +88,24 @@ export default class Parser {
    * lexic analyze code and parse to ast
    */
   prepareParser(): [ParserCore, StatementsNode] {
-    this.lexer.lexAnalysis();
-    const parser = new ParserCore(this.lexer.tokens);
+    if (this.lexer.tokens.length === 0) {
+      this.lexer.lexAnalysis();
+    }
 
+    const parser = new ParserCore(this.lexer.tokens);
     parser.initVars(this.prepareFields());
     const node = parser.parseCode();
 
     return [parser, node];
+  }
+
+  /**
+   * get AST tree
+   * @returns {StatementsNode}
+   */
+  getAst(): StatementsNode {
+    const [_, node] = this.prepareParser();
+    return node;
   }
 
   /**
