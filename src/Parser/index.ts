@@ -30,14 +30,9 @@ import { ValidBinOperatorsNames } from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
 import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
+import { IField } from '../main';
 
-interface IVar {
-  title: string;
-  value: string;
-  type: string;
-}
-
-type ParserVar = Omit<IVar, 'title'>;
+type ParserVar = Omit<IField, 'name'>;
 
 type INodeReturnType = [Set<string>, number?];
 
@@ -51,14 +46,14 @@ export default class Parser {
     this.tokens = tokens;
   }
 
-  initVars(variables: IVar[]): void {
+  initVars(variables: IField[]): void {
     if (!variables) {
       return;
     }
     variables.forEach(
       (i) =>
-        (this.globalVars[i.title] = {
-          value: i.value,
+        (this.globalVars[i.name] = {
+          id: i.id,
           type: i.type,
         }),
     );
@@ -318,11 +313,7 @@ export default class Parser {
     }
     if (node instanceof VariableNode) {
       if (this.globalVars[node.variable.text]) {
-        if (format === FORMATS.JS) {
-          return `VARIABLES[${this.globalVars[node.variable.text].value}]`;
-        } else {
-          return `{${this.globalVars[node.variable.text].value}}`;
-        }
+        return `VARIABLES['${this.globalVars[node.variable.text].id}']`;
       }
       throw new Error(
         `Недопустимая переменная ${node.variable.text} на позиции ${node.start}`,

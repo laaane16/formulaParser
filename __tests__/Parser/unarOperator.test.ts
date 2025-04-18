@@ -1,10 +1,11 @@
+import { IField } from '../../src/main';
 import { stringifyAstToJs } from '../helpers/stringifyAstToJs';
 import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
 
-const fields = [
-  { id: '1', title: 'Поле 1', type: 'number' },
-  { id: '2', title: 'Поле 2', type: 'number' },
-  { id: '3', title: 'Поле 3', type: 'text' },
+const fields: IField[] = [
+  { id: '1', name: 'Поле 1', type: 'number' },
+  { id: '2', name: 'Поле 2', type: 'number' },
+  { id: '3', name: 'Поле 3', type: 'text' },
 ];
 
 describe('unar operator node to sql', () => {
@@ -33,7 +34,7 @@ describe('unar operator node to sql', () => {
     const code = '- {{Поле 2}}';
     const result = stringifyAstToSql(code, fields);
 
-    expect(result).toBe(`- {2}`);
+    expect(result).toBe(`- VARIABLES['2']`);
   });
 });
 
