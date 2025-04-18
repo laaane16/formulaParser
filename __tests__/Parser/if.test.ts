@@ -1,5 +1,5 @@
-import { stringifyAstToJs } from './helpers/stringifyAstToJs';
-import { stringifyAstToSql } from './helpers/stringifyAstToSql';
+import { stringifyAstToJs } from '../helpers/stringifyAstToJs';
+import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
 
 describe('ifStatementNode to sql', () => {
   test('if can work with all types', () => {

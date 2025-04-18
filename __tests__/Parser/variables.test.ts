@@ -1,6 +1,6 @@
-import { IField } from '../../main';
-import { stringifyAstToJs } from './helpers/stringifyAstToJs';
-import { stringifyAstToSql } from './helpers/stringifyAstToSql';
+import { IField } from '../../src/main';
+import { stringifyAstToJs } from '../helpers/stringifyAstToJs';
+import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
 
 describe('variables to sql', () => {
   test('return correct id', () => {

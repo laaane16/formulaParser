@@ -1,4 +1,4 @@
-import { ValidNumberFunctionsNames } from '../types';
+import { ValidNumberFunctionsNames } from './types';
 
 export const numberFunctionsToSqlMap: Record<
   ValidNumberFunctionsNames,

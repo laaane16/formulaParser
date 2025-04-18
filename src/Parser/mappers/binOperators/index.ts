@@ -5,6 +5,7 @@ import {
 } from '../../../constants/nodeTypes';
 import { ValidBinOperatorsNames, IOperator } from './types';
 
+// TODO: write tests
 // null in returnType means all types are valid
 export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
   PLUS: [

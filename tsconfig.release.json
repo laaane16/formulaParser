@@ -2,8 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "sourceMap": false,
-    "removeComments": true
+    "removeComments": true,
+    "rootDir": "src"
   },
   "include": ["src"],
-  "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/__tests__/"]
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
 }

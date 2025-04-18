@@ -1,4 +1,4 @@
-import { textFunctionsToJsMap } from '.';
+import { textFunctionsToJsMap } from '../../../../src/Parser/mappers/functions/textFunctions/js';
 
 describe('textFunctionsToJsMap', () => {
   test('CONCAT', () => {

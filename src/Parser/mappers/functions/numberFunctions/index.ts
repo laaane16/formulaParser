@@ -1,8 +1,8 @@
 import { NUMBER_NODE_TYPE } from '../../../../constants/nodeTypes';
 import { VariableFunction } from '../types';
 
-import { numberFunctionsToJsMap } from './jsMapper';
-import { numberFunctionsToSqlMap } from './sqlMapper';
+import { numberFunctionsToJsMap } from './js';
+import { numberFunctionsToSqlMap } from './sql';
 import { ValidNumberFunctionsNames } from './types';
 
 export const numberFunctions: Record<

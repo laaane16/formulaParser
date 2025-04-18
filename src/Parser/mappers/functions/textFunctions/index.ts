@@ -4,8 +4,8 @@ import {
 } from '../../../../constants/nodeTypes';
 import { VariableFunction } from '../types';
 
-import { textFunctionsToJsMap } from './jsMapper';
-import { textFunctionsToSqlMap } from './sqlMapper';
+import { textFunctionsToJsMap } from './js';
+import { textFunctionsToSqlMap } from './sql';
 import { ValidTextFunctionsNames } from './types';
 
 export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =

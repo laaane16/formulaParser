@@ -1,4 +1,4 @@
-import { numberFunctionsToSqlMap } from '.';
+import { numberFunctionsToSqlMap } from '../../../../src/Parser/mappers/functions/numberFunctions/sql';
 
 describe('numberFunctionsToSqlMap', () => {
   test('ABS', () => {

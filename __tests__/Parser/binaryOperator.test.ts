@@ -1,4 +1,4 @@
-import { stringifyAstToSql } from './helpers/stringifyAstToSql';
+import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
 
 const fields = [
   { id: '1', title: 'Поле 1', type: 'number' },

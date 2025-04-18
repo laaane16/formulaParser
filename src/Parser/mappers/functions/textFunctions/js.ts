@@ -2,7 +2,7 @@
  *  * In this file we work with strings - NODE_STRING_TYPE as ""!!!
  */
 
-import { ValidTextFunctionsNames } from '../types';
+import { ValidTextFunctionsNames } from './types';
 
 export const textFunctionsToJsMap: Record<
   ValidTextFunctionsNames,

@@ -1,4 +1,4 @@
-import { numberFunctionsToJsMap } from '.';
+import { numberFunctionsToJsMap } from '../../../../src/Parser/mappers/functions/numberFunctions/js';
 
 describe('numberFunctionsToJsMap', () => {
   test('ABS', () => {

@@ -1,4 +1,4 @@
-import { textFunctionsToSqlMap } from '.';
+import { textFunctionsToSqlMap } from '../../../../src/Parser/mappers/functions/textFunctions/sql';
 
 describe('textFunctionsToSqlMap', () => {
   test('CONCAT', () => {

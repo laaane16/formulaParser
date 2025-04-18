@@ -1,5 +1,5 @@
-import { stringifyAstToSql } from './helpers/stringifyAstToSql';
-import { stringifyAstToJs } from './helpers/stringifyAstToJs';
+import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
+import { stringifyAstToJs } from '../helpers/stringifyAstToJs';
 
 describe('boolean node to sql', () => {
   test('true', () => {

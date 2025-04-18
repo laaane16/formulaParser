@@ -1,4 +1,4 @@
-import { ifStatementMap } from '.';
+import { ifStatementMap } from '../../../src/Parser/mappers/if';
 
 describe('toJs', () => {
   test('simple test', () => {

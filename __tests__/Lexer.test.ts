@@ -1,4 +1,4 @@
-import Lexer from '.';
+import Lexer from '../src/Lexer';
 
 describe('Lexer', () => {
   it('должен токенизировать выражение с числами и операторами', () => {
