@@ -1,3 +1,4 @@
+import ExpressionNode from './AST/ExpressionNode';
 import StatementsNode from './AST/StatementsNode';
 import Lexer from './Lexer';
 import ParserCore from './Parser';
@@ -45,6 +46,43 @@ export default class Parser {
       value: field.id,
       type: field.type,
     }));
+  }
+
+  /**
+   * Walk by ast nodes
+   * @example
+   * getUsedVariables() {
+   * const [, node] = this.prepareParser();
+   * const variables = new Set();
+   * this.walkAst(node, n => {
+   * if (n.type === 'Variable') {
+   *    variables.add(n.name);
+   *  }
+   * });
+   * return [...variables];
+   * }
+   */
+  walkAst(
+    node: ExpressionNode,
+    callback: (node: ExpressionNode) => void,
+  ): void {
+    if (!node || typeof node !== 'object') return;
+
+    callback(node);
+
+    for (const key of Object.keys(node) as (keyof ExpressionNode)[]) {
+      const child = node[key];
+
+      if (Array.isArray(child)) {
+        child.forEach((c) => {
+          if (typeof c === 'object' && c !== null) {
+            this.walkAst(c as ExpressionNode, callback);
+          }
+        });
+      } else if (typeof child === 'object' && child !== null) {
+        this.walkAst(child as ExpressionNode, callback);
+      }
+    }
   }
 
   /**

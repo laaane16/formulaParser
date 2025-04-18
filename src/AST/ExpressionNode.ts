@@ -1,5 +1,5 @@
 export default class ExpressionNode {
-  type: string;
+  type: string; // TODO: add enum for types
   start: number;
   end: number;
 
