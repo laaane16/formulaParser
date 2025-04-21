@@ -6,6 +6,7 @@ import { FORMATS } from './constants/formats';
 import { FORMULA_TEMPLATES } from './constants/templates';
 import { FormulaError } from './lib/exceptions';
 import { isNil } from './lib/isNil';
+import { removePrefixSuffix } from './lib/removePrefixSuffix';
 
 export interface IField {
   id: string;
@@ -109,10 +110,21 @@ export default class Parser {
       }
     }
   }
+  public getVariables(): string[] {
+    const [parser, _] = this.prepareParser();
+    const variables: Set<string> = new Set(); // Используем Set для уникальных переменных
 
-  public getVariables() {
-    const [parser, node] = this.prepareParser();
-    return parser.stringifyAst(node, FORMATS.SQL)[0]; // Currently, returns only the first SQL line
+    // Пройдем по AST и для каждого узла получаем переменные
+    this.walkAst((node) => {
+      // Получаем переменные, обрезая префикс и постфикс
+      const rawVariables = Array.from(parser.getVariables(node));
+      rawVariables.forEach((variable) => {
+        const cleanedVariable = removePrefixSuffix(variable);
+        variables.add(cleanedVariable); // Добавляем в Set, который автоматически исключает дубли
+      });
+    });
+
+    return Array.from(variables); // Преобразуем Set обратно в массив
   }
 
   /**

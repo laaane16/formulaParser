@@ -609,6 +609,34 @@ export default class Parser {
     return res;
   }
 
+  getVariables(node: ExpressionNode): Set<string> {
+    const variables = new Set<string>();
+
+    const traverse = (n: ExpressionNode) => {
+      if (n instanceof VariableNode) {
+        variables.add(n.variable.text);
+      } else if (n instanceof BinOperationNode) {
+        traverse(n.left);
+        traverse(n.right);
+      } else if (n instanceof UnarOperationNode) {
+        traverse(n.operand);
+      } else if (n instanceof ParenthesizedNode) {
+        traverse(n.expression);
+      } else if (n instanceof FunctionNode) {
+        n.args.forEach(traverse);
+      } else if (n instanceof IfStatementNode) {
+        if (n.consequent) traverse(n.consequent);
+        if (n.alternate) traverse(n.alternate);
+        if (n.test) traverse(n.test);
+      } else if (n instanceof StatementsNode) {
+        n.codeStrings.forEach(traverse);
+      }
+    };
+
+    traverse(node);
+    return variables;
+  }
+
   getCachedReturnType(start: number, end: number): INodeReturnType {
     return this.returnTypesCache[`${start}${end}`];
   }
