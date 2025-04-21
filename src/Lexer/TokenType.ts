@@ -1,3 +1,5 @@
+import { FORMULA_TEMPLATES } from '../constants/templates';
+
 export default class TokenType {
   regex: string;
   name: string;
@@ -14,7 +16,13 @@ export const tokenTypesList: Map<string, TokenType> = new Map([
   ['NUMBER', new TokenType('NUMBER', '[0-9]+\\.*[0-9]*')],
   ['STRING', new TokenType('STRING', '"((?:\\\\.|[^"\\\\])*)"')],
   // VARIABLES: {{...}}
-  ['VARIABLE', new TokenType('VARIABLE', '{{((?:\\\\.|[^{\\\\])+)}}')],
+  [
+    'VARIABLE',
+    new TokenType(
+      'VARIABLE',
+      `${FORMULA_TEMPLATES.PREFIX}((?:\\\\.|[^{\\\\])+)${FORMULA_TEMPLATES.POSTFIX}`,
+    ),
+  ],
 
   // IF
   ['IF', new TokenType('IF', 'IF')],

@@ -3,11 +3,9 @@ import StatementsNode from './AST/StatementsNode';
 import Lexer from './Lexer';
 import ParserCore from './Parser';
 import { FORMATS } from './constants/formats';
+import { FORMULA_TEMPLATES } from './constants/templates';
 import { FormulaError } from './lib/exceptions';
 import { isNil } from './lib/isNil';
-
-const PREFIX = '{{';
-const POSTFIX = '}}';
 
 export interface IField {
   id: string;
@@ -50,7 +48,7 @@ export default class Parser {
    */
   private prepareFields(): IField[] {
     return this.fields.map((field) => ({
-      name: `${PREFIX}${field[this.fieldAttribute]}${POSTFIX}`,
+      name: `${FORMULA_TEMPLATES.PREFIX}${field[this.fieldAttribute]}${FORMULA_TEMPLATES.POSTFIX}`,
       id: field.id,
       type: field.type,
       ...(field.dbId && { dbId: field.dbId }),
@@ -58,19 +56,33 @@ export default class Parser {
   }
 
   /**
-   * Walk by ast nodes
-   * @example
-   * getUsedVariables() {
-   * const variables = new Set();
-   * this.walkAst(n => {
-   * if (n.type === 'Variable') {
-   *    variables.add(n.name);
-   *  }
-   * });
-   * return [...variables];
-   * }
+   * lexic analyze code and parse to ast
    */
-  walkAst(callback: (node: ExpressionNode) => void): void {
+  public prepareParser(): [ParserCore, StatementsNode] {
+    if (this.lexer.tokens.length === 0) {
+      this.lexer.lexAnalysis();
+    }
+
+    const parser = new ParserCore(this.lexer.tokens);
+    parser.initVars(this.prepareFields(), this.fieldAttribute);
+    const node = parser.parseCode();
+
+    return [parser, node];
+  }
+
+  /**
+   * get AST tree
+   * @returns {StatementsNode}
+   */
+  public getAst(): StatementsNode {
+    const [_, node] = this.prepareParser();
+    return node;
+  }
+
+  /**
+   * Walk by ast nodes
+   */
+  public walkAst(callback: (node: ExpressionNode) => void): void {
     const ast = this.getAst();
     this._walkNode(ast, callback);
   }
@@ -98,35 +110,16 @@ export default class Parser {
     }
   }
 
-  /**
-   * lexic analyze code and parse to ast
-   */
-  prepareParser(): [ParserCore, StatementsNode] {
-    if (this.lexer.tokens.length === 0) {
-      this.lexer.lexAnalysis();
-    }
-
-    const parser = new ParserCore(this.lexer.tokens);
-    parser.initVars(this.prepareFields(), this.fieldAttribute);
-    const node = parser.parseCode();
-
-    return [parser, node];
-  }
-
-  /**
-   * get AST tree
-   * @returns {StatementsNode}
-   */
-  getAst(): StatementsNode {
-    const [_, node] = this.prepareParser();
-    return node;
+  public getVariables() {
+    const [parser, node] = this.prepareParser();
+    return parser.stringifyAst(node, FORMATS.SQL)[0]; // Currently, returns only the first SQL line
   }
 
   /**
    * Converts the input expression into an SQL query.
    * @returns {string} The generated SQL query.
    */
-  toSql(): string {
+  public toSql(): string {
     const [parser, node] = this.prepareParser();
     return parser.stringifyAst(node, FORMATS.SQL)[0]; // Currently, returns only the first SQL line
   }
@@ -135,13 +128,13 @@ export default class Parser {
    * Converts the input expression into an Js format.
    * @returns {string} The generated Js string, which can evaluate.
    */
-  toJs(): string {
+  public toJs(): string {
     const [parser, node] = this.prepareParser();
     return parser.stringifyAst(node, FORMATS.JS)[0]; // Currently, returns only the first JS line
   }
 
   // fields in stringify to ast converts in VARIABLES.$[VARIABLE_ID]
-  runJs(jsFormula: string, values: Record<string, unknown>): unknown {
+  public runJs(jsFormula: string, values: Record<string, unknown>): unknown {
     const runFormula = new Function('VARIABLES', `return ${jsFormula}`)(values);
     return runFormula;
   }
