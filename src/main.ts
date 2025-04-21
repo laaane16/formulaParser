@@ -16,6 +16,8 @@ export interface IField {
   type: string;
 }
 
+export type FIELD_ATTR_TYPE = keyof IField;
+
 /**
  * The `Parser` class is responsible for converting a JavaScript-like expression into an SQL query.
  */
@@ -23,17 +25,23 @@ export default class Parser {
   public expression: string;
   private lexer: Lexer;
   private fields: IField[];
+  public fieldAttribute: FIELD_ATTR_TYPE;
 
   /**
    * Creates a new `Parser` instance.
    * @param {string} expression - The input formula or expression.
    * @param {IField[]} [fields=[]] - An optional array of field metadata.
    */
-  constructor(expression: string, fields: IField[] = []) {
+  constructor(
+    expression: string,
+    fields: IField[] = [],
+    fieldAttribute: FIELD_ATTR_TYPE = 'id',
+  ) {
     if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
     this.fields = fields;
+    this.fieldAttribute = fieldAttribute;
   }
 
   /**
@@ -42,7 +50,7 @@ export default class Parser {
    */
   private prepareFields(): IField[] {
     return this.fields.map((field) => ({
-      name: `${PREFIX}${field.name}${POSTFIX}`,
+      name: `${PREFIX}${field[this.fieldAttribute]}${POSTFIX}`,
       id: field.id,
       type: field.type,
       ...(field.dbId && { dbId: field.dbId }),
@@ -53,9 +61,8 @@ export default class Parser {
    * Walk by ast nodes
    * @example
    * getUsedVariables() {
-   * const [, node] = this.prepareParser();
    * const variables = new Set();
-   * this.walkAst(node, n => {
+   * this.walkAst(n => {
    * if (n.type === 'Variable') {
    *    variables.add(n.name);
    *  }
@@ -63,7 +70,12 @@ export default class Parser {
    * return [...variables];
    * }
    */
-  walkAst(
+  walkAst(callback: (node: ExpressionNode) => void): void {
+    const ast = this.getAst();
+    this._walkNode(ast, callback);
+  }
+
+  private _walkNode(
     node: ExpressionNode,
     callback: (node: ExpressionNode) => void,
   ): void {
@@ -77,11 +89,11 @@ export default class Parser {
       if (Array.isArray(child)) {
         child.forEach((c) => {
           if (typeof c === 'object' && c !== null) {
-            this.walkAst(c as ExpressionNode, callback);
+            this._walkNode(c as ExpressionNode, callback);
           }
         });
       } else if (typeof child === 'object' && child !== null) {
-        this.walkAst(child as ExpressionNode, callback);
+        this._walkNode(child as ExpressionNode, callback);
       }
     }
   }
@@ -95,7 +107,7 @@ export default class Parser {
     }
 
     const parser = new ParserCore(this.lexer.tokens);
-    parser.initVars(this.prepareFields());
+    parser.initVars(this.prepareFields(), this.fieldAttribute);
     const node = parser.parseCode();
 
     return [parser, node];

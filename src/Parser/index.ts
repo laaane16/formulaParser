@@ -30,9 +30,9 @@ import { ValidBinOperatorsNames } from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
 import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
-import { IField } from '../main';
+import { IField, FIELD_ATTR_TYPE } from '../main';
 
-type ParserVar = Omit<IField, 'name'>;
+type ParserVar = IField;
 
 type INodeReturnType = [Set<string>, number?];
 
@@ -46,17 +46,25 @@ export default class Parser {
     this.tokens = tokens;
   }
 
-  initVars(variables: IField[]): void {
+  initVars(variables: IField[], fieldAttribute: FIELD_ATTR_TYPE = 'id'): void {
     if (!variables) {
       return;
     }
-    variables.forEach(
-      (i) =>
-        (this.globalVars[i.name] = {
+    variables.forEach((i) => {
+      const key = i[fieldAttribute];
+      if (typeof key === 'string' || typeof key === 'number') {
+        this.globalVars[key] = {
           id: i.id,
           type: i.type,
-        }),
-    );
+          name: i.name,
+          ...(i.dbId && { dbId: i.dbId }),
+        };
+      } else {
+        throw new Error(
+          `Field "${fieldAttribute}" is undefined for variable: ${JSON.stringify(i)}`,
+        );
+      }
+    });
   }
 
   parseCode(): StatementsNode {
@@ -108,7 +116,7 @@ export default class Parser {
       }
     }
 
-    throw new Error(`Неожиданный синтаксис на ${this.pos}`);
+    throw new Error(`Unexpected syntax on ${this.pos}`);
   }
 
   parseLiteralNode(): LiteralNode | null {
@@ -178,7 +186,7 @@ export default class Parser {
         );
         if (isBracketsEmpty) {
           throw new Error(
-            `Пустой условный оператор на позиции ${ifStatement.pos}`,
+            `An empty conditional operator at the position ${ifStatement.pos}`,
           );
         }
 
@@ -192,7 +200,7 @@ export default class Parser {
           while (virgule) {
             if (virguleCount >= 2) {
               throw new Error(
-                `Неожиданное количество аргументов на позиции ${virgule.pos + 1}`,
+                `An unexpected number of arguments per position ${virgule.pos + 1}`,
               );
             }
             virguleCount++;
@@ -230,7 +238,7 @@ export default class Parser {
         return new FunctionNode(func, func.text, args);
       }
       throw new Error(
-        `Ожидалось перечисление аргументов на позиции ${this.pos}`,
+        `An enumeration of arguments for the position was expected ${this.pos}`,
       );
     }
     return null;
@@ -285,7 +293,9 @@ export default class Parser {
   require(...expected: TokenType[]): Token {
     const token = this.match(...expected);
     if (!token) {
-      throw new Error(`На позиции ${this.pos} ожидается ${expected[0].name}`);
+      throw new Error(
+        `On the position ${this.pos} expected ${expected[0].name}`,
+      );
     }
     return token;
   }
@@ -316,7 +326,7 @@ export default class Parser {
         return `VARIABLES['${this.globalVars[node.variable.text].id}']`;
       }
       throw new Error(
-        `Недопустимая переменная ${node.variable.text} на позиции ${node.start}`,
+        `Invalid variable ${node.variable.text} on the position ${node.start}`,
       );
     }
     if (node instanceof ParenthesizedNode) {
@@ -344,7 +354,7 @@ export default class Parser {
       }
 
       throw new Error(
-        `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operand.start}`,
+        `Unexpected type of data when ${node.operator.text} on the position ${node.operand.start}`,
       );
     }
     if (node instanceof BinOperationNode) {
@@ -358,7 +368,7 @@ export default class Parser {
       // Maybe change logic for show correct error position
       if (operatorType.has(UNKNOWN_NODE_TYPE)) {
         throw new Error(
-          `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operator.pos}`,
+          `Unexpected type of data when ${node.operator.text} on the position ${node.operator.pos}`,
         );
       }
 
@@ -367,7 +377,7 @@ export default class Parser {
       }
 
       throw new Error(
-        `Неожиданный тип данных при ${node.operator.text} на позиции ${node.operator.pos}`,
+        `Unexpected type of data when ${node.operator.text} on the position ${node.operator.pos}`,
       );
     }
     if (node instanceof IfStatementNode) {
@@ -385,7 +395,7 @@ export default class Parser {
 
         if (nodeReturnType.has(UNKNOWN_NODE_TYPE)) {
           throw new Error(
-            `Неожиданный тип данных в функции ${node.name} на позиции ${node.func.pos}`,
+            `Unexpected data type in the function ${node.name} on the position ${node.func.pos}`,
           );
         }
 
@@ -398,14 +408,15 @@ export default class Parser {
           return argNode;
         });
 
-        const res = currentFunction[idx][`${format}Fn`](functionArgs);
+        const resFn = currentFunction[idx][`${format}Fn`];
+        const res = resFn(functionArgs);
         return res;
       }
       throw new Error(
-        `Недопустимое имя функции ${node.name} на позиции ${node.func.pos}`,
+        `Invalid function name ${node.name} on the position ${node.func.pos}`,
       );
     }
-    throw new Error(`Недопустимый синтаксис на позиции ${node.start}`);
+    throw new Error(`Invalid syntax in the position ${node.start}`);
   }
 
   // TODO: this func need refactor, in every condition block we repeat code: setReturnType, return res ...

@@ -37,6 +37,8 @@ export default class Lexer {
       }
     }
 
-    throw new Error(`На позиции ${this.pos} обнаружена ошибка`);
+    throw new Error(
+      `[LEXER]: On the position ${this.pos} an error has been detected`,
+    );
   }
 }

@@ -11,6 +11,9 @@ importers:
       '@eslint/js':
         specifier: ~9.24
         version: 9.24.0
+      '@jest/types':
+        specifier: ^29.6.3
+        version: 29.6.3
       '@types/eslint__js':
         specifier: ~8.42
         version: 8.42.3
@@ -1849,6 +1852,9 @@ packages:
         optional: true
       '@swc/wasm':
         optional: true
+
+  tslib@2.8.1:
+    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -4050,6 +4056,8 @@ snapshots:
       typescript: 5.7.3
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
+
+  tslib@2.8.1: {}
 
   type-check@0.4.0:
     dependencies:
