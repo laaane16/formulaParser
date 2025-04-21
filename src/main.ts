@@ -11,6 +11,7 @@ const POSTFIX = '}}';
 
 export interface IField {
   id: string;
+  dbId?: number;
   name: string;
   type: string;
 }
@@ -44,6 +45,7 @@ export default class Parser {
       name: `${PREFIX}${field.name}${POSTFIX}`,
       id: field.id,
       type: field.type,
+      ...(field.dbId && { dbId: field.dbId }),
     }));
   }
 
