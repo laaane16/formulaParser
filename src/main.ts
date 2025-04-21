@@ -18,7 +18,8 @@ export interface IField {
 export type FIELD_ATTR_TYPE = keyof IField;
 
 /**
- * The `Parser` class is responsible for converting a JavaScript-like expression into an SQL query.
+ * The `Parser` class is responsible for converting a JavaScript-like expression into an SQL or JS expression.
+ * It supports field mapping, AST parsing, variable extraction, and execution of parsed formulas.
  */
 export default class Parser {
   public expression: string;
@@ -29,7 +30,8 @@ export default class Parser {
   /**
    * Creates a new `Parser` instance.
    * @param {string} expression - The input formula or expression.
-   * @param {IField[]} [fields=[]] - An optional array of field metadata.
+   * @param {IField[]} [fields=[]] - Optional list of field definitions.
+   * @param {FIELD_ATTR_TYPE} [fieldAttribute='id'] - The field attribute to use for variable binding.
    */
   constructor(
     expression: string,
@@ -44,8 +46,8 @@ export default class Parser {
   }
 
   /**
-   * Prepares the field mappings for use in the parsing process.
-   * @returns {IField[]} The mapped field objects.
+   * Prepares the field mappings with templated variable names for use in parsing.
+   * @returns {IField[]} The transformed fields with templated names.
    */
   private prepareFields(): IField[] {
     return this.fields.map((field) => ({
@@ -57,7 +59,8 @@ export default class Parser {
   }
 
   /**
-   * lexic analyze code and parse to ast
+   * Performs lexical analysis and parses the expression into an AST.
+   * @returns {[ParserCore, StatementsNode]} A tuple containing the parser instance and the root AST node.
    */
   public prepareParser(): [ParserCore, StatementsNode] {
     if (this.lexer.tokens.length === 0) {
@@ -72,8 +75,8 @@ export default class Parser {
   }
 
   /**
-   * get AST tree
-   * @returns {StatementsNode}
+   * Gets the root AST node for the parsed expression.
+   * @returns {StatementsNode} The abstract syntax tree.
    */
   public getAst(): StatementsNode {
     const [_, node] = this.prepareParser();
@@ -81,13 +84,19 @@ export default class Parser {
   }
 
   /**
-   * Walk by ast nodes
+   * Walks the AST and invokes the callback for every node.
+   * @param {(node: ExpressionNode) => void} callback - The function to call on each AST node.
    */
   public walkAst(callback: (node: ExpressionNode) => void): void {
     const ast = this.getAst();
     this._walkNode(ast, callback);
   }
 
+  /**
+   * Internal recursive function to walk each AST node.
+   * @param {ExpressionNode} node - The current AST node.
+   * @param {(node: ExpressionNode) => void} callback - The function to call on each node.
+   */
   private _walkNode(
     node: ExpressionNode,
     callback: (node: ExpressionNode) => void,
@@ -110,6 +119,12 @@ export default class Parser {
       }
     }
   }
+
+  /**
+   * Extracts the list of unique variable names used in the expression.
+   * Removes templating syntax from variables (e.g., `{{...}}`).
+   * @returns {string[]} An array of unique variable names.
+   */
   public getVariables(): string[] {
     const [parser, _] = this.prepareParser();
     const variables: Set<string> = new Set(); // Используем Set для уникальных переменных
@@ -128,24 +143,28 @@ export default class Parser {
   }
 
   /**
-   * Converts the input expression into an SQL query.
-   * @returns {string} The generated SQL query.
+   * Converts the parsed expression into an SQL string.
+   * @returns {string} The SQL representation of the formula.
    */
   public toSql(): string {
     const [parser, node] = this.prepareParser();
     return parser.stringifyAst(node, FORMATS.SQL)[0]; // Currently, returns only the first SQL line
   }
-
   /**
-   * Converts the input expression into an Js format.
-   * @returns {string} The generated Js string, which can evaluate.
+   * Converts the parsed expression into a JavaScript-evaluable string.
+   * @returns {string} The JS representation of the formula.
    */
   public toJs(): string {
     const [parser, node] = this.prepareParser();
     return parser.stringifyAst(node, FORMATS.JS)[0]; // Currently, returns only the first JS line
   }
 
-  // fields in stringify to ast converts in VARIABLES.$[VARIABLE_ID]
+  /**
+   * Evaluates the JavaScript formula string with the given variable values.
+   * @param {string} jsFormula - The JavaScript formula string.
+   * @param {Record<string, unknown>} values - An object with key-value pairs for variables.
+   * @returns {unknown} The result of formula evaluation.
+   */
   public runJs(jsFormula: string, values: Record<string, unknown>): unknown {
     const runFormula = new Function('VARIABLES', `return ${jsFormula}`)(values);
     return runFormula;
