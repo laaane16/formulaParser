@@ -127,19 +127,17 @@ export default class Parser {
    */
   public getVariables(): string[] {
     const [parser, _] = this.prepareParser();
-    const variables: Set<string> = new Set(); // Используем Set для уникальных переменных
+    const variables: Set<string> = new Set();
 
-    // Пройдем по AST и для каждого узла получаем переменные
     this.walkAst((node) => {
-      // Получаем переменные, обрезая префикс и постфикс
       const rawVariables = Array.from(parser.getVariables(node));
       rawVariables.forEach((variable) => {
         const cleanedVariable = removePrefixSuffix(variable);
-        variables.add(cleanedVariable); // Добавляем в Set, который автоматически исключает дубли
+        variables.add(cleanedVariable);
       });
     });
 
-    return Array.from(variables); // Преобразуем Set обратно в массив
+    return Array.from(variables);
   }
 
   /**
@@ -150,6 +148,7 @@ export default class Parser {
     const [parser, node] = this.prepareParser();
     return parser.stringifyAst(node, FORMATS.SQL)[0]; // Currently, returns only the first SQL line
   }
+
   /**
    * Converts the parsed expression into a JavaScript-evaluable string.
    * @returns {string} The JS representation of the formula.
