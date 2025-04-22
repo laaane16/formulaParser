@@ -3,7 +3,6 @@ import StatementsNode from './AST/StatementsNode';
 import Lexer from './Lexer';
 import ParserCore from './Parser';
 import { FORMATS } from './constants/formats';
-import { FORMULA_TEMPLATES } from './constants/templates';
 import { FormulaError } from './lib/exceptions';
 import { isNil } from './lib/isNil';
 import { removePrefixSuffix } from './lib/removePrefixSuffix';
@@ -24,6 +23,7 @@ export type FIELD_ATTR_TYPE = keyof IField;
 export default class Parser {
   public expression: string;
   private lexer: Lexer;
+  private root?: StatementsNode;
   private fields: IField[];
   public fieldAttribute: FIELD_ATTR_TYPE;
 
@@ -36,26 +36,13 @@ export default class Parser {
   constructor(
     expression: string,
     fields: IField[] = [],
-    fieldAttribute: FIELD_ATTR_TYPE = 'id',
+    fieldAttribute: FIELD_ATTR_TYPE = 'name',
   ) {
     if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
     this.fields = fields;
     this.fieldAttribute = fieldAttribute;
-  }
-
-  /**
-   * Prepares the field mappings with templated variable names for use in parsing.
-   * @returns {IField[]} The transformed fields with templated names.
-   */
-  private prepareFields(): IField[] {
-    return this.fields.map((field) => ({
-      name: `${FORMULA_TEMPLATES.PREFIX}${field[this.fieldAttribute]}${FORMULA_TEMPLATES.POSTFIX}`,
-      id: field.id,
-      type: field.type,
-      ...(field.dbId && { dbId: field.dbId }),
-    }));
   }
 
   /**
@@ -67,9 +54,14 @@ export default class Parser {
       this.lexer.lexAnalysis();
     }
 
+    let node;
     const parser = new ParserCore(this.lexer.tokens);
-    parser.initVars(this.prepareFields(), this.fieldAttribute);
-    const node = parser.parseCode();
+    parser.initVars(this.fields, this.fieldAttribute);
+    if (this.root) {
+      node = this.root;
+    } else {
+      node = parser.parseCode();
+    }
 
     return [parser, node];
   }
@@ -140,6 +132,14 @@ export default class Parser {
     return Array.from(variables);
   }
 
+  public mapIdentifiers(attrs: {
+    from: keyof IField;
+    to: keyof IField;
+  }): string {
+    const [parser, node] = this.prepareParser();
+    return parser.mapIdentifiers(node, this.fields, attrs)[0];
+  }
+
   /**
    * Converts the parsed expression into an SQL string.
    * @returns {string} The SQL representation of the formula.
@@ -161,24 +161,40 @@ export default class Parser {
   /**
    * Evaluates the JavaScript formula string with the given variable values.
    * @param {string} jsFormula - The JavaScript formula string.
-   * @param {Record<string, unknown>} values - An object with key-value pairs for variables.
+   * @param {Record<string, unknown>} values - An object with key-value pairs for variables. Key always id in fields
    * @returns {unknown} The result of formula evaluation.
    */
   public runJs(jsFormula: string, values: Record<string, unknown>): unknown {
-    const runFormula = new Function('VARIABLES', `return ${jsFormula}`)(values);
+    const runFormula = new Function('$$VARIABLES', `return ${jsFormula}`)(
+      values,
+    );
     return runFormula;
+  }
+  /**
+   * Replace vars on values
+   * @param {string} sqlFormula - The Sql format formula
+   * @param {Record<string, unknown>} values - An object with key-value pairs for variables. Key always id in fields
+   */
+  public replaceWithVariables(
+    sqlFormula: string,
+    values: Record<string, unknown>,
+  ): string {
+    return sqlFormula.replace(/\$\$VARIABLES\['(.*?)'\]/g, (_, key) => {
+      return JSON.stringify(values[key]);
+    });
   }
 }
 
 // Example usage:
 // const fields: IField[] = [
-//   { id: '1', name: 'Поле 1', type: 'number' },
-//   { id: '2', name: 'Поле 2', type: 'number' },
-//   { id: '3', name: 'Поле 3', type: 'number' },
-//   { id: '9', name: 'Поле 4', type: 'number' },
-//   { id: 'FIELD123123', name: 'Поле 5', type: 'number' },
+//   { id: '1', dbId: 1, name: 'Поле 1', type: 'number' },
+//   { id: '2', dbId: 2, name: 'Поле 2', type: 'number' },
+//   { id: '3', dbId: 3, name: 'Поле 3', type: 'number' },
+//   { id: '9', dbId: 4, name: 'Поле 4', type: 'number' },
+//   { id: 'FIELD123123', dbId: 8, name: 'Поле 5', type: 'number' },
 // ];
 
+// key in values always id
 // const values: Record<string, unknown> = {
 //   1: 1000,
 //   2: 5000,
@@ -187,10 +203,9 @@ export default class Parser {
 //   FIELD123123: 150,
 // };
 
-// const expression =
-//   '{{Поле 1}} + {{Поле 2}} + {{Поле 3}} + {{Поле 4}} + {{Поле 5}}';
+// const expression = '{{4}} + {{8}}';
 
-// const parser = new Parser(expression, fields);
+// const parser = new Parser(expression, fields, 'dbId');
 
 // const sqlQuery = parser.toSql();
 // console.log('SQL:', sqlQuery); // Outputs the generated SQL query
@@ -199,3 +214,5 @@ export default class Parser {
 // console.log('JS:', jsFormula); // Outputs the generated JS query
 
 // console.log('RUN JS:', parser.runJs(jsFormula, values));
+
+// console.log(parser.replaceWithVariables(sqlQuery, values));

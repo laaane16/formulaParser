@@ -115,13 +115,12 @@ describe('bin operator node to sql', () => {
     );
   });
 
-  // FIXME: TEMPEST COMMENT
-  // test('binary operators can work with valid vars, which has equal types', () => {
-  //   const code = '{{3}} + {{3}}';
-  //   const result = stringifyAstToSql(code, fields);
+  test('binary operators can work with valid vars, which has equal types', () => {
+    const code = '{{3}} + {{3}}';
+    const result = stringifyAstToSql(code, fields, 'id');
 
-  //   expect(result).toBe("CONCAT(VARIABLES['3'], VARIABLES['3'])");
-  // });
+    expect(result).toBe("CONCAT($$VARIABLES['3'], $$VARIABLES['3'])");
+  });
 
   // test('and', () => {
   //   const code = '1 && 1';
@@ -251,7 +250,7 @@ describe('bin operator node errors', () => {
     const code = '{{Поле 3}} + {{Поле 2}}';
 
     expect(() => stringifyAstToSql(code, fields)).toThrow(
-      'Invalid variable {{Поле 3}} on the position 0',
+      'Unexpected type of data when + on the position 11',
     );
   });
 

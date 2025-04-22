@@ -30,13 +30,12 @@ describe('unar operator node to sql', () => {
     expect(result).toBe(`- 2.234`);
   });
 
-  // FIXME: TEMPEST COMMENT
-  // test('minus can work with vars which type = number', () => {
-  //   const code = '- {{2}}';
-  //   const result = stringifyAstToSql(code, fields);
+  test('minus can work with vars which type = number', () => {
+    const code = '- {{2}}';
+    const result = stringifyAstToSql(code, fields, 'id');
 
-  //   expect(result).toBe(`- VARIABLES['2']`);
-  // });
+    expect(result).toBe(`- $$VARIABLES['2']`);
+  });
 });
 
 describe('unar operator node to js', () => {
@@ -68,7 +67,7 @@ describe('unar operator node errors', () => {
     const code = '- {{Поле 3}}';
 
     expect(() => stringifyAstToSql(code, fields)).toThrow(
-      'Invalid variable {{Поле 3}} on the position 2',
+      'Unexpected type of data when - on the position 2',
     );
   });
 });

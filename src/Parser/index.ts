@@ -31,6 +31,8 @@ import { ValidBinOperatorsNames } from './mappers/binOperators/types';
 import { FORMATS } from '../constants/formats';
 import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
 import { IField, FIELD_ATTR_TYPE } from '../main';
+import { removePrefixSuffix } from '../lib/removePrefixSuffix';
+import { FORMULA_TEMPLATES } from '../constants/templates';
 
 type ParserVar = IField;
 
@@ -46,7 +48,10 @@ export default class Parser {
     this.tokens = tokens;
   }
 
-  initVars(variables: IField[], fieldAttribute: FIELD_ATTR_TYPE = 'id'): void {
+  initVars(
+    variables: IField[],
+    fieldAttribute: FIELD_ATTR_TYPE = 'name',
+  ): void {
     if (!variables) {
       return;
     }
@@ -54,10 +59,7 @@ export default class Parser {
       const key = i[fieldAttribute];
       if (typeof key === 'string' || typeof key === 'number') {
         this.globalVars[key] = {
-          id: i.id,
-          type: i.type,
-          name: i.name,
-          ...(i.dbId && { dbId: i.dbId }),
+          ...i,
         };
       } else {
         throw new Error(
@@ -79,6 +81,7 @@ export default class Parser {
       // this.require(END_LINE_SYMBOL)
       root.addNode(codeStringNode);
     }
+
     return root;
   }
 
@@ -322,8 +325,9 @@ export default class Parser {
       return node.keyword.text;
     }
     if (node instanceof VariableNode) {
-      if (this.globalVars[node.variable.text]) {
-        return `VARIABLES['${this.globalVars[node.variable.text].id}']`;
+      const globalVarKey = removePrefixSuffix(node.variable.text);
+      if (this.globalVars[globalVarKey]) {
+        return `$$VARIABLES['${this.globalVars[globalVarKey].id}']`;
       }
       throw new Error(
         `Invalid variable ${node.variable.text} on the position ${node.start}`,
@@ -435,7 +439,9 @@ export default class Parser {
       return [new Set([node.type])];
     }
     if (node instanceof VariableNode) {
-      const variableType = this.globalVars[node.variable.text]?.type;
+      const globalVarKey = removePrefixSuffix(node.variable.text);
+      const variableType = this.globalVars[globalVarKey]?.type;
+
       if (variableType) {
         return [new Set([variableType])];
       }
@@ -607,6 +613,64 @@ export default class Parser {
     const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
     this.setReturnTypeInCache(res, node.start, node.end);
     return res;
+  }
+
+  // TODO: need to be taken out traverse
+  // only map variables. it is supposed to be used before conversion to js or sql
+  mapIdentifiers(
+    node: ExpressionNode,
+    vars: ParserVar[],
+    attrs: { from: keyof ParserVar; to: keyof ParserVar },
+  ): string | string[] {
+    const prepareVars: Record<string, ParserVar> = {};
+    vars.forEach((i) => {
+      const key = i[attrs.from];
+      if (typeof key === 'string' || typeof key === 'number') {
+        prepareVars[key] = {
+          ...i,
+        };
+      } else {
+        throw new Error(
+          `Field "${attrs.from}" is undefined for variable: ${JSON.stringify(i)}`,
+        );
+      }
+    });
+
+    const traverse = (n: ExpressionNode): string | string[] => {
+      if (n instanceof NumberNode) {
+        return n.number.text;
+      }
+      if (n instanceof LiteralNode) {
+        return n.literal.text;
+      }
+      if (n instanceof VariableNode) {
+        const varKey = removePrefixSuffix(n.variable.text);
+        return `${FORMULA_TEMPLATES.PREFIX}${prepareVars[varKey][attrs.to]}${FORMULA_TEMPLATES.POSTFIX}`;
+      }
+      if (n instanceof KeywordNode) {
+        return n.keyword.text;
+      }
+      if (n instanceof ParenthesizedNode) {
+        return `(${traverse(n.expression)})`;
+      }
+      if (n instanceof UnarOperationNode) {
+        return `${n.operator.text} ${traverse(n.operand)}`;
+      }
+      if (n instanceof BinOperationNode) {
+        return `${traverse(n.left)} ${n.operator} ${traverse(n.right)}`;
+      }
+      if (n instanceof IfStatementNode) {
+        return `${n.ifToken.text}(${traverse(n.test)}, ${traverse(n.consequent)} ${traverse(n.alternate)})`;
+      }
+      if (n instanceof FunctionNode) {
+        return `${n.func.text}(${n.args.map((i) => traverse(i))})`;
+      }
+      if (n instanceof StatementsNode) {
+        n.codeStrings.map((i) => traverse(i));
+      }
+      throw new Error('Impossible map identifiers because formula has Error');
+    };
+    return traverse(node);
   }
 
   getVariables(node: ExpressionNode): Set<string> {
