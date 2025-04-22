@@ -110,22 +110,20 @@ export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
       sqlFn: (left, right) => `${left} <= ${right}`,
     },
   ],
-
-  // i dont`t know how work with this
-  // AND: [
-  //   {
-  //     operandType: []e,
-  //     types: [],
-  //     jsFn: (left, right) => `${left} <= ${right}`,
-  //     sqlFn: (left, right) => `${left} <= ${right}`,
-  //   },
-  // ],
-  // OR: [
-  //   {
-  //     operandType: []e,
-  //     types: [],
-  //     jsFn: (left, right) => `${left} <= ${right}`,
-  //     sqlFn: (left, right) => `${left} <= ${right}`,
-  //   },
-  // ],
+  AND: [
+    {
+      operandType: BOOLEAN_NODE_TYPE,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `${left} && ${right}`,
+      sqlFn: (left, right) => `WHERE ${left} AND ${right}`,
+    },
+  ],
+  OR: [
+    {
+      operandType: BOOLEAN_NODE_TYPE,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `${left} || ${right}`,
+      sqlFn: (left, right) => `WHERE ${left} OR ${right}`,
+    },
+  ],
 };

@@ -12,9 +12,9 @@ export type ValidBinOperatorsNames =
   | 'GREATER'
   | 'GREATER_OR_EQUAL'
   | 'LESS'
-  | 'LESS_OR_EQUAL';
-// | 'OR'
-// | 'AND';
+  | 'LESS_OR_EQUAL'
+  | 'OR'
+  | 'AND';
 
 type IFormatterFunc = (left: string, right: string) => string;
 

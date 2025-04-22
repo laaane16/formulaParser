@@ -57,8 +57,8 @@ export const tokenTypesList: Map<string, TokenType> = new Map([
   ['GREATER_OR_EQUAL', new TokenType('GREATER_OR_EQUAL', '>=')], // >= PSQL
   ['LESS', new TokenType('LESS', '(?!<=)<')], // < PSQL
   ['LESS_OR_EQUAL', new TokenType('LESS_OR_EQUAL', '<=')], // <= PSQL
-  // ['AND', new TokenType('AND', '&&')], // AND PSQL
-  // ['OR', new TokenType('OR', '\\|\\|')], // OR PSQL
+  ['AND', new TokenType('AND', '&&')], // AND PSQL
+  ['OR', new TokenType('OR', '\\|\\|')], // OR PSQL
 ]);
 
 // Map.get return TokenType | undefined, but we know that this keys includes in map
@@ -75,8 +75,8 @@ export const tokenTypesBinOperations: TokenType[] = [
   tokenTypesList.get('GREATER_OR_EQUAL') as TokenType,
   tokenTypesList.get('LESS') as TokenType,
   tokenTypesList.get('LESS_OR_EQUAL') as TokenType,
-  // tokenTypesList.get('AND') as TokenType,
-  // tokenTypesList.get('OR') as TokenType,
+  tokenTypesList.get('AND') as TokenType,
+  tokenTypesList.get('OR') as TokenType,
 ];
 
 export const tokenTypesUnarOperations = [
