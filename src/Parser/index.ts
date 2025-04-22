@@ -665,7 +665,7 @@ export default class Parser {
         return `${n.operator.text} ${traverse(n.operand)}`;
       }
       if (n instanceof BinOperationNode) {
-        return `${traverse(n.left)} ${n.operator} ${traverse(n.right)}`;
+        return `${traverse(n.left)} ${n.operator.text} ${traverse(n.right)}`;
       }
       if (n instanceof IfStatementNode) {
         return `${n.ifToken.text}(${traverse(n.test)}, ${traverse(n.consequent)} ${traverse(n.alternate)})`;
