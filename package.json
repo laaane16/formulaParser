@@ -1,6 +1,6 @@
 {
   "name": "formulex",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "build/index.js",
   "description": "Ast sql/js converter",
   "author": "laaane16 & SatoruFF",
