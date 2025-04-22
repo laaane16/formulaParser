@@ -636,7 +636,8 @@ export default class Parser {
       }
     });
 
-    const traverse = (n: ExpressionNode): string | string[] => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const traverse = (n: ExpressionNode): any => {
       if (n instanceof NumberNode) {
         return n.number.text;
       }
@@ -666,8 +667,9 @@ export default class Parser {
         return `${n.func.text}(${n.args.map((i) => traverse(i))})`;
       }
       if (n instanceof StatementsNode) {
-        n.codeStrings.map((i) => traverse(i));
+        return n.codeStrings.map((i) => traverse(i));
       }
+      console.log(n);
       throw new Error('Impossible map identifiers because formula has Error');
     };
     return traverse(node);
