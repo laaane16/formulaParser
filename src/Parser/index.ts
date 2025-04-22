@@ -676,7 +676,6 @@ export default class Parser {
       if (n instanceof StatementsNode) {
         return n.codeStrings.map((i) => traverse(i));
       }
-      console.log(n);
       throw new Error('Impossible map identifiers because formula has Error');
     };
     return traverse(node);
