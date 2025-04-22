@@ -483,13 +483,20 @@ export default class Parser {
         const returnTypeVariant = operator[i].returnType;
         const neededTypeVariant = operator[i].operandType;
 
-        if (neededTypeVariant === null) {
+        // operandtype = null means that operands may be any types but this types should be equality
+        if (
+          neededTypeVariant === null &&
+          leftNodeType.size === 1 &&
+          rightNodeType.size === 1 &&
+          Array.from(leftNodeType)[0] === Array.from(rightNodeType)[0]
+        ) {
           const res: INodeReturnType = [new Set([returnTypeVariant]), i];
           this.setReturnTypeInCache(res, node.start, node.end);
           return res;
         }
 
         if (
+          neededTypeVariant !== null &&
           leftNodeType.has(neededTypeVariant) &&
           rightNodeType.has(neededTypeVariant) &&
           leftNodeType.size === 1 &&

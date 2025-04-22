@@ -6,7 +6,7 @@ import {
 import { ValidBinOperatorsNames, IOperator } from './types';
 
 // TODO: write tests
-// null in returnType means all types are valid
+// null in returnType means all types are valid, but types should be equal
 export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
   PLUS: [
     {
