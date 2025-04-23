@@ -10,6 +10,7 @@ import { removePrefixSuffix } from './lib/removePrefixSuffix';
 
 export interface IVar {
   type: string;
+  id?: string;
   [key: string]: unknown;
 }
 
@@ -27,18 +28,24 @@ export default class Parser {
    * Creates a new `Parser` instance.
    * @param {string} expression - The input formula or expression.
    */
-  constructor(expression: string, variables: Record<string, IVar> = {}) {
+  constructor(
+    expression: string,
+    variables: Record<string, IVar> | IVar[] = {},
+  ) {
     if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
     if (Array.isArray(variables)) {
-      this.variables = variables.reduce((accumulator, current) => {
-        const objAttr = current[defaultVarAttr];
-        if (objAttr) {
-          accumulator[objAttr] = current;
-        }
-        return accumulator;
-      }, {});
+      this.variables = variables.reduce<Record<string, IVar>>(
+        (accumulator, current) => {
+          const objAttr = current[defaultVarAttr];
+          if (objAttr && typeof objAttr === 'string') {
+            accumulator[objAttr] = current;
+          }
+          return accumulator;
+        },
+        {},
+      );
     } else {
       this.variables = variables;
     }

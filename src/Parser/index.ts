@@ -624,7 +624,7 @@ export default class Parser {
         let variable;
 
         if (from) {
-          variable = variables.find((v) => v && v[from] === varKey);
+          variable = variables.find((v) => v && v[from] == varKey);
         } else {
           variable = this.variables[varKey];
         }
