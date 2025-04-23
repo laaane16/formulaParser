@@ -606,7 +606,7 @@ export default class Parser {
   // only map variables. it is supposed to be used before conversion to js or sql
   mapIdentifiers(
     node: ExpressionNode,
-    { from, to }: { from: keyof ParserVar; to: keyof ParserVar },
+    { from, to }: { from?: keyof ParserVar | undefined; to: keyof ParserVar },
   ): string | string[] {
     const variables = Object.values(this.variables);
 
@@ -621,7 +621,13 @@ export default class Parser {
       if (n instanceof VariableNode) {
         const varKey = removePrefixSuffix(n.variable.text);
 
-        const variable = variables.find((v) => v && v[from] === varKey);
+        let variable;
+
+        if (from) {
+          variable = variables.find((v) => v && v[from] === varKey);
+        } else {
+          variable = this.variables[varKey];
+        }
 
         if (!variable) {
           throw new Error(

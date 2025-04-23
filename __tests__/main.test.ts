@@ -48,7 +48,7 @@ describe('Parser', () => {
   it('should map identifiers correctly', () => {
     const expression = '{{Поле 1}} + {{Поле 1}} + 1000';
     const parser = new Parser(expression, mockFields);
-    const result = parser.mapIdentifiers('id');
+    const result = parser.mapIdentifiers({ to: 'id' });
     expect(typeof result).toBe('string');
   });
 

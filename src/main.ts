@@ -138,7 +138,7 @@ export default class Parser {
     from,
     to,
   }: {
-    from: keyof IVar;
+    from?: keyof IVar | undefined;
     to: keyof IVar;
   }): string {
     const [parser, node] = this.prepareParser();
