@@ -2,6 +2,7 @@ import ExpressionNode from './AST/ExpressionNode';
 import StatementsNode from './AST/StatementsNode';
 import Lexer from './Lexer';
 import ParserCore from './Parser';
+import { defaultVarAttr } from './constants/defaults';
 import { FORMATS } from './constants/formats';
 import { FormulaError } from './lib/exceptions';
 import { isNil } from './lib/isNil';
@@ -30,7 +31,17 @@ export default class Parser {
     if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
-    this.variables = variables;
+    if (Array.isArray(variables)) {
+      this.variables = variables.reduce((accumulator, current) => {
+        const objAttr = current[defaultVarAttr];
+        if (objAttr) {
+          accumulator[objAttr] = current;
+        }
+        return accumulator;
+      }, {});
+    } else {
+      this.variables = variables;
+    }
   }
 
   /**
@@ -123,9 +134,15 @@ export default class Parser {
   /**
    * return new string with replacing variables on any variable attribute, but mutate variables keys
    */
-  public mapIdentifiers(attr: keyof IVar): string {
+  public mapIdentifiers({
+    from,
+    to,
+  }: {
+    from: keyof IVar;
+    to: keyof IVar;
+  }): string {
     const [parser, node] = this.prepareParser();
-    return parser.mapIdentifiers(node, attr)[0];
+    return parser.mapIdentifiers(node, { from, to })[0];
   }
 
   /**

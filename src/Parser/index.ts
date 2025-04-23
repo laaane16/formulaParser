@@ -604,8 +604,11 @@ export default class Parser {
 
   // TODO: need to be taken out traverse
   // only map variables. it is supposed to be used before conversion to js or sql
-  mapIdentifiers(node: ExpressionNode, to: keyof ParserVar): string | string[] {
-    const variables = this.variables;
+  mapIdentifiers(
+    node: ExpressionNode,
+    { from, to }: { from: keyof ParserVar; to: keyof ParserVar },
+  ): string | string[] {
+    const variables = Object.values(this.variables);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const traverse = (n: ExpressionNode): any => {
@@ -617,15 +620,20 @@ export default class Parser {
       }
       if (n instanceof VariableNode) {
         const varKey = removePrefixSuffix(n.variable.text);
-        if (!variables[varKey]) {
-          throw new Error(`Variable ${varKey} not found`);
+
+        const variable = variables.find((v) => v && v[from] === varKey);
+
+        if (!variable) {
+          throw new Error(
+            `Variable ${varKey} or matching 'from' field not found`,
+          );
         }
-        if (!variables[varKey][to]) {
-          throw new Error(`Variable ${varKey} hasn't attr in which we convert`);
+
+        if (!variable[to]) {
+          throw new Error(`Variable ${varKey} doesn't have the '${to}' field`);
         }
-        if (variables[varKey] != null && variables[varKey][to] != null) {
-          return `${FORMULA_TEMPLATES.PREFIX}${variables[varKey][to]}${FORMULA_TEMPLATES.POSTFIX}`;
-        }
+
+        return `${FORMULA_TEMPLATES.PREFIX}${variable[to]}${FORMULA_TEMPLATES.POSTFIX}`;
       }
       if (n instanceof KeywordNode) {
         return n.keyword.text;
