@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import ExpressionNode from './AST/ExpressionNode';
 import StatementsNode from './AST/StatementsNode';
 import Lexer from './Lexer';
@@ -170,9 +171,11 @@ export default class Parser {
    * @returns {unknown} The result of formula evaluation.
    */
   public runJs(jsFormula: string, values: Record<string, unknown>): unknown {
-    const runFormula = new Function('$$VARIABLES', `return ${jsFormula}`)(
-      values,
-    );
+    const runFormula = new Function(
+      'DateTime',
+      '$$VARIABLES',
+      `return ${jsFormula}`,
+    )(DateTime, values);
     return runFormula;
   }
   /**
@@ -213,7 +216,7 @@ export default class Parser {
 //   some: 5000,
 // };
 
-// const expression = '{{1}} + {{some}}';
+// const expression = 'DATEADD(DATE("2016-05-25"), 60, "days")';
 
 // const parser = new Parser(expression, variables);
 
