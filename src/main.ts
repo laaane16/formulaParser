@@ -7,14 +7,10 @@ import { FormulaError } from './lib/exceptions';
 import { isNil } from './lib/isNil';
 import { removePrefixSuffix } from './lib/removePrefixSuffix';
 
-export interface IField {
-  id: string;
-  dbId?: number;
-  name: string;
+export interface IVar {
   type: string;
+  [key: string]: unknown;
 }
-
-export type FIELD_ATTR_TYPE = keyof IField;
 
 /**
  * The `Parser` class is responsible for converting a JavaScript-like expression into an SQL or JS expression.
@@ -24,25 +20,17 @@ export default class Parser {
   public expression: string;
   private lexer: Lexer;
   private root?: StatementsNode;
-  private fields: IField[];
-  public fieldAttribute: FIELD_ATTR_TYPE;
+  private variables: Record<string, IVar>;
 
   /**
    * Creates a new `Parser` instance.
    * @param {string} expression - The input formula or expression.
-   * @param {IField[]} [fields=[]] - Optional list of field definitions.
-   * @param {FIELD_ATTR_TYPE} [fieldAttribute='id'] - The field attribute to use for variable binding.
    */
-  constructor(
-    expression: string,
-    fields: IField[] = [],
-    fieldAttribute: FIELD_ATTR_TYPE = 'name',
-  ) {
+  constructor(expression: string, variables: Record<string, IVar> = {}) {
     if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
-    this.fields = fields;
-    this.fieldAttribute = fieldAttribute;
+    this.variables = variables;
   }
 
   /**
@@ -55,8 +43,7 @@ export default class Parser {
     }
 
     let node;
-    const parser = new ParserCore(this.lexer.tokens);
-    parser.initVars(this.fields, this.fieldAttribute);
+    const parser = new ParserCore(this.lexer.tokens, this.variables);
     if (this.root) {
       node = this.root;
     } else {
@@ -133,12 +120,12 @@ export default class Parser {
     return Array.from(variables);
   }
 
-  public mapIdentifiers(attrs: {
-    from: keyof IField;
-    to: keyof IField;
-  }): string {
+  /**
+   * return new string with replacing variables on any variable attribute, but mutate variables keys
+   */
+  public mapIdentifiers(attr: keyof IVar): string {
     const [parser, node] = this.prepareParser();
-    return parser.mapIdentifiers(node, this.fields, attrs)[0];
+    return parser.mapIdentifiers(node, attr)[0];
   }
 
   /**
@@ -187,26 +174,31 @@ export default class Parser {
 }
 
 // Example usage:
-// const fields: IField[] = [
-//   { id: '1', dbId: 1, name: 'Поле 1', type: 'number' },
-//   { id: '2', dbId: 2, name: 'Поле 2', type: 'number' },
-//   { id: '3', dbId: 3, name: 'Поле 3', type: 'number' },
-//   { id: '9', dbId: 4, name: 'Поле 4', type: 'number' },
-//   { id: 'FIELD123123', dbId: 8, name: 'Поле 5', type: 'number' },
-// ];
-
-// key in values always id
-// const values: Record<string, unknown> = {
-//   1: 1000,
-//   2: 5000,
-//   3: 100,
-//   9: 1000,
-//   FIELD123123: 150,
+// key - value in {{...}}
+// const variables: Record<string, IVar> = {
+//   1: {
+//     id: '1',
+//     dbId: 2,
+//     prevId: '3',
+//     name: 'Поле 1',
+//     type: 'number',
+//   },
+//   some: {
+//     name: 'Поле 2',
+//     dbId: 5,
+//     id: '2',
+//     type: 'number',
+//   },
 // };
 
-// const expression = '{{4}} + {{8}}';
+// const values: Record<string, unknown> = {
+//   1: 1000,
+//   some: 5000,
+// };
 
-// const parser = new Parser(expression, fields, 'dbId');
+// const expression = '{{1}} + {{some}}';
+
+// const parser = new Parser(expression, variables);
 
 // const sqlQuery = parser.toSql();
 // console.log('SQL:', sqlQuery); // Outputs the generated SQL query

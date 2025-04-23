@@ -1,29 +1,37 @@
-import { IField } from '../../src/main';
 import { stringifyAstToJs } from '../helpers/stringifyAstToJs';
 import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
+import { IVar } from '../../src/main';
+
+const fields: Record<string, IVar> = {
+  '1': {
+    id: '1',
+    type: 'number',
+  },
+  '2': {
+    id: '2',
+    type: 'number',
+  },
+};
 
 describe('variables to sql', () => {
   test('return correct id', () => {
-    const code = '{{1000}}';
-    const fields: IField[] = [{ id: '1000', name: 'Поле 1', type: 'text' }];
-    const result = stringifyAstToSql(code, fields, 'id');
+    const code = '{{1}}';
+    const result = stringifyAstToSql(code, fields);
 
-    expect(result).toBe(`$$VARIABLES['1000']`);
+    expect(result).toBe(`$$VARIABLES['1']`);
   });
 
   test('return correct id', () => {
-    const code = '{{Поле 1}}';
-    const fields: IField[] = [{ id: '1000', name: 'Поле 1', type: 'text' }];
+    const code = '{{1}}';
     const result = stringifyAstToSql(code, fields);
 
-    expect(result).toBe(`$$VARIABLES['1000']`);
+    expect(result).toBe(`$$VARIABLES['1']`);
   });
 });
 
 describe('variables errors', () => {
   test('return error if we write no valid variable', () => {
     const code = '{{Поле 1}}';
-    const fields: IField[] = [{ id: '1000', name: 'Поле 2', type: 'text' }];
 
     expect(() => stringifyAstToJs(code, fields)).toThrow(
       'Invalid variable {{Поле 1}} on the position 0',

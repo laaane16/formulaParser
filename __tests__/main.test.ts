@@ -1,13 +1,20 @@
 import Parser from '../src/main';
-import { IField } from '../src/main';
+import { IVar } from '../src/main';
 
-const mockFields: IField[] = [
-  { id: '1', dbId: 1, name: 'Поле 1', type: 'number' },
-  { id: '2', dbId: 2, name: 'Поле 2', type: 'number' },
-  { id: '9', dbId: 4, name: 'Поле 4', type: 'number' },
-  { id: 'FIELD123123', dbId: 8, name: 'Поле 5', type: 'number' },
-];
-
+const mockFields: Record<string, IVar> = {
+  'Поле 1': {
+    id: '3',
+    type: 'number',
+  },
+  '9': {
+    id: '1',
+    type: 'number',
+  },
+  FIELD123123: {
+    id: '2',
+    type: 'number',
+  },
+};
 const values: Record<string, unknown> = {
   1: 1000,
   2: 2000,
@@ -39,15 +46,15 @@ describe('Parser', () => {
   });
 
   it('should map identifiers correctly', () => {
-    const expression = '{{1}} + {{2}} + 1000';
-    const parser = new Parser(expression, mockFields, 'dbId');
-    const result = parser.mapIdentifiers({ from: 'dbId', to: 'id' });
+    const expression = '{{Поле 1}} + {{Поле 1}} + 1000';
+    const parser = new Parser(expression, mockFields);
+    const result = parser.mapIdentifiers('id');
     expect(typeof result).toBe('string');
   });
 
   it('should convert to SQL and JS', () => {
-    const expression = '{{1}} + {{2}} + 1000';
-    const parser = new Parser(expression, mockFields, 'dbId');
+    const expression = '{{Поле 1}} + {{Поле 1}} + 1000';
+    const parser = new Parser(expression, mockFields);
     const sql = parser.toSql();
     const js = parser.toJs();
     expect(typeof sql).toBe('string');
@@ -55,14 +62,14 @@ describe('Parser', () => {
   });
 
   it('should evaluate JS expression with values', () => {
-    const parser = new Parser(expression, mockFields, 'id');
+    const parser = new Parser(expression, mockFields);
     const js = parser.toJs();
     const result = parser.runJs(js, values);
     expect(typeof result).toBe('number');
   });
 
   it('should replace variable placeholders with actual values', () => {
-    const parser = new Parser(expression, mockFields, 'id');
+    const parser = new Parser(expression, mockFields);
     const sql = "$$VARIABLES['9'] + $$VARIABLES['FIELD123123']";
     const replaced = parser.replaceWithVariables(sql, values);
     expect(replaced).toBe('1000 + 150');

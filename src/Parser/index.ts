@@ -30,43 +30,23 @@ import { ValidBinOperatorsNames } from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
 import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
-import { IField, FIELD_ATTR_TYPE } from '../main';
+import { IVar } from '../main';
 import { removePrefixSuffix } from '../lib/removePrefixSuffix';
 import { FORMULA_TEMPLATES } from '../constants/templates';
 
-type ParserVar = IField;
+type ParserVar = IVar;
 
 type INodeReturnType = [Set<string>, number?];
 
 export default class Parser {
   tokens: Token[];
   pos: number = 0;
-  globalVars: Record<string, ParserVar> = {};
+  variables: Record<string, ParserVar> = {};
   returnTypesCache: Record<string, INodeReturnType> = {};
 
-  constructor(tokens: Token[]) {
+  constructor(tokens: Token[], variables: Record<string, ParserVar>) {
     this.tokens = tokens;
-  }
-
-  initVars(
-    variables: IField[],
-    fieldAttribute: FIELD_ATTR_TYPE = 'name',
-  ): void {
-    if (!variables) {
-      return;
-    }
-    variables.forEach((i) => {
-      const key = i[fieldAttribute];
-      if (typeof key === 'string' || typeof key === 'number') {
-        this.globalVars[key] = {
-          ...i,
-        };
-      } else {
-        throw new Error(
-          `Field "${fieldAttribute}" is undefined for variable: ${JSON.stringify(i)}`,
-        );
-      }
-    });
+    this.variables = variables;
   }
 
   parseCode(): StatementsNode {
@@ -326,8 +306,8 @@ export default class Parser {
     }
     if (node instanceof VariableNode) {
       const globalVarKey = removePrefixSuffix(node.variable.text);
-      if (this.globalVars[globalVarKey]) {
-        return `$$VARIABLES['${this.globalVars[globalVarKey].id}']`;
+      if (this.variables[globalVarKey]) {
+        return `$$VARIABLES['${globalVarKey}']`;
       }
       throw new Error(
         `Invalid variable ${node.variable.text} on the position ${node.start}`,
@@ -440,7 +420,7 @@ export default class Parser {
     }
     if (node instanceof VariableNode) {
       const globalVarKey = removePrefixSuffix(node.variable.text);
-      const variableType = this.globalVars[globalVarKey]?.type;
+      const variableType = this.variables[globalVarKey]?.type;
 
       if (variableType) {
         return [new Set([variableType])];
@@ -624,24 +604,8 @@ export default class Parser {
 
   // TODO: need to be taken out traverse
   // only map variables. it is supposed to be used before conversion to js or sql
-  mapIdentifiers(
-    node: ExpressionNode,
-    vars: ParserVar[],
-    attrs: { from: keyof ParserVar; to: keyof ParserVar },
-  ): string | string[] {
-    const prepareVars: Record<string, ParserVar> = {};
-    vars.forEach((i) => {
-      const key = i[attrs.from];
-      if (typeof key === 'string' || typeof key === 'number') {
-        prepareVars[key] = {
-          ...i,
-        };
-      } else {
-        throw new Error(
-          `Field "${attrs.from}" is undefined for variable: ${JSON.stringify(i)}`,
-        );
-      }
-    });
+  mapIdentifiers(node: ExpressionNode, to: keyof ParserVar): string | string[] {
+    const variables = this.variables;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const traverse = (n: ExpressionNode): any => {
@@ -653,7 +617,15 @@ export default class Parser {
       }
       if (n instanceof VariableNode) {
         const varKey = removePrefixSuffix(n.variable.text);
-        return `${FORMULA_TEMPLATES.PREFIX}${prepareVars[varKey][attrs.to]}${FORMULA_TEMPLATES.POSTFIX}`;
+        if (!variables[varKey]) {
+          throw new Error(`Variable ${varKey} not found`);
+        }
+        if (!variables[varKey][to]) {
+          throw new Error(`Variable ${varKey} hasn't attr in which we convert`);
+        }
+        if (variables[varKey] != null && variables[varKey][to] != null) {
+          return `${FORMULA_TEMPLATES.PREFIX}${variables[varKey][to]}${FORMULA_TEMPLATES.POSTFIX}`;
+        }
       }
       if (n instanceof KeywordNode) {
         return n.keyword.text;

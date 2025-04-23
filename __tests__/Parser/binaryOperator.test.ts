@@ -1,11 +1,20 @@
-import { IField } from '../../src/main';
 import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
+import { IVar } from '../../src/main';
 
-const fields: IField[] = [
-  { id: '1', name: 'Поле 1', type: 'number' },
-  { id: '2', name: 'Поле 2', type: 'number' },
-  { id: '3', name: 'Поле 3', type: 'text' },
-];
+const fields: Record<string, IVar> = {
+  'Поле 1': {
+    id: '1',
+    type: 'number',
+  },
+  'Поле 2': {
+    id: '2',
+    type: 'number',
+  },
+  'Поле 3': {
+    id: '2',
+    type: 'string',
+  },
+};
 
 describe('bin operator node to sql', () => {
   test('plus', () => {
@@ -116,10 +125,10 @@ describe('bin operator node to sql', () => {
   });
 
   test('binary operators can work with valid vars, which has equal types', () => {
-    const code = '{{3}} + {{3}}';
-    const result = stringifyAstToSql(code, fields, 'id');
+    const code = '{{Поле 2}} + {{Поле 2}}';
+    const result = stringifyAstToSql(code, fields);
 
-    expect(result).toBe("CONCAT($$VARIABLES['3'], $$VARIABLES['3'])");
+    expect(result).toBe("$$VARIABLES['Поле 2'] + $$VARIABLES['Поле 2']");
   });
 
   // test('and', () => {

@@ -1,12 +1,20 @@
-import { IField } from '../../src/main';
 import { stringifyAstToJs } from '../helpers/stringifyAstToJs';
 import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
-
-const fields: IField[] = [
-  { id: '1', name: 'Поле 1', type: 'number' },
-  { id: '2', name: 'Поле 2', type: 'number' },
-  { id: '3', name: 'Поле 3', type: 'text' },
-];
+import { IVar } from '../../src/main';
+const fields: Record<string, IVar> = {
+  'Поле 1': {
+    id: '1',
+    type: 'number',
+  },
+  'Поле 2': {
+    id: '2',
+    type: 'number',
+  },
+  'Поле 3': {
+    id: '2',
+    type: 'string',
+  },
+};
 
 describe('unar operator node to sql', () => {
   test('not', () => {
@@ -31,10 +39,10 @@ describe('unar operator node to sql', () => {
   });
 
   test('minus can work with vars which type = number', () => {
-    const code = '- {{2}}';
-    const result = stringifyAstToSql(code, fields, 'id');
+    const code = '- {{Поле 2}}';
+    const result = stringifyAstToSql(code, fields);
 
-    expect(result).toBe(`- $$VARIABLES['2']`);
+    expect(result).toBe(`- $$VARIABLES['Поле 2']`);
   });
 });
 
