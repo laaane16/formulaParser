@@ -61,6 +61,7 @@ export default class Parser {
       node = this.root;
     } else {
       node = parser.parseCode();
+      this.root = node;
     }
 
     return [parser, node];
