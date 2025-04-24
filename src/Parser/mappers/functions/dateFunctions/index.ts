@@ -14,8 +14,11 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
   {
     DATE: [
       {
-        args: [{ type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }],
-        // TODO: think about literal, date
+        args: [
+          {
+            type: [LITERAL_NODE_TYPE],
+          },
+        ],
         returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATE,
         sqlFn: dateFunctionsToSqlMap.DATE,
@@ -24,11 +27,12 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     DATEADD: [
       {
         args: [
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }, // date
+          {
+            type: [DATE_NODE_TYPE],
+          }, // date
           { type: [NUMBER_NODE_TYPE] }, // amount
           { type: [LITERAL_NODE_TYPE] }, // unit (e.g., "days", "months")
         ],
-        // TODO: think about literal, date
         returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATEADD,
         sqlFn: dateFunctionsToSqlMap.DATEADD,
@@ -37,8 +41,10 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     DATETIME_DIFF: [
       {
         args: [
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }, // end date
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }, // start date
+          {
+            type: [DATE_NODE_TYPE],
+          }, // end date
+          { type: [DATE_NODE_TYPE] }, // start date
           { type: [LITERAL_NODE_TYPE] }, // unit
         ],
         returnType: [NUMBER_NODE_TYPE],
@@ -49,10 +55,11 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     DATETIME_FORMAT: [
       {
         args: [
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] },
+          {
+            type: [DATE_NODE_TYPE],
+          },
           { type: [LITERAL_NODE_TYPE] }, // format string
         ],
-        // TODO: think about literal, date
         returnType: [LITERAL_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATETIME_FORMAT,
         sqlFn: dateFunctionsToSqlMap.DATETIME_FORMAT,
@@ -62,10 +69,11 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
       {
         args: [
           // in airtable arg locale last
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }, // string
+          {
+            type: [DATE_NODE_TYPE],
+          }, // string
           { type: [LITERAL_NODE_TYPE] }, // format
         ],
-        // TODO: think about literal, date
         returnType: [LITERAL_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATETIME_PARSE,
         sqlFn: dateFunctionsToSqlMap.DATETIME_PARSE,
@@ -73,7 +81,11 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     ],
     DAY: [
       {
-        args: [{ type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }],
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+        ],
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DAY,
         sqlFn: dateFunctionsToSqlMap.DAY,
@@ -81,7 +93,11 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     ],
     HOUR: [
       {
-        args: [{ type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }],
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+        ],
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.HOUR,
         sqlFn: dateFunctionsToSqlMap.HOUR,
@@ -90,8 +106,12 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     IS_AFTER: [
       {
         args: [
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] },
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] },
+          {
+            type: [DATE_NODE_TYPE],
+          },
+          {
+            type: [DATE_NODE_TYPE],
+          },
         ],
         returnType: [BOOLEAN_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.IS_AFTER,
@@ -101,8 +121,12 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     IS_BEFORE: [
       {
         args: [
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] },
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] },
+          {
+            type: [DATE_NODE_TYPE],
+          },
+          {
+            type: [DATE_NODE_TYPE],
+          },
         ],
         returnType: [BOOLEAN_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.IS_BEFORE,
@@ -112,8 +136,12 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     IS_SAME: [
       {
         args: [
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] },
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] },
+          {
+            type: [DATE_NODE_TYPE],
+          },
+          {
+            type: [DATE_NODE_TYPE],
+          },
         ],
         returnType: [BOOLEAN_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.IS_SAME,
@@ -122,7 +150,11 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     ],
     MINUTE: [
       {
-        args: [{ type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }],
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+        ],
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.MINUTE,
         sqlFn: dateFunctionsToSqlMap.MINUTE,
@@ -130,7 +162,11 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     ],
     MONTH: [
       {
-        args: [{ type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }],
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+        ],
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.MONTH,
         sqlFn: dateFunctionsToSqlMap.MONTH,
@@ -139,35 +175,37 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     NOW: [
       {
         args: [],
-        // TODO: think about literal, date
-        returnType: [DATE_NODE_TYPE, LITERAL_NODE_TYPE],
+        returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.NOW,
         sqlFn: dateFunctionsToSqlMap.NOW,
       },
     ],
     SECOND: [
       {
-        args: [{ type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }],
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+        ],
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.SECOND,
         sqlFn: dateFunctionsToSqlMap.SECOND,
       },
     ],
-
     TODAY: [
       {
         args: [],
-        // TODO: think about literal, date
         returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.TODAY,
         sqlFn: dateFunctionsToSqlMap.TODAY,
       },
     ],
-
     WEEKDAY: [
       {
         args: [
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] },
+          {
+            type: [DATE_NODE_TYPE],
+          },
           { type: [LITERAL_NODE_TYPE], required: false },
         ],
         returnType: [NUMBER_NODE_TYPE],
@@ -175,11 +213,12 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.WEEKDAY,
       },
     ],
-
     WEEKNUM: [
       {
         args: [
-          { type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] },
+          {
+            type: [DATE_NODE_TYPE],
+          },
           { type: [LITERAL_NODE_TYPE], required: false },
         ],
         returnType: [NUMBER_NODE_TYPE],
@@ -187,10 +226,13 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.WEEKNUM,
       },
     ],
-
     YEAR: [
       {
-        args: [{ type: [DATE_NODE_TYPE, LITERAL_NODE_TYPE] }],
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+        ],
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.YEAR,
         sqlFn: dateFunctionsToSqlMap.YEAR,

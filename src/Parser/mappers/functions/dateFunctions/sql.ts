@@ -5,7 +5,7 @@ export const dateFunctionsToSqlMap: Record<
   (args: string[]) => string
 > = {
   DATE: ([date]) => {
-    return `"${date}"`;
+    return `${date}`;
   },
   DATEADD: ([date, amount, unit]) => {
     return `(${date} + INTERVAL '${amount} ${unit}')`;
@@ -47,9 +47,9 @@ function unitMultiplier(unit: string): number {
     case 'weeks':
       return 604800;
     case 'months':
-      return 2629800; // avg
+      return 2629800;
     case 'years':
-      return 31557600; // avg
+      return 31557600;
     default:
       throw new Error(`Unsupported unit: ${unit}`);
   }
