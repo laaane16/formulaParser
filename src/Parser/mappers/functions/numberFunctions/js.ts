@@ -94,4 +94,44 @@ export const numberFunctionsToJsMap: Record<
    * RANDOM([]) // => 'Math.random()'
    */
   RANDOM: (args: string[]): string => `Math.random()`,
+
+  /**
+   * @function SUM
+   * @description Returns sum numbers in args
+   * @param {string[]} args - Numbers for sum
+   * @returns {string} Js format SUM expression.
+   * @example
+   * SUM(['1','2']) // => '1 + 2'
+   */
+  SUM: (args: string[]): string => `${args.join(' + ')}`,
+
+  /**
+   * @function AVERAGE
+   * @description Returns average num from args
+   * @param {string[]} args - Numbers for sum
+   * @returns {string} Js format AVERAGE expression.
+   * @example
+   * AVERAGE(['1','2']) // => '(1 + 2) / 2'
+   */
+  AVERAGE: (args: string[]): string => `(${args.join(' + ')}) / ${args.length}`,
+
+  /**
+   * @function MAX
+   * @description Returns max num from args
+   * @param {string[]} args - Numbers for sum
+   * @returns {string} Js format MAX expression.
+   * @example
+   * MAX(['1','2']) // => 'Math.max(1, 2)'
+   */
+  MAX: (args: string[]): string => `Math.max(${args})`,
+
+  /**
+   * @function SUM
+   * @description Returns min num from args
+   * @param {string[]} args - Numbers for sum
+   * @returns {string} Js format MIN expression.
+   * @example
+   * MIN(['1','2']) // => 'Math.min(1, 2)'
+   */
+  MIN: (args: string[]): string => `Math.min(${args})`,
 };

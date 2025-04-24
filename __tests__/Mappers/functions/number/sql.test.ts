@@ -36,4 +36,20 @@ describe('numberFunctionsToSqlMap', () => {
   test('RANDOM', () => {
     expect(numberFunctionsToSqlMap.RANDOM([])).toBe('RANDOM()');
   });
+
+  test('SUM', () => {
+    expect(numberFunctionsToSqlMap.SUM(['2', '3'])).toBe('2 + 3');
+  });
+
+  test('AVERAGE', () => {
+    expect(numberFunctionsToSqlMap.AVERAGE(['2', '3'])).toBe('(2 + 3) / 2');
+  });
+
+  test('MAX', () => {
+    expect(numberFunctionsToSqlMap.MAX(['2', '3'])).toBe('GREATEST(2,3)');
+  });
+
+  test('MIN', () => {
+    expect(numberFunctionsToSqlMap.MIN(['2', '3'])).toBe('LEAST(2,3)');
+  });
 });

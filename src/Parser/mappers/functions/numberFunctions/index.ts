@@ -122,4 +122,36 @@ export const numberFunctions: Record<
       sqlFn: numberFunctionsToSqlMap.RANDOM,
     },
   ],
+  SUM: [
+    {
+      args: [{ type: [NUMBER_NODE_TYPE], many: true }],
+      returnType: [NUMBER_NODE_TYPE],
+      jsFn: numberFunctionsToJsMap.SUM,
+      sqlFn: numberFunctionsToSqlMap.SUM,
+    },
+  ],
+  AVERAGE: [
+    {
+      args: [{ type: [NUMBER_NODE_TYPE], many: true }],
+      returnType: [NUMBER_NODE_TYPE],
+      jsFn: numberFunctionsToJsMap.AVERAGE,
+      sqlFn: numberFunctionsToSqlMap.AVERAGE,
+    },
+  ],
+  MIN: [
+    {
+      args: [{ type: [NUMBER_NODE_TYPE], many: true }],
+      returnType: [NUMBER_NODE_TYPE],
+      jsFn: numberFunctionsToJsMap.MIN,
+      sqlFn: numberFunctionsToSqlMap.MIN,
+    },
+  ],
+  MAX: [
+    {
+      args: [{ type: [NUMBER_NODE_TYPE], many: true }],
+      returnType: [NUMBER_NODE_TYPE],
+      jsFn: numberFunctionsToJsMap.MAX,
+      sqlFn: numberFunctionsToSqlMap.MAX,
+    },
+  ],
 };

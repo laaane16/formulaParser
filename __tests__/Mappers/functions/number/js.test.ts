@@ -36,4 +36,20 @@ describe('numberFunctionsToJsMap', () => {
   test('RANDOM', () => {
     expect(numberFunctionsToJsMap.RANDOM([])).toBe('Math.random()');
   });
+
+  test('SUM', () => {
+    expect(numberFunctionsToJsMap.SUM(['2', '3'])).toBe('2 + 3');
+  });
+
+  test('AVERAGE', () => {
+    expect(numberFunctionsToJsMap.AVERAGE(['2', '3'])).toBe('(2 + 3) / 2');
+  });
+
+  test('MAX', () => {
+    expect(numberFunctionsToJsMap.MAX(['2', '3'])).toBe('Math.max(2,3)');
+  });
+
+  test('MIN', () => {
+    expect(numberFunctionsToJsMap.MIN(['2', '3'])).toBe('Math.min(2,3)');
+  });
 });
