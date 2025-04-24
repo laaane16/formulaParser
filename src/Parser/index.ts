@@ -33,6 +33,7 @@ import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
 import { IVar } from '../main';
 import { removePrefixSuffix } from '../lib/removePrefixSuffix';
 import { FORMULA_TEMPLATES } from '../constants/templates';
+import { typesMapper } from '../constants/typesMapper';
 
 type ParserVar = IVar;
 
@@ -420,7 +421,11 @@ export default class Parser {
     }
     if (node instanceof VariableNode) {
       const globalVarKey = removePrefixSuffix(node.variable.text);
-      const variableType = this.variables[globalVarKey]?.type;
+      // some variables we need to prevent for some knowing types, like progress, stars and etc.
+      let variableType = this.variables[globalVarKey]?.type;
+
+      variableType =
+        typesMapper[variableType as keyof typeof typesMapper] || variableType;
 
       if (variableType) {
         return [new Set([variableType])];

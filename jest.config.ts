@@ -10,6 +10,7 @@ const config: Config.InitialOptions = {
   modulePaths: ['<rootDir>src'],
   testMatch: ['<rootDir>__tests__/**/*(*.)@(spec|test).[t]s?(x)'],
   preset: 'ts-jest',
+  verbose: true,
   // setupFilesAfterEnv: ['<rootDir>config/jest/setupTests.ts'],
 };
 export default config;
