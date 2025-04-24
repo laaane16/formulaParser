@@ -138,19 +138,19 @@ describe('bin operator node to sql', () => {
     expect(result).toBe("$$VARIABLES['Поле 2'] + $$VARIABLES['Поле 2']");
   });
 
-  // test('and', () => {
-  //   const code = '1 && 1';
-  //   const result = stringifyAstToSql(code);
+  test('and', () => {
+    const code = '(2 > 1) && (1 == 0)';
+    const result = stringifyAstToSql(code);
 
-  //   expect(result).toBe('1 AND 1');
-  // });
+    expect(result).toBe('WHERE (2 > 1) AND (1 = 0)');
+  });
 
-  // test('or', () => {
-  //   const code = '1 || 1';
-  //   const result = stringifyAstToSql(code);
+  test('or', () => {
+    const code = '(1 > 1) || (1 < 2)';
+    const result = stringifyAstToSql(code);
 
-  //   expect(result).toBe('1 OR 1');
-  // });
+    expect(result).toBe('WHERE (1 > 1) OR (1 < 2)');
+  });
 });
 
 // describe('bin operator node to js', () => {
@@ -254,14 +254,6 @@ describe('bin operator node to sql', () => {
 // });
 
 describe('bin operator node errors', () => {
-  // test('plus can`t work with different types', () => {
-  //   const code = '1 + ""';
-
-  //   expect(() => stringifyAstToSql(code)).toThrow(
-  //     'Unexpected type of data when + on the position 2',
-  //   );
-  // });
-
   test('plus can`t work with vats which has different types', () => {
     const code = '{{Поле 3}} + {{Поле 2}}';
 
