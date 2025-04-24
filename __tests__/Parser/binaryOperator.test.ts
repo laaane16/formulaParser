@@ -24,6 +24,13 @@ describe('bin operator node to sql', () => {
     expect(result).toBe('1 + 1');
   });
 
+  test('plus can work with different types', () => {
+    const code = `1 + "test"`;
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe(`CONCAT(1::varchar(255), 'test'::varchar(255))`);
+  });
+
   test('minus', () => {
     const code = '1 - 1';
     const result = stringifyAstToSql(code);
@@ -247,27 +254,19 @@ describe('bin operator node to sql', () => {
 // });
 
 describe('bin operator node errors', () => {
-  test('plus can`t work with different types', () => {
-    const code = '1 + ""';
+  // test('plus can`t work with different types', () => {
+  //   const code = '1 + ""';
 
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when + on the position 2',
-    );
-  });
+  //   expect(() => stringifyAstToSql(code)).toThrow(
+  //     'Unexpected type of data when + on the position 2',
+  //   );
+  // });
 
   test('plus can`t work with vats which has different types', () => {
     const code = '{{Поле 3}} + {{Поле 2}}';
 
     expect(() => stringifyAstToSql(code, fields)).toThrow(
       'Unexpected type of data when + on the position 11',
-    );
-  });
-
-  test('plus can`t work with different types', () => {
-    const code = '1 + CONCAT(CONCAT(""))';
-
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when + on the position 2',
     );
   });
 

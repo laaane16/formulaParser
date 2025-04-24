@@ -479,9 +479,9 @@ export default class Parser {
           this.setReturnTypeInCache(res, node.start, node.end);
           return res;
         }
-
         if (
           neededTypeVariant !== null &&
+          !Array.isArray(neededTypeVariant) &&
           leftNodeType.has(neededTypeVariant) &&
           rightNodeType.has(neededTypeVariant) &&
           leftNodeType.size === 1 &&
@@ -490,6 +490,27 @@ export default class Parser {
           const res: INodeReturnType = [new Set([returnTypeVariant]), i];
           this.setReturnTypeInCache(res, node.start, node.end);
           return res;
+        }
+        if (
+          neededTypeVariant !== null &&
+          Array.isArray(neededTypeVariant) &&
+          leftNodeType.size === 1 &&
+          rightNodeType.size === 1
+        ) {
+          let coincidence = 0;
+          neededTypeVariant.forEach((curType) => {
+            if (leftNodeType.has(curType)) {
+              coincidence++;
+            }
+            if (rightNodeType.has(curType)) {
+              coincidence++;
+            }
+          });
+          if (coincidence === 2) {
+            const res: INodeReturnType = [new Set([returnTypeVariant]), i];
+            this.setReturnTypeInCache(res, node.start, node.end);
+            return res;
+          }
         }
       }
       const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
