@@ -31,12 +31,14 @@ const fields = [
   { id: '2', name: 'Field 2', type: 'number' },
 ];
 
-const expression = '{{Field 1}} + {{Field 2}} * 2';
+const expression = '{{Field_1}} + {{Field_2}} * 2';
 
 const parser = new Parser(expression, fields);
 
-const sql = parser.toSql();
-// => ("1" + ("2" * 2))
+const sql = parser.toSql()
+
+parser.replaceWithVariables(sql, { Field_1: 123, Field_1: 321 })
+// => (123 + (321 * 2))
 
 const jsFormula = parser.toJs();
 // => VARIABLES["1"] + (VARIABLES["2"] * 2)
@@ -76,6 +78,9 @@ Supported node types: Number, Variable, BinaryExpression, CallExpression, UnaryE
 
 > parser.getVariables(): string[]
 Returns all unique variable names used in the formula.
+
+> parser.replaceWithVariables(sqlCode, { [var1]: 123 }): string[]
+Replace all variables in formula
 
 ## 🧮 Supported Operators
 
