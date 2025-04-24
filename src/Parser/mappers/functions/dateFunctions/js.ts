@@ -10,7 +10,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning ISO string.
    */
   DATE: ([date]) => {
-    return `DateTime.fromISO(${date}).toISO()`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).toString()`;
   },
 
   /**
@@ -19,7 +19,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning updated ISO string.
    */
   DATEADD: ([date, amount, unit]) => {
-    return `DateTime.fromISO(${date}).plus({ [${unit}]: Number(${amount}) }).toISO()`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'} ).plus({ [${unit}]: Number(${amount}) }).toString()`;
   },
 
   /**
@@ -28,7 +28,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning the numeric difference.
    */
   DATETIME_DIFF: ([end, start, unit]) => {
-    return `DateTime.fromISO(${end}).diff(DateTime.fromISO(${start}), ${unit}).as(${unit})`;
+    return `DateTime.fromISO(${end}, { zone: 'utc'}).diff(DateTime.fromISO(${start}), ${unit}).as(${unit})`;
   },
 
   /**
@@ -37,7 +37,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning formatted string.
    */
   DATETIME_FORMAT: ([date, format]) => {
-    return `DateTime.fromISO(${date}).toFormat(${format})`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).toFormat(${format})`;
   },
 
   /**
@@ -46,7 +46,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning ISO string.
    */
   DATETIME_PARSE: ([str, format]) => {
-    return `DateTime.fromFormat(${str}, ${format}).toISO()`;
+    return `DateTime.fromFormat(${str}, ${format}, { zone: 'utc'}).toString()`;
   },
 
   /**
@@ -55,42 +55,42 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning the day number.
    */
   DAY: ([date]) => {
-    return `DateTime.fromISO(${date}).day`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).day`;
   },
 
   /** Gets the hour from a date. */
   HOUR: ([date]) => {
-    return `DateTime.fromISO(${date}).hour`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).hour`;
   },
 
   /** Gets the minute from a date. */
   MINUTE: ([date]) => {
-    return `DateTime.fromISO(${date}).minute`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).minute`;
   },
 
   /** Gets the second from a date. */
   SECOND: ([date]) => {
-    return `DateTime.fromISO(${date}).second`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).second`;
   },
 
   /** Gets the month from a date. */
   MONTH: ([date]) => {
-    return `DateTime.fromISO(${date}).month`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).month`;
   },
 
   /** Gets the year from a date. */
   YEAR: ([date]) => {
-    return `DateTime.fromISO(${date}).year`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).year`;
   },
 
   /** Gets the weekday from a date (1 = Monday, 7 = Sunday). */
   WEEKDAY: ([date]) => {
-    return `DateTime.fromISO(${date}).weekday`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).weekday`;
   },
 
   /** Gets the ISO week number from a date. */
   WEEKNUM: ([date]) => {
-    return `DateTime.fromISO(${date}).weekNumber`;
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).weekNumber`;
   },
 
   /**
@@ -99,7 +99,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning boolean.
    */
   IS_AFTER: ([a, b]) => {
-    return `DateTime.fromISO(${a}) > DateTime.fromISO(${b})`;
+    return `DateTime.fromISO(${a}, { zone: 'utc'}) > DateTime.fromISO(${b}, { zone: 'utc'})`;
   },
 
   /**
@@ -108,7 +108,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning boolean.
    */
   IS_BEFORE: ([a, b]) => {
-    return `DateTime.fromISO(${a}) < DateTime.fromISO(${b})`;
+    return `DateTime.fromISO(${a}, { zone: 'utc'}) < DateTime.fromISO(${b}, { zone: 'utc'})`;
   },
 
   /**
@@ -117,7 +117,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning boolean.
    */
   IS_SAME: ([a, b]) => {
-    return `DateTime.fromISO(${a}).toISO() === DateTime.fromISO(${b}).toISO()`;
+    return `DateTime.fromISO(${a}, { zone: 'utc'}).toString() === DateTime.fromISO(${b}, { zone: 'utc'}).toString()`;
   },
 
   /**
@@ -125,7 +125,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning current date in ISO.
    */
   NOW: () => {
-    return `DateTime.now().toISO()`;
+    return `DateTime.now().toString()`;
   },
 
   /**
@@ -133,6 +133,6 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning today's date in ISO.
    */
   TODAY: () => {
-    return `DateTime.now().startOf('day').toISO()`;
+    return `DateTime.now().startOf('day').toString()`;
   },
 };
