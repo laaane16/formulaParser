@@ -17,6 +17,7 @@
     "@jest/types": "^29.6.3",
     "@types/eslint__js": "~8.42",
     "@types/jest": "^29.5.14",
+    "@types/luxon": "^3.6.2",
     "@types/node": "~22",
     "@typescript-eslint/parser": "~8.30",
     "eslint": "~9.25",
@@ -59,5 +60,8 @@
   },
   "volta": {
     "node": "22.12.0"
+  },
+  "dependencies": {
+    "luxon": "^3.6.1"
   }
 }
