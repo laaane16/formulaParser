@@ -12,3 +12,4 @@ export type ValidNumberFunctionsNames =
   | 'AVERAGE'
   | 'MIN'
   | 'MAX';
+// | 'TONUMBER';

@@ -73,11 +73,11 @@ describe('bin operator node to sql', () => {
     expect(result).toBe('1 = 1');
   });
 
-  test('equal can`t work with different types', () => {
-    const code = '1 == ""';
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when == on the position 2',
-    );
+  test('equal with different types', () => {
+    const code = '1 == "1"';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe(`1::text = '1'::text`);
   });
 
   test('not equal', () => {
@@ -85,13 +85,6 @@ describe('bin operator node to sql', () => {
     const result = stringifyAstToSql(code);
 
     expect(result).toBe('1 != 1');
-  });
-
-  test('not equal can`t work with different types', () => {
-    const code = '1 != ""';
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when != on the position 2',
-    );
   });
 
   test('greater', () => {

@@ -71,4 +71,14 @@ describe('textFunctionsToJsMap', () => {
     const result = textFunctionsToJsMap.LEN(['"hello"']);
     expect(result).toBe('"hello".length');
   });
+
+  test('JOIN', () => {
+    const result = textFunctionsToJsMap.JOIN(['","', '1', '"1"']);
+    expect(result).toBe('[1,"1"].join(",")');
+  });
+
+  test('TOSTRING', () => {
+    const result = textFunctionsToJsMap.TOSTRING(['1']);
+    expect(result).toBe('String(1)');
+  });
 });

@@ -6,7 +6,7 @@ import {
 import { ValidBinOperatorsNames, IOperator } from './types';
 
 // TODO: write tests
-// null in returnType means all types are valid, but types should be equal
+// null in returnType means all types are valid
 // array in operand type means all types in array are valid in any combination
 export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
   PLUS: [
@@ -79,50 +79,122 @@ export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
   ],
   EQUAL: [
     {
-      operandType: null,
+      operandType: NUMBER_NODE_TYPE,
       returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) => `${left} == ${right}`,
       sqlFn: (left, right) => `${left} = ${right}`,
     },
+    {
+      operandType: LITERAL_NODE_TYPE,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `${left} == ${right}`,
+      sqlFn: (left, right) => `${left} = ${right}`,
+    },
+    {
+      operandType: null,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `String(${left}) == String(${right})`,
+      sqlFn: (left, right) => `${left}::text = ${right}::text`,
+    },
   ],
   NOT_EQUAL: [
     {
-      operandType: null,
+      operandType: NUMBER_NODE_TYPE,
       returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) => `${left} != ${right}`,
       sqlFn: (left, right) => `${left} != ${right}`,
     },
+    {
+      operandType: LITERAL_NODE_TYPE,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `${left} != ${right}`,
+      sqlFn: (left, right) => `${left} != ${right}`,
+    },
+    {
+      operandType: null,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `String(${left}) != String(${right})`,
+      sqlFn: (left, right) => `${left}::text != ${right}::text`,
+    },
   ],
   GREATER: [
     {
-      operandType: null,
+      operandType: NUMBER_NODE_TYPE,
       returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) => `${left} > ${right}`,
       sqlFn: (left, right) => `${left} > ${right}`,
     },
+    {
+      operandType: LITERAL_NODE_TYPE,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `${left} > ${right}`,
+      sqlFn: (left, right) => `${left} > ${right}`,
+    },
+    {
+      operandType: null,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `String(${left}) > String(${right})`,
+      sqlFn: (left, right) => `${left}::text > ${right}::text`,
+    },
   ],
   GREATER_OR_EQUAL: [
     {
-      operandType: null,
+      operandType: NUMBER_NODE_TYPE,
       returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) => `${left} >= ${right}`,
       sqlFn: (left, right) => `${left} >= ${right}`,
     },
+    {
+      operandType: LITERAL_NODE_TYPE,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `${left} >= ${right}`,
+      sqlFn: (left, right) => `${left} >= ${right}`,
+    },
+    {
+      operandType: null,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `String(${left}) >= String(${right})`,
+      sqlFn: (left, right) => `${left}::text >= ${right}::text`,
+    },
   ],
   LESS: [
     {
-      operandType: null,
+      operandType: NUMBER_NODE_TYPE,
       returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) => `${left} < ${right}`,
       sqlFn: (left, right) => `${left} < ${right}`,
     },
-  ],
-  LESS_OR_EQUAL: [
+    {
+      operandType: LITERAL_NODE_TYPE,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `${left} < ${right}`,
+      sqlFn: (left, right) => `${left} < ${right}`,
+    },
     {
       operandType: null,
       returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `String(${left}) < String(${right})`,
+      sqlFn: (left, right) => `${left}::text < ${right}::text`,
+    },
+  ],
+  LESS_OR_EQUAL: [
+    {
+      operandType: NUMBER_NODE_TYPE,
+      returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) => `${left} <= ${right}`,
       sqlFn: (left, right) => `${left} <= ${right}`,
+    },
+    {
+      operandType: LITERAL_NODE_TYPE,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `${left} <= ${right}`,
+      sqlFn: (left, right) => `${left} <= ${right}`,
+    },
+    {
+      operandType: null,
+      returnType: BOOLEAN_NODE_TYPE,
+      jsFn: (left, right) => `String(${left}) <= String(${right})`,
+      sqlFn: (left, right) => `${left}::text <= ${right}::text`,
     },
   ],
   AND: [

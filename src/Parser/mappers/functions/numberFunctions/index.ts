@@ -154,4 +154,12 @@ export const numberFunctions: Record<
       sqlFn: numberFunctionsToSqlMap.MAX,
     },
   ],
+  // TONUMBER: [
+  //   {
+  //     args: [{ type: [LITERAL_NODE_TYPE] }],
+  //     returnType: [NUMBER_NODE_TYPE],
+  //     jsFn: numberFunctionsToJsMap.TONUMBER,
+  //     sqlFn: numberFunctionsToSqlMap.TONUMBER,
+  //   },
+  // ],
 };

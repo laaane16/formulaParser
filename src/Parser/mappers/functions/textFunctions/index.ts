@@ -23,6 +23,22 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         sqlFn: textFunctionsToSqlMap.CONCAT,
       },
     ],
+    JOIN: [
+      {
+        args: [
+          {
+            type: [LITERAL_NODE_TYPE],
+          },
+          {
+            type: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
+            many: true,
+          },
+        ],
+        returnType: [LITERAL_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.JOIN,
+        sqlFn: textFunctionsToSqlMap.JOIN,
+      },
+    ],
     TRIM: [
       {
         args: [
@@ -175,6 +191,18 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         returnType: [NUMBER_NODE_TYPE],
         jsFn: textFunctionsToJsMap.LEN,
         sqlFn: textFunctionsToSqlMap.LEN,
+      },
+    ],
+    TOSTRING: [
+      {
+        args: [
+          {
+            type: [],
+          },
+        ],
+        returnType: [NUMBER_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.TOSTRING,
+        sqlFn: textFunctionsToSqlMap.TOSTRING,
       },
     ],
   };

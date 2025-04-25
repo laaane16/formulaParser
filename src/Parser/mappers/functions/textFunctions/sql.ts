@@ -139,4 +139,24 @@ export const textFunctionsToSqlMap: Record<
    * LEN(["'hello'"]) // => "LEN('hello')" (might be LENGTH in real PostgreSQL)
    */
   LEN: (args: string[]): string => `LEN(${args})`,
+
+  /**
+   * @function JOIN
+   * @param {string[]} args -
+   *  [0] - separator
+   *  [1, ...] - values
+   * @returns {string} Sql format LENGTH expression.
+   * @example
+   * JOIN(['","', '"1"', '1']) // => 'CONCAT_WS(',', '1', 1)'
+   */
+  JOIN: ([sep, ...vals]) => `CONCAT_WS(${sep}, ${vals})`,
+
+  /**
+   * @function TOSTRING
+   * @param {string[]} args - value
+   * @returns {string} Sql format TOSTRING expression.
+   * @example
+   * TOSTRING([1]) // => '1::text'
+   */
+  TOSTRING: ([val]) => `${val}::text`,
 };
