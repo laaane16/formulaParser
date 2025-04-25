@@ -26,8 +26,15 @@ export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
       operandType: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
       returnType: LITERAL_NODE_TYPE,
       jsFn: (left, right) => `String(${left}) + String(${right})`,
-      sqlFn: (left, right) =>
-        `CONCAT(${left}::varchar(255), ${right}::varchar(255))`,
+      sqlFn: (left, right) => `CONCAT(${left}::text, ${right}::text)`,
+    },
+  ],
+  CONCATENATION: [
+    {
+      operandType: LITERAL_NODE_TYPE,
+      returnType: LITERAL_NODE_TYPE,
+      jsFn: (left, right) => `${left} + ${right}`,
+      sqlFn: (left, right) => `CONCAT(${left}, ${right})`,
     },
   ],
   MINUS: [

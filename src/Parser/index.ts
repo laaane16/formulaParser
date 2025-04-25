@@ -446,6 +446,7 @@ export default class Parser {
     if (node instanceof BinOperationNode) {
       const operator =
         allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
+      console.log(node.operator.token.name);
       if (!operator) {
         const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
         this.setReturnTypeInCache(res, node.start, node.end);

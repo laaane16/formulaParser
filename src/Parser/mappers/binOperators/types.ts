@@ -14,7 +14,8 @@ export type ValidBinOperatorsNames =
   | 'LESS'
   | 'LESS_OR_EQUAL'
   | 'OR'
-  | 'AND';
+  | 'AND'
+  | 'CONCATENATION';
 
 type IFormatterFunc = (left: string, right: string) => string;
 

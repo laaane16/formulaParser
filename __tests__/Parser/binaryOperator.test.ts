@@ -28,7 +28,7 @@ describe('bin operator node to sql', () => {
     const code = `1 + "test"`;
     const result = stringifyAstToSql(code);
 
-    expect(result).toBe(`CONCAT(1::varchar(255), 'test'::varchar(255))`);
+    expect(result).toBe(`CONCAT(1::text, 'test'::text)`);
   });
 
   test('minus', () => {
@@ -150,6 +150,10 @@ describe('bin operator node to sql', () => {
     const result = stringifyAstToSql(code);
 
     expect(result).toBe('WHERE (1 > 1) OR (1 < 2)');
+  });
+
+  test('concatenation', () => {
+    expect(stringifyAstToSql('"1" & "test"')).toBe(`CONCAT('1', 'test')`);
   });
 });
 

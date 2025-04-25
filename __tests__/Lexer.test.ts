@@ -61,7 +61,7 @@ describe('Lexer', () => {
   });
 
   test('должен выбросить ошибку при нераспознанном символе', () => {
-    const lexer = new Lexer('3 & 4');
+    const lexer = new Lexer('3 ? 4');
     expect(() => lexer.lexAnalysis()).toThrow();
   });
 
