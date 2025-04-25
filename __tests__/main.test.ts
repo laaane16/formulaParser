@@ -18,9 +18,31 @@ const mockFields: Record<string, IVar> = {
 const values: Record<string, unknown> = {
   1: 1000,
   2: 2000,
+  3: 1111,
   9: 1000,
   FIELD123123: 150,
 };
+
+const mockFieldsWithFieldProgress = [
+  {
+    dbId: 1,
+    id: '1',
+    prevId: '1',
+    type: 'group',
+  },
+  {
+    dbId: 2,
+    id: '2',
+    prevId: '2',
+    type: 'number',
+  },
+  {
+    dbId: 3,
+    id: '3',
+    prevId: '3',
+    type: 'progress',
+  },
+];
 
 describe('Parser', () => {
   const expression = '{{9}} + {{FIELD123123}} + 1000';
@@ -73,5 +95,12 @@ describe('Parser', () => {
     const sql = "$$VARIABLES['9'] + $$VARIABLES['FIELD123123']";
     const replaced = parser.replaceWithVariables(sql, values);
     expect(replaced).toBe('1000 + 150');
+  });
+
+  it('should work well with types like progress and etc.', () => {
+    const parser = new Parser('{{3}} + 3', mockFieldsWithFieldProgress);
+    const sql = "$$VARIABLES['3'] + 3";
+    const replaced = parser.replaceWithVariables(sql, values);
+    expect(replaced).toBe('1111 + 3');
   });
 });

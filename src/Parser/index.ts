@@ -33,6 +33,7 @@ import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
 import { IVar } from '../main';
 import { removePrefixSuffix } from '../lib/removePrefixSuffix';
 import { FORMULA_TEMPLATES } from '../constants/templates';
+import { typesMapper } from '../constants/typesMapper';
 
 type ParserVar = IVar;
 
@@ -420,7 +421,11 @@ export default class Parser {
     }
     if (node instanceof VariableNode) {
       const globalVarKey = removePrefixSuffix(node.variable.text);
-      const variableType = this.variables[globalVarKey]?.type;
+      // some variables we need to prevent for some knowing types, like progress, stars and etc.
+      let variableType = this.variables[globalVarKey]?.type;
+
+      variableType =
+        typesMapper[variableType as keyof typeof typesMapper] || variableType;
 
       if (variableType) {
         return [new Set([variableType])];
@@ -441,6 +446,7 @@ export default class Parser {
     if (node instanceof BinOperationNode) {
       const operator =
         allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
+
       if (!operator) {
         const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
         this.setReturnTypeInCache(res, node.start, node.end);
@@ -467,16 +473,15 @@ export default class Parser {
         if (
           neededTypeVariant === null &&
           leftNodeType.size === 1 &&
-          rightNodeType.size === 1 &&
-          Array.from(leftNodeType)[0] === Array.from(rightNodeType)[0]
+          rightNodeType.size === 1
         ) {
           const res: INodeReturnType = [new Set([returnTypeVariant]), i];
           this.setReturnTypeInCache(res, node.start, node.end);
           return res;
         }
-
         if (
           neededTypeVariant !== null &&
+          !Array.isArray(neededTypeVariant) &&
           leftNodeType.has(neededTypeVariant) &&
           rightNodeType.has(neededTypeVariant) &&
           leftNodeType.size === 1 &&
@@ -485,6 +490,27 @@ export default class Parser {
           const res: INodeReturnType = [new Set([returnTypeVariant]), i];
           this.setReturnTypeInCache(res, node.start, node.end);
           return res;
+        }
+        if (
+          neededTypeVariant !== null &&
+          Array.isArray(neededTypeVariant) &&
+          leftNodeType.size === 1 &&
+          rightNodeType.size === 1
+        ) {
+          let coincidence = 0;
+          neededTypeVariant.forEach((curType) => {
+            if (leftNodeType.has(curType)) {
+              coincidence++;
+            }
+            if (rightNodeType.has(curType)) {
+              coincidence++;
+            }
+          });
+          if (coincidence === 2) {
+            const res: INodeReturnType = [new Set([returnTypeVariant]), i];
+            this.setReturnTypeInCache(res, node.start, node.end);
+            return res;
+          }
         }
       }
       const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
@@ -624,7 +650,7 @@ export default class Parser {
         let variable;
 
         if (from) {
-          variable = variables.find((v) => v && v[from] === varKey);
+          variable = variables.find((v) => v && v[from] == varKey);
         } else {
           variable = this.variables[varKey];
         }

@@ -5,12 +5,16 @@ import Lexer from './Lexer';
 import ParserCore from './Parser';
 import { defaultVarAttr } from './constants/defaults';
 import { FORMATS } from './constants/formats';
+import { FIND_VARIABLES_REGEXP } from './constants/templates';
 import { FormulaError } from './lib/exceptions';
 import { isNil } from './lib/isNil';
 import { removePrefixSuffix } from './lib/removePrefixSuffix';
+import { validateResultJs } from './lib/valiadateResultJs';
+import { validateReplacedVariables } from './lib/validateReplacedVariables';
 
 export interface IVar {
   type: string;
+  id?: string;
   [key: string]: unknown;
 }
 
@@ -28,18 +32,24 @@ export default class Parser {
    * Creates a new `Parser` instance.
    * @param {string} expression - The input formula or expression.
    */
-  constructor(expression: string, variables: Record<string, IVar> = {}) {
+  constructor(
+    expression: string,
+    variables: Record<string, IVar> | IVar[] = {},
+  ) {
     if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
     if (Array.isArray(variables)) {
-      this.variables = variables.reduce((accumulator, current) => {
-        const objAttr = current[defaultVarAttr];
-        if (objAttr) {
-          accumulator[objAttr] = current;
-        }
-        return accumulator;
-      }, {});
+      this.variables = variables.reduce<Record<string, IVar>>(
+        (accumulator, current) => {
+          const objAttr = current[defaultVarAttr];
+          if (objAttr && typeof objAttr === 'string') {
+            accumulator[objAttr] = current;
+          }
+          return accumulator;
+        },
+        {},
+      );
     } else {
       this.variables = variables;
     }
@@ -176,6 +186,7 @@ export default class Parser {
       '$$VARIABLES',
       `return ${jsFormula}`,
     )(DateTime, values);
+    validateResultJs(runFormula);
     return runFormula;
   }
   /**
@@ -187,7 +198,8 @@ export default class Parser {
     sqlFormula: string,
     values: Record<string, unknown>,
   ): string {
-    return sqlFormula.replace(/\$\$VARIABLES\['(.*?)'\]/g, (_, key) => {
+    validateReplacedVariables(sqlFormula, values);
+    return sqlFormula.replace(FIND_VARIABLES_REGEXP, (_, key) => {
       return JSON.stringify(values[key]);
     });
   }

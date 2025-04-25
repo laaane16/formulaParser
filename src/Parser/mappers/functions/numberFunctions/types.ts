@@ -7,4 +7,9 @@ export type ValidNumberFunctionsNames =
   | 'POWER'
   | 'ROUND'
   | 'SQRT'
-  | 'RANDOM';
+  | 'RANDOM'
+  | 'SUM'
+  | 'AVERAGE'
+  | 'MIN'
+  | 'MAX';
+// | 'TONUMBER';

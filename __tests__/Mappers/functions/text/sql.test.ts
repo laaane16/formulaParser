@@ -65,4 +65,14 @@ describe('textFunctionsToSqlMap', () => {
     const result = textFunctionsToSqlMap.LEN(["'hello'"]);
     expect(result).toBe("LEN('hello')");
   });
+
+  test('JOIN', () => {
+    const result = textFunctionsToSqlMap.JOIN(["','", '1', "'1'"]);
+    expect(result).toBe(`CONCAT_WS(',', 1,'1')`);
+  });
+
+  test('TOSTRING', () => {
+    const result = textFunctionsToSqlMap.TOSTRING(['1']);
+    expect(result).toBe('1::text');
+  });
 });

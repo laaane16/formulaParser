@@ -24,6 +24,13 @@ describe('bin operator node to sql', () => {
     expect(result).toBe('1 + 1');
   });
 
+  test('plus can work with different types', () => {
+    const code = `1 + "test"`;
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe(`CONCAT(1::text, 'test'::text)`);
+  });
+
   test('minus', () => {
     const code = '1 - 1';
     const result = stringifyAstToSql(code);
@@ -66,11 +73,11 @@ describe('bin operator node to sql', () => {
     expect(result).toBe('1 = 1');
   });
 
-  test('equal can`t work with different types', () => {
-    const code = '1 == ""';
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when == on the position 2',
-    );
+  test('equal with different types', () => {
+    const code = '1 == "1"';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe(`1::text = '1'::text`);
   });
 
   test('not equal', () => {
@@ -78,13 +85,6 @@ describe('bin operator node to sql', () => {
     const result = stringifyAstToSql(code);
 
     expect(result).toBe('1 != 1');
-  });
-
-  test('not equal can`t work with different types', () => {
-    const code = '1 != ""';
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when != on the position 2',
-    );
   });
 
   test('greater', () => {
@@ -131,19 +131,23 @@ describe('bin operator node to sql', () => {
     expect(result).toBe("$$VARIABLES['Поле 2'] + $$VARIABLES['Поле 2']");
   });
 
-  // test('and', () => {
-  //   const code = '1 && 1';
-  //   const result = stringifyAstToSql(code);
+  test('and', () => {
+    const code = '(2 > 1) && (1 == 0)';
+    const result = stringifyAstToSql(code);
 
-  //   expect(result).toBe('1 AND 1');
-  // });
+    expect(result).toBe('WHERE (2 > 1) AND (1 = 0)');
+  });
 
-  // test('or', () => {
-  //   const code = '1 || 1';
-  //   const result = stringifyAstToSql(code);
+  test('or', () => {
+    const code = '(1 > 1) || (1 < 2)';
+    const result = stringifyAstToSql(code);
 
-  //   expect(result).toBe('1 OR 1');
-  // });
+    expect(result).toBe('WHERE (1 > 1) OR (1 < 2)');
+  });
+
+  test('concatenation', () => {
+    expect(stringifyAstToSql('"1" & "test"')).toBe(`CONCAT('1', 'test')`);
+  });
 });
 
 // describe('bin operator node to js', () => {
@@ -247,27 +251,11 @@ describe('bin operator node to sql', () => {
 // });
 
 describe('bin operator node errors', () => {
-  test('plus can`t work with different types', () => {
-    const code = '1 + ""';
-
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when + on the position 2',
-    );
-  });
-
   test('plus can`t work with vats which has different types', () => {
     const code = '{{Поле 3}} + {{Поле 2}}';
 
     expect(() => stringifyAstToSql(code, fields)).toThrow(
       'Unexpected type of data when + on the position 11',
-    );
-  });
-
-  test('plus can`t work with different types', () => {
-    const code = '1 + CONCAT(CONCAT(""))';
-
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when + on the position 2',
     );
   });
 

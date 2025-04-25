@@ -14,13 +14,14 @@ export type ValidBinOperatorsNames =
   | 'LESS'
   | 'LESS_OR_EQUAL'
   | 'OR'
-  | 'AND';
+  | 'AND'
+  | 'CONCATENATION';
 
 type IFormatterFunc = (left: string, right: string) => string;
 
 export interface IOperator {
   returnType: NodeTypesValues;
-  operandType: NodeTypesValues | null;
+  operandType: NodeTypesValues | NodeTypesValues[] | null;
   jsFn: IFormatterFunc;
   sqlFn: IFormatterFunc;
 }

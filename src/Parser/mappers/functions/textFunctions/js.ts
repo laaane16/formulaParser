@@ -152,9 +152,29 @@ export const textFunctionsToJsMap: Record<
    * @description Returns the number of characters in a string.
    * @param {string[]} args -
    *   [0] - The input string.
-   * @returns {string} Js format LENGTH expression.
+   * @returns {string} Js format LEN expression.
    * @example
    * LEN(['"hello"']) // => '"hello".length'
    */
   LEN: ([str]: string[]): string => `${str}.length`,
+
+  /**
+   * @function JOIN
+   * @param {string[]} args -
+   *  [0] - separator
+   *  [1, ...] - values
+   * @returns {string} Js format JOIN expression.
+   * @example
+   * JOIN(['","', '"1"', '1']) // => '["1", 1].join(",")'
+   */
+  JOIN: ([sep, ...vals]) => `[${vals}].join(${sep})`,
+
+  /**
+   * @function TOSTRING
+   * @param {string[]} args - value
+   * @returns {string} Js format TOSTRING expression.
+   * @example
+   * TOSTRING([1]) // => 'String(1)'
+   */
+  TOSTRING: ([val]) => `String(${val})`,
 };

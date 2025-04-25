@@ -9,4 +9,6 @@ export type ValidTextFunctionsNames =
   | 'SUBSTRING'
   | 'LEFT'
   | 'RIGHT'
-  | 'LEN';
+  | 'LEN'
+  | 'JOIN'
+  | 'TOSTRING';

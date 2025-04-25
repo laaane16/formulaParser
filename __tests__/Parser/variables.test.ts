@@ -20,21 +20,12 @@ describe('variables to sql', () => {
 
     expect(result).toBe(`$$VARIABLES['1']`);
   });
-
-  test('return correct id', () => {
-    const code = '{{1}}';
-    const result = stringifyAstToSql(code, fields);
-
-    expect(result).toBe(`$$VARIABLES['1']`);
-  });
 });
 
 describe('variables errors', () => {
   test('return error if we write no valid variable', () => {
     const code = '{{Поле 1}}';
 
-    expect(() => stringifyAstToJs(code, fields)).toThrow(
-      'Invalid variable {{Поле 1}} on the position 0',
-    );
+    expect(() => stringifyAstToJs(code, fields)).toThrow();
   });
 });

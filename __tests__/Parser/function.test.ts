@@ -240,7 +240,7 @@ describe('function node errors', () => {
   });
 
   test(`function CONCAT can't work with expression which return unknown type in args`, () => {
-    const code = 'CONCAT(1 + "")';
+    const code = 'CONCAT(1 - "")';
 
     expect(() => stringifyAstToSql(code)).toThrow(
       'Unexpected data type in the function CONCAT on the position 0',
@@ -248,7 +248,7 @@ describe('function node errors', () => {
   });
 
   test(`function CONCAT can't work with parenthsized expression in args which has errors`, () => {
-    const code = `CONCAT((1 + 1 + 1 + RANDOM()), CONCAT("", 1, 2, "test"), (RANDOM() + RANDOM() + ""))`;
+    const code = `CONCAT((1 + 1 + 1 + RANDOM()), CONCAT("", 1, 2, "test"), (RANDOM() + RANDOM() - ""))`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
       'Unexpected data type in the function CONCAT on the position 0',

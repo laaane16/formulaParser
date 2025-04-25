@@ -84,4 +84,44 @@ export const numberFunctionsToSqlMap: Record<
    * @example RANDOM([]) => "RANDOM()"
    */
   RANDOM: (): string => `RANDOM()`,
+
+  /**
+   * @function SUM
+   * @description Returns sum numbers in args
+   * @param {string[]} args - Numbers for sum
+   * @returns {string} Sql format SUM expression.
+   * @example
+   * SUM(['1','2']) // => '1 + 2'
+   */
+  SUM: (args: string[]): string => `${args.join(' + ')}`,
+
+  /**
+   * @function AVERAGE
+   * @description Returns average num from args
+   * @param {string[]} args - Numbers for sum
+   * @returns {string} Sql format AVERAGE expression.
+   * @example
+   * AVERAGE(['1','2']) // => '(1 + 2) / 2'
+   */
+  AVERAGE: (args: string[]): string => `(${args.join(' + ')}) / ${args.length}`,
+
+  /**
+   * @function MAX
+   * @description Returns max num from args
+   * @param {string[]} args - Numbers for sum
+   * @returns {string} Sql format MAX expression.
+   * @example
+   * MAX(['1','2']) // => 'GREATEST(1, 2)'
+   */
+  MAX: (args: string[]): string => `GREATEST(${args})`,
+
+  /**
+   * @function SUM
+   * @description Returns min num from args
+   * @param {string[]} args - Numbers for sum
+   * @returns {string} Sql format MIN expression.
+   * @example
+   * MIN(['1','2']) // => 'LEAST(1, 2)'
+   */
+  MIN: (args: string[]): string => `LEAST(${args})`,
 };
