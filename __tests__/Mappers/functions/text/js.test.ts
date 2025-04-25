@@ -3,7 +3,7 @@ import { textFunctionsToJsMap } from '../../../../src/Parser/mappers/functions/t
 describe('textFunctionsToJsMap', () => {
   test('CONCAT', () => {
     const result = textFunctionsToJsMap.CONCAT(['"Hello"', '" "', '"World"']);
-    expect(result).toBe('"Hello" + " " + "World"');
+    expect(result).toBe('("Hello" + " " + "World")');
   });
 
   test('TRIM both', () => {
@@ -29,7 +29,7 @@ describe('textFunctionsToJsMap', () => {
 
   test('SEARCH', () => {
     const result = textFunctionsToJsMap.SEARCH(['"lo"', '"Hello"']);
-    expect(result).toBe('"Hello".indexOf("lo") + 1');
+    expect(result).toBe('("Hello".indexOf("lo") + 1)');
   });
 
   test('REPLACE', () => {

@@ -38,7 +38,7 @@ describe('numberFunctionsToJsMap', () => {
   });
 
   test('SUM', () => {
-    expect(numberFunctionsToJsMap.SUM(['2', '3'])).toBe('2 + 3');
+    expect(numberFunctionsToJsMap.SUM(['2', '3'])).toBe('(2 + 3)');
   });
 
   test('AVERAGE', () => {

@@ -93,7 +93,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example
    * SUM(['1','2']) // => '1 + 2'
    */
-  SUM: (args: string[]): string => `${args.join(' + ')}`,
+  SUM: (args: string[]): string => `(${args.join(' + ')})`,
 
   /**
    * @function AVERAGE

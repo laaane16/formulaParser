@@ -118,14 +118,14 @@ describe('function node to js', () => {
     const code = 'CONCAT("test")';
     const result = stringifyAstToJs(code);
 
-    expect(result).toBe('"test"');
+    expect(result).toBe('("test")');
   });
 
   test('function CONCAT can work with many args which has type string', () => {
     const code = 'CONCAT("test", "test2", "test3")';
     const result = stringifyAstToJs(code);
 
-    expect(result).toBe('"test" + "test2" + "test3"');
+    expect(result).toBe('("test" + "test2" + "test3")');
   });
 
   test(`function CONCAT can work with string`, () => {
@@ -134,7 +134,7 @@ describe('function node to js', () => {
     const code = `CONCAT(CONCAT("1"), CONCAT("2"))`;
 
     const result = stringifyAstToJs(code);
-    expect(result).toBe('"1" + "2"');
+    expect(result).toBe('(("1") + ("2"))');
   });
 
   test(`function CONCAT can work with string`, () => {
@@ -142,28 +142,28 @@ describe('function node to js', () => {
     const code = `CONCAT(CONCAT(CONCAT(CONCAT(CONCAT("2")))))`;
 
     const result = stringifyAstToJs(code);
-    expect(result).toBe('"2"');
+    expect(result).toBe('((((("2")))))');
   });
 
   test(`function CONCAT can work with number`, () => {
     const code = `CONCAT(1)`;
 
     const result = stringifyAstToJs(code);
-    expect(result).toBe('1');
+    expect(result).toBe('(1)');
   });
 
   test(`function CONCAT can work with number and string`, () => {
     const code = `CONCAT(1, "")`;
 
     const result = stringifyAstToJs(code);
-    expect(result).toBe('1 + ""');
+    expect(result).toBe('(1 + "")');
   });
 
   test(`function CONCAT can work with number and string`, () => {
     const code = `CONCAT(RANDOM(), CONCAT("", 1))`;
 
     const result = stringifyAstToJs(code);
-    expect(result).toBe('Math.random() + "" + 1');
+    expect(result).toBe('(Math.random() + ("" + 1))');
   });
 
   test(`function CONCAT can work with expression in args`, () => {
@@ -177,7 +177,7 @@ describe('function node to js', () => {
     const code = `CONCAT(CONCAT("", "test") + CONCAT("", 1, 2))`;
 
     const result = stringifyAstToJs(code);
-    expect(result).toBe('"" + "test" + "" + 1 + 2');
+    expect(result).toBe('(("" + "test") + ("" + 1 + 2))');
   });
 
   test(`function CONCAT can work with parenthsized expression in args`, () => {
@@ -185,7 +185,7 @@ describe('function node to js', () => {
 
     const result = stringifyAstToJs(code);
     expect(result).toBe(
-      '(1 + 1 + 1 + Math.random()) + "" + 1 + 2 + "test" + (Math.random() + Math.random())',
+      '((1 + 1 + 1 + Math.random()) + ("" + 1 + 2 + "test") + (Math.random() + Math.random()))',
     );
   });
 
@@ -194,7 +194,7 @@ describe('function node to js', () => {
 
     const result = stringifyAstToJs(code);
     expect(result).toBe(
-      '(function(){if (2 > 1){return "a"}else{return "b"}})()',
+      '((function(){if (2 > 1){return "a"}else{return "b"}})())',
     );
   });
 
@@ -202,7 +202,15 @@ describe('function node to js', () => {
     const code = `CONCAT(IF(2 > 1, 1, "b"))`;
 
     const result = stringifyAstToJs(code);
-    expect(result).toBe('(function(){if (2 > 1){return 1}else{return "b"}})()');
+    expect(result).toBe(
+      '((function(){if (2 > 1){return 1}else{return "b"}})())',
+    );
+  });
+
+  test('function SUM correct work in case where precedence important', () => {
+    expect(stringifyAstToJs(`SUM(1,2,3) * SUM(1,2,3)`)).toBe(
+      '(1 + 2 + 3) * (1 + 2 + 3)',
+    );
   });
 });
 

@@ -38,7 +38,7 @@ describe('numberFunctionsToSqlMap', () => {
   });
 
   test('SUM', () => {
-    expect(numberFunctionsToSqlMap.SUM(['2', '3'])).toBe('2 + 3');
+    expect(numberFunctionsToSqlMap.SUM(['2', '3'])).toBe('(2 + 3)');
   });
 
   test('AVERAGE', () => {

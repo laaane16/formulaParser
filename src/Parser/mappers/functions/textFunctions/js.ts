@@ -17,7 +17,7 @@ export const textFunctionsToJsMap: Record<
    * @example
    * CONCAT(['"Hello"', '" "', '"World"']) // => '("Hello" + " " + "World")'
    */
-  CONCAT: (args: string[]): string => `${args.join(' + ')}`,
+  CONCAT: (args: string[]): string => `(${args.join(' + ')})`,
 
   /**
    * @function TRIM
@@ -54,7 +54,7 @@ export const textFunctionsToJsMap: Record<
    * SEARCH(['"lo"', '"Hello"']) // => '"Hello".indexOf("lo") + 1'
    */
   SEARCH: (args: string[]): string => {
-    return `${args[1]}.indexOf(${args[0]}) + 1`;
+    return `(${args[1]}.indexOf(${args[0]}) + 1)`;
   },
 
   /**
