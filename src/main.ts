@@ -35,14 +35,16 @@ export default class Parser {
   constructor(
     expression: string,
     variables: Record<string, IVar> | IVar[] = {},
+    varAttr?: string,
   ) {
     if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
     if (Array.isArray(variables)) {
+      const attr = varAttr ?? defaultVarAttr;
       this.variables = variables.reduce<Record<string, IVar>>(
         (accumulator, current) => {
-          const objAttr = current[defaultVarAttr];
+          const objAttr = current[attr];
           if (objAttr && typeof objAttr === 'string') {
             accumulator[objAttr] = current;
           }
