@@ -131,6 +131,12 @@ describe('bin operator node to sql', () => {
     expect(result).toBe("$$VARIABLES['Поле 2'] + $$VARIABLES['Поле 2']");
   });
 
+  test('bin operators precedences take into priorities', () => {
+    expect(stringifyAstToSql(`1 * 1 + ""`)).toBe(
+      `CONCAT(1 * 1::text, ''::text)`,
+    );
+  });
+
   test('and', () => {
     const code = '(2 > 1) && (1 == 0)';
     const result = stringifyAstToSql(code);

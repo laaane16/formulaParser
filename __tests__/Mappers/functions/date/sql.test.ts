@@ -5,11 +5,13 @@ describe('dateFunctionsToSqlMap', () => {
   const exampleDate = "'2024-04-25T12:34:56'";
 
   test('DATE', () => {
-    expect(dateFunctionsToSqlMap.DATE([exampleDate])).toBe(exampleDate);
+    expect(dateFunctionsToSqlMap.DATE(['2012', '12', '12'])).toBe(
+      "'2012-12-12'",
+    );
   });
 
   test('DATEADD', () => {
-    expect(dateFunctionsToSqlMap.DATEADD([exampleDate, '5', 'days'])).toBe(
+    expect(dateFunctionsToSqlMap.DATEADD([exampleDate, '5', "'days'"])).toBe(
       `(${exampleDate} + INTERVAL '5 days')`,
     );
   });

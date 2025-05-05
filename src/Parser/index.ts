@@ -34,6 +34,7 @@ import { IVar } from '../main';
 import { removePrefixSuffix } from '../lib/removePrefixSuffix';
 import { FORMULA_TEMPLATES } from '../constants/templates';
 import { typesMapper } from '../constants/typesMapper';
+import { operatorPrecedence } from '../constants/operatorPrecedence';
 
 type ParserVar = IVar;
 
@@ -67,17 +68,22 @@ export default class Parser {
   }
 
   parseExpression(): ExpressionNode {
-    const currentNode = this.getCurrentNode();
+    let currentNode = this.getCurrentNode();
+    let operator = this.match(...tokenTypesBinOperations);
+    let rightNode;
 
-    const operator = this.match(...tokenTypesBinOperations);
     if (!operator) {
       return currentNode;
     }
 
-    const rightNode = this.parseFormula();
-    const binaryNode = new BinOperationNode(operator, currentNode, rightNode);
+    while (operator) {
+      const precedence = operatorPrecedence[operator.token.name];
+      rightNode = this.parseFormula(precedence);
+      currentNode = new BinOperationNode(operator, currentNode, rightNode);
+      operator = this.match(...tokenTypesBinOperations);
+    }
 
-    return binaryNode;
+    return currentNode;
   }
 
   getCurrentNode(): ExpressionNode {
@@ -247,13 +253,19 @@ export default class Parser {
     return result;
   }
 
-  parseFormula(): ExpressionNode {
+  parseFormula(minPrecedence = 0): ExpressionNode {
     let leftNode = this.getCurrentNode();
     let operator = this.match(...tokenTypesBinOperations);
     let rightNode;
 
     while (operator) {
-      rightNode = this.parseFormula();
+      const precedence = operatorPrecedence[operator.token.name];
+      if (precedence < minPrecedence) {
+        this.pos -= 1;
+        break;
+      }
+
+      rightNode = this.parseFormula(precedence);
       leftNode = new BinOperationNode(operator, leftNode, rightNode);
       operator = this.match(...tokenTypesBinOperations);
     }

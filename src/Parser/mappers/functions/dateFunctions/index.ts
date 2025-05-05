@@ -16,7 +16,13 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: [LITERAL_NODE_TYPE],
+            type: [NUMBER_NODE_TYPE],
+          },
+          {
+            type: [NUMBER_NODE_TYPE],
+          },
+          {
+            type: [NUMBER_NODE_TYPE],
           },
         ],
         returnType: [DATE_NODE_TYPE],
@@ -70,11 +76,11 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         args: [
           // in airtable arg locale last
           {
-            type: [DATE_NODE_TYPE],
+            type: [LITERAL_NODE_TYPE],
           }, // string
           { type: [LITERAL_NODE_TYPE] }, // format
         ],
-        returnType: [LITERAL_NODE_TYPE],
+        returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATETIME_PARSE,
         sqlFn: dateFunctionsToSqlMap.DATETIME_PARSE,
       },

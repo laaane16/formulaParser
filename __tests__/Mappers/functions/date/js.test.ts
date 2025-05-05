@@ -3,8 +3,8 @@ import { dateFunctionsToJsMap } from '../../../../src/Parser/mappers/functions/d
 
 describe('dateFunctionsToJsMap', () => {
   test('DATE', () => {
-    expect(dateFunctionsToJsMap.DATE(['"2023-01-01"'])).toBe(
-      `DateTime.fromISO("2023-01-01", { zone: 'utc'}).toString()`,
+    expect(dateFunctionsToJsMap.DATE(['2023', '12', '12'])).toBe(
+      `DateTime.fromISO("2023-12-12", { zone: 'utc'}).toString()`,
     );
   });
 

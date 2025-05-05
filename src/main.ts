@@ -230,7 +230,7 @@ export default class Parser {
 //   some: 5000,
 // };
 
-// const expression = 'DATEADD(DATE("2016-05-25"), 60, "days")';
+// const expression = 'DATEADD(DATE(2016, 12, 12), 60, "days")';
 
 // const parser = new Parser(expression, variables);
 

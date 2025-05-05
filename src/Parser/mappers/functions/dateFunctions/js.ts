@@ -9,8 +9,8 @@ export const dateFunctionsToJsMap: Record<
    * @param {[string]} date - The date string in ISO format.
    * @returns {string} JavaScript expression returning ISO string.
    */
-  DATE: ([date]) => {
-    return `DateTime.fromISO(${date}, { zone: 'utc'}).toString()`;
+  DATE: ([year, month, day]) => {
+    return `DateTime.fromISO("${year}-${month}-${day}", { zone: 'utc'}).toString()`;
   },
 
   /**

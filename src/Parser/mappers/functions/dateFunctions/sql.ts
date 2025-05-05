@@ -9,8 +9,8 @@ export const dateFunctionsToSqlMap: Record<
    * @param {[string]} date - Date SQL expression.
    * @returns {string} SQL string.
    */
-  DATE: ([date]) => {
-    return `${date}`;
+  DATE: ([year, month, day]) => {
+    return `'${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}'`;
   },
 
   /**
@@ -19,7 +19,7 @@ export const dateFunctionsToSqlMap: Record<
    * @returns {string} SQL string.
    */
   DATEADD: ([date, amount, unit]) => {
-    return `(${date} + INTERVAL '${amount} ${unit}')`;
+    return `(${date} + INTERVAL '${amount} ${unit.slice(1, -1)}')`;
   },
 
   /**
