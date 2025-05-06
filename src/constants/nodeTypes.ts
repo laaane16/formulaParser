@@ -11,10 +11,12 @@ export const UNAR_OPERATION_NODE_TYPE = 'UnarOperationNode';
 export const VARIABLE_NODE_TYPE = 'VariableNode';
 export const BOOLEAN_NODE_TYPE = 'BooleanNode';
 export const IF_STATEMENT_NODE_TYPE = 'IfStatementNode';
+export const NULL_NODE_TYPE = 'NullNode';
 
 export const UNKNOWN_NODE_TYPE = 'unknown';
 
 export const NODE_TYPES = {
+  NULL: NULL_NODE_TYPE,
   BIN_OPERATION: BIN_OPERATION_NODE_TYPE,
   BOOLEAN: BOOLEAN_NODE_TYPE,
   FUNCTION: FUNCTION_NODE_TYPE,

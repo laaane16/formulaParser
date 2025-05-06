@@ -16,9 +16,9 @@ import ParenthesizedNode from '../AST/ParenthesizedNode';
 import StatementsNode from '../AST/StatementsNode';
 import VariableNode from '../AST/VariableNode';
 import UnarOperationNode from '../AST/UnarOperationNode';
-import KeywordNode from '../AST/BooleanNode';
 import IfStatementNode from '../AST/IfStatementNode';
-import BooleandNode from '../AST/BooleanNode';
+import BooleanNode from '../AST/BooleanNode';
+import NullNode from '../AST/NullNode';
 
 import { allFunctions } from './mappers/functions';
 import { ValidFunctionsNames } from './mappers/functions/types';
@@ -90,7 +90,8 @@ export default class Parser {
     const parsersForPossibleResults = [
       this.parseLiteralNode,
       this.parseNumberNode,
-      this.parseKeywordNode,
+      this.parseBooleanNode,
+      this.parseNullNode,
       this.parseVariableNode,
       this.parseUnarOperatorNode,
       this.parseParenthesizedNode,
@@ -127,10 +128,19 @@ export default class Parser {
     return null;
   }
 
-  parseKeywordNode(): KeywordNode | null {
+  parseBooleanNode(): BooleanNode | null {
     const keyword = this.match(...tokenTypesBoolean);
     if (keyword) {
-      return new KeywordNode(keyword);
+      return new BooleanNode(keyword);
+    }
+
+    return null;
+  }
+
+  parseNullNode(): NullNode | null {
+    const keyword = this.match(tokenTypesList.get('NULL') as TokenType);
+    if (keyword) {
+      return new NullNode(keyword);
     }
 
     return null;
@@ -314,7 +324,7 @@ export default class Parser {
       }
       return `${node.literal.text}`;
     }
-    if (node instanceof KeywordNode) {
+    if (node instanceof BooleanNode || node instanceof NullNode) {
       return node.keyword.text;
     }
     if (node instanceof VariableNode) {
@@ -427,7 +437,8 @@ export default class Parser {
     if (
       node instanceof NumberNode ||
       node instanceof LiteralNode ||
-      node instanceof BooleandNode
+      node instanceof BooleanNode ||
+      node instanceof NullNode
     ) {
       return [new Set([node.type])];
     }
@@ -601,8 +612,10 @@ export default class Parser {
             });
             if (
               argVariantsCoincidence <= functionVariantCurrentArg.type.length &&
-              argVariantsCoincidence !== 0 &&
-              argVariantsCoincidence === nodeArgType.size
+              ((argVariantsCoincidence !== 0 &&
+                argVariantsCoincidence === nodeArgType.size) ||
+                (argVariantsCoincidence === 0 &&
+                  functionVariantCurrentArg.type.length === 0))
             ) {
               coincidences++;
             }
@@ -620,8 +633,13 @@ export default class Parser {
               });
               if (
                 argVariantsCoincidence <= lastArgType.length &&
-                argVariantsCoincidence !== 0 &&
-                argVariantsCoincidence === nodeArgType.size
+                ((argVariantsCoincidence !== 0 &&
+                  argVariantsCoincidence === nodeArgType.size) ||
+                  (argVariantsCoincidence === 0 &&
+                    lastArgType.length === 0 &&
+                    canArgBeLast &&
+                    lastArgType &&
+                    isLastArgMany))
               ) {
                 coincidences++;
               }
@@ -679,7 +697,7 @@ export default class Parser {
 
         return `${FORMULA_TEMPLATES.PREFIX}${variable[to]}${FORMULA_TEMPLATES.POSTFIX}`;
       }
-      if (n instanceof KeywordNode) {
+      if (n instanceof BooleanNode || n instanceof NullNode) {
         return n.keyword.text;
       }
       if (n instanceof ParenthesizedNode) {

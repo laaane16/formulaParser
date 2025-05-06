@@ -16,6 +16,20 @@ describe('function node to sql', () => {
     expect(result).toBe("CONCAT('test','test2','test3')");
   });
 
+  test('function TOSTRING can work with any types', () => {
+    const code = 'TOSTRING("test")';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe(`'test'::text`);
+  });
+
+  test('function TOSTRING can work with any types', () => {
+    const code = 'TOSTRING(true)';
+    const result = stringifyAstToSql(code);
+
+    expect(result).toBe(`true::text`);
+  });
+
   test(`function CONCAT can work with string`, () => {
     //  case: CONCAT(CONCAT("1"), CONCAT("2")), funcs in args returns strings
 
@@ -220,6 +234,14 @@ describe('function node errors', () => {
 
     expect(() => stringifyAstToSql(code)).toThrow(
       'Invalid function name TESTFUNC on the position 0',
+    );
+  });
+
+  test('function TOSTRING can work with one arg', () => {
+    const code = 'TOSTRING("test", 1)';
+
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Unexpected data type in the function TOSTRING on the position 0',
     );
   });
 

@@ -41,7 +41,8 @@ export const tokenTypesList: Map<string, TokenType> = new Map([
 
   // KEYWORDS
   ['TRUE', new TokenType('TRUE', 'true')], // TRUE psql
-  ['FALSE', new TokenType('FALSE', 'false')], // TRUE psql
+  ['FALSE', new TokenType('FALSE', 'false')], // FALSE psql
+  ['NULL', new TokenType('NULL', 'null')],
 
   //BIN_OPERATORS
   ['PLUS', new TokenType('PLUS', '\\+')], // + PSQL
