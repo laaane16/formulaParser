@@ -3,7 +3,7 @@ export const validateResultJs = (result: unknown) => {
     throw new Error(`JS formula result is invalid: ${result}`);
   }
 
-  if (result === undefined || result === null) {
+  if (result === undefined) {
     throw new Error(`JS formula result is ${String(result)}`);
   }
 };
