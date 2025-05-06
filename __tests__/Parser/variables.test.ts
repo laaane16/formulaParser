@@ -18,7 +18,7 @@ describe('variables to sql', () => {
     const code = '{{1}}';
     const result = stringifyAstToSql(code, fields);
 
-    expect(result).toBe(`$$VARIABLES['1']`);
+    expect(result).toBe(`COALESCE($$VARIABLES['1'], 0)`);
   });
 });
 

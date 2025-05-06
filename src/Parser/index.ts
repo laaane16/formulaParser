@@ -35,6 +35,7 @@ import { removePrefixSuffix } from '../lib/removePrefixSuffix';
 import { FORMULA_TEMPLATES } from '../constants/templates';
 import { typesMapper } from '../constants/typesMapper';
 import { operatorPrecedence } from '../constants/operatorPrecedence';
+import { defaultValues } from '../constants/defaultValues';
 
 type ParserVar = IVar;
 
@@ -330,7 +331,13 @@ export default class Parser {
     if (node instanceof VariableNode) {
       const globalVarKey = removePrefixSuffix(node.variable.text);
       if (this.variables[globalVarKey]) {
-        return `$$VARIABLES['${globalVarKey}']`;
+        const preparedVar = `$$VARIABLES['${globalVarKey}']`;
+        const sendedVar = this.variables[globalVarKey];
+        if (format === FORMATS.JS) {
+          return `(${preparedVar} === null ? ${defaultValues[sendedVar.type] ?? ''}: ${preparedVar})`;
+        } else {
+          return `COALESCE($$VARIABLES['${globalVarKey}'], ${defaultValues[sendedVar.type] ?? ''})`;
+        }
       }
       throw new Error(
         `Invalid variable ${node.variable.text} on the position ${node.start}`,

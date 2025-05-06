@@ -226,11 +226,11 @@ export default class Parser {
 // };
 
 // const values: Record<string, unknown> = {
-//   1: 1000,
+//   1: null,
 //   some: 5000,
 // };
 
-// const expression = 'DATEADD(DATE(2016, 12, 12), 60, "days")';
+// const expression = '{{1}} + 300';
 
 // const parser = new Parser(expression, variables);
 

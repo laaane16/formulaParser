@@ -128,7 +128,9 @@ describe('bin operator node to sql', () => {
     const code = '{{Поле 2}} + {{Поле 2}}';
     const result = stringifyAstToSql(code, fields);
 
-    expect(result).toBe("$$VARIABLES['Поле 2'] + $$VARIABLES['Поле 2']");
+    expect(result).toBe(
+      "COALESCE($$VARIABLES['Поле 2'], 0) + COALESCE($$VARIABLES['Поле 2'], 0)",
+    );
   });
 
   test('bin operators precedences take into priorities', () => {
