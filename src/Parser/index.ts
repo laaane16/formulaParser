@@ -318,9 +318,11 @@ export default class Parser {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     if (node instanceof StatementsNode) {
+      const withErrorsFilter =
+        this.potentialErrors.length > 0 && format === FORMATS.SQL && safe;
       return node.codeStrings.map(
         (i) =>
-          `${this.stringifyAst(i, format, safe)}${this.potentialErrors.length > 0 ? ` WHERE ${this.potentialErrors.join(' AND ')}` : ''}`,
+          `${this.stringifyAst(i, format, safe)}${withErrorsFilter ? ` WHERE ${this.potentialErrors.join(' AND ')}` : ''}`,
       );
     }
     if (node instanceof NumberNode) {
@@ -400,9 +402,12 @@ export default class Parser {
         if (isSafeOperator(neededOperator) && safe) {
           const safeFn = neededOperator[`${format}SafeFn`];
 
-          this.potentialErrors.push(
-            neededOperator.filterError(leftNode, rightNode),
-          );
+          if (format === FORMATS.SQL) {
+            this.potentialErrors.push(
+              neededOperator.filterError(leftNode, rightNode),
+            );
+          }
+
           return safeFn(leftNode, rightNode);
         } else {
           return neededOperator[`${format}Fn`](leftNode, rightNode);
@@ -444,7 +449,9 @@ export default class Parser {
         const neededFunc = currentFunction[idx];
         if (isSafeFunction(neededFunc) && safe) {
           const safeFn = neededFunc[`${format}SafeFn`];
-          this.potentialErrors.push(neededFunc.filterError(functionArgs));
+          if (format === FORMATS.SQL) {
+            this.potentialErrors.push(neededFunc.filterError(functionArgs));
+          }
 
           return safeFn(functionArgs);
         } else {
