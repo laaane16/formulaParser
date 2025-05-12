@@ -21,12 +21,15 @@ import BooleanNode from '../AST/BooleanNode';
 import NullNode from '../AST/NullNode';
 
 import { allFunctions } from './mappers/functions';
-import { ValidFunctionsNames } from './mappers/functions/types';
+import { isSafeFunction, ValidFunctionsNames } from './mappers/functions/types';
 import { allUnarOperators } from './mappers/unarOperators';
 import { ValidUnarOperatorsNames } from './mappers/unarOperators/types';
 import { ifStatementMap } from './mappers/if';
 import { allBinOperators } from './mappers/binOperators';
-import { ValidBinOperatorsNames } from './mappers/binOperators/types';
+import {
+  isSafeOperator,
+  ValidBinOperatorsNames,
+} from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
 import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
@@ -46,6 +49,7 @@ export default class Parser {
   pos: number = 0;
   variables: Record<string, ParserVar> = {};
   returnTypesCache: Record<string, INodeReturnType> = {};
+  potentialErrors: string[] = [];
 
   constructor(tokens: Token[], variables: Record<string, ParserVar>) {
     this.tokens = tokens;
@@ -310,10 +314,14 @@ export default class Parser {
   stringifyAst(
     node: ExpressionNode,
     format: (typeof FORMATS)[keyof typeof FORMATS],
+    safe: boolean,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     if (node instanceof StatementsNode) {
-      return node.codeStrings.map((i) => this.stringifyAst(i, format));
+      return node.codeStrings.map(
+        (i) =>
+          `${this.stringifyAst(i, format, safe)}${this.potentialErrors.length > 0 ? ` WHERE ${this.potentialErrors.join(' AND ')}` : ''}`,
+      );
     }
     if (node instanceof NumberNode) {
       return node.number.text;
@@ -344,12 +352,12 @@ export default class Parser {
       );
     }
     if (node instanceof ParenthesizedNode) {
-      return `(${this.stringifyAst(node.expression, format)})`;
+      return `(${this.stringifyAst(node.expression, format, safe)})`;
     }
     if (node instanceof UnarOperationNode) {
       const operator =
         allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
-      const operand = this.stringifyAst(node.operand, format);
+      const operand = this.stringifyAst(node.operand, format, safe);
 
       if (operator.types.length === 0) {
         return operator[`${format}Fn`](operand);
@@ -376,8 +384,8 @@ export default class Parser {
         allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
       const [operatorType, index] = this.getReturnType(node);
 
-      const leftNode = this.stringifyAst(node.left, format);
-      const rightNode = this.stringifyAst(node.right, format);
+      const leftNode = this.stringifyAst(node.left, format, safe);
+      const rightNode = this.stringifyAst(node.right, format, safe);
 
       // Maybe change logic for show correct error position
       if (operatorType.has(UNKNOWN_NODE_TYPE)) {
@@ -387,7 +395,18 @@ export default class Parser {
       }
 
       if (index !== undefined) {
-        return operator[index][`${format}Fn`](leftNode, rightNode);
+        const neededOperator = operator[index];
+
+        if (isSafeOperator(neededOperator) && safe) {
+          const safeFn = neededOperator[`${format}SafeFn`];
+
+          this.potentialErrors.push(
+            neededOperator.filterError(leftNode, rightNode),
+          );
+          return safeFn(leftNode, rightNode);
+        } else {
+          return neededOperator[`${format}Fn`](leftNode, rightNode);
+        }
       }
 
       throw new Error(
@@ -395,9 +414,9 @@ export default class Parser {
       );
     }
     if (node instanceof IfStatementNode) {
-      const test = this.stringifyAst(node.test, format);
-      const consequent = this.stringifyAst(node.consequent, format);
-      const alternate = this.stringifyAst(node.alternate, format);
+      const test = this.stringifyAst(node.test, format, safe);
+      const consequent = this.stringifyAst(node.consequent, format, safe);
+      const alternate = this.stringifyAst(node.alternate, format, safe);
 
       return ifStatementMap[`${format}Fn`](test, consequent, alternate);
     }
@@ -418,13 +437,19 @@ export default class Parser {
         }
 
         const functionArgs = node.args.map((arg) => {
-          const argNode = this.stringifyAst(arg, format);
+          const argNode = this.stringifyAst(arg, format, safe);
           return argNode;
         });
 
-        const resFn = currentFunction[idx][`${format}Fn`];
-        const res = resFn(functionArgs);
-        return res;
+        const neededFunc = currentFunction[idx];
+        if (isSafeFunction(neededFunc) && safe) {
+          const safeFn = neededFunc[`${format}SafeFn`];
+          this.potentialErrors.push(neededFunc.filterError(functionArgs));
+
+          return safeFn(functionArgs);
+        } else {
+          return neededFunc[`${format}Fn`](functionArgs);
+        }
       }
       throw new Error(
         `Invalid function name ${node.name} on the position ${node.func.pos}`,

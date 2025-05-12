@@ -19,9 +19,20 @@ export type ValidBinOperatorsNames =
 
 type IFormatterFunc = (left: string, right: string) => string;
 
-export interface IOperator {
+interface BaseOperator {
   returnType: NodeTypesValues;
   operandType: NodeTypesValues | NodeTypesValues[] | null;
   jsFn: IFormatterFunc;
   sqlFn: IFormatterFunc;
+}
+interface SafeOperator extends BaseOperator {
+  jsSafeFn: IFormatterFunc;
+  sqlSafeFn: IFormatterFunc;
+  filterError: IFormatterFunc;
+}
+
+export type Operator = BaseOperator | SafeOperator;
+
+export function isSafeOperator(op: Operator): op is SafeOperator {
+  return 'filterError' in op;
 }

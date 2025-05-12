@@ -17,14 +17,14 @@ describe('function node to sql', () => {
   });
 
   test('function TOSTRING can work with any types', () => {
-    const code = 'TOSTRING("test")';
+    const code = 'TO_STRING("test")';
     const result = stringifyAstToSql(code);
 
     expect(result).toBe(`'test'::text`);
   });
 
   test('function TOSTRING can work with any types', () => {
-    const code = 'TOSTRING(true)';
+    const code = 'TO_STRING(true)';
     const result = stringifyAstToSql(code);
 
     expect(result).toBe(`true::text`);
@@ -238,10 +238,10 @@ describe('function node errors', () => {
   });
 
   test('function TOSTRING can work with one arg', () => {
-    const code = 'TOSTRING("test", 1)';
+    const code = 'TO_STRING("test", 1)';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function TOSTRING on the position 0',
+      'Unexpected data type in the function TO_STRING on the position 0',
     );
   });
 

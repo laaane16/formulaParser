@@ -1,4 +1,4 @@
-export type ValidNumberFunctionsNames =
+export type ValidNumberFunctionsNamesWithSafe =
   | 'ABS'
   | 'CEIL'
   | 'FLOOR'
@@ -7,9 +7,16 @@ export type ValidNumberFunctionsNames =
   | 'POWER'
   | 'ROUND'
   | 'SQRT'
+  | 'SAFE_SQRT'
   | 'RANDOM'
   | 'SUM'
   | 'AVERAGE'
   | 'MIN'
-  | 'MAX';
-// | 'TONUMBER';
+  | 'MAX'
+  | 'TO_NUMBER'
+  | 'SAFE_TO_NUMBER';
+
+export type ValidNumberFunctionsNames = Exclude<
+  ValidNumberFunctionsNamesWithSafe,
+  'SAFE_SQRT' | 'SAFE_TO_NUMBER'
+>;

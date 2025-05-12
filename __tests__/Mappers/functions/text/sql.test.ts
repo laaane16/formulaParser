@@ -72,7 +72,7 @@ describe('textFunctionsToSqlMap', () => {
   });
 
   test('TOSTRING', () => {
-    const result = textFunctionsToSqlMap.TOSTRING(['1']);
+    const result = textFunctionsToSqlMap.TO_STRING(['1']);
     expect(result).toBe('1::text');
   });
 });

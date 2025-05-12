@@ -162,18 +162,18 @@ export default class Parser {
    * Converts the parsed expression into an SQL string.
    * @returns {string} The SQL representation of the formula.
    */
-  public toSql(): string {
+  public toSql(safe: boolean = false): string {
     const [parser, node] = this.prepareParser();
-    return parser.stringifyAst(node, FORMATS.SQL)[0]; // Currently, returns only the first SQL line
+    return parser.stringifyAst(node, FORMATS.SQL, safe)[0]; // Currently, returns only the first SQL line
   }
 
   /**
    * Converts the parsed expression into a JavaScript-evaluable string.
    * @returns {string} The JS representation of the formula.
    */
-  public toJs(): string {
+  public toJs(safe: boolean = false): string {
     const [parser, node] = this.prepareParser();
-    return parser.stringifyAst(node, FORMATS.JS)[0]; // Currently, returns only the first JS line
+    return parser.stringifyAst(node, FORMATS.JS, safe)[0]; // Currently, returns only the first JS line
   }
 
   /**
@@ -182,13 +182,36 @@ export default class Parser {
    * @param {Record<string, unknown>} values - An object with key-value pairs for variables. Key always id in fields
    * @returns {unknown} The result of formula evaluation.
    */
-  public runJs(jsFormula: string, values: Record<string, unknown>): unknown {
+  public runJs(
+    jsFormula: string,
+    values: Record<string, unknown>,
+    safe: boolean = false,
+  ): unknown {
+    if (safe) {
+      try {
+        const runFormula = new Function(
+          'DateTime',
+          '$$VARIABLES',
+          `
+           return ${jsFormula}
+          `,
+        )(DateTime, values);
+        validateResultJs(runFormula);
+
+        return runFormula;
+      } catch (e) {
+        return null;
+      }
+    }
     const runFormula = new Function(
       'DateTime',
       '$$VARIABLES',
-      `return ${jsFormula}`,
+      `
+       return ${jsFormula}
+      `,
     )(DateTime, values);
     validateResultJs(runFormula);
+
     return runFormula;
   }
   /**
@@ -226,20 +249,20 @@ export default class Parser {
 // };
 
 // const values: Record<string, unknown> = {
-//   1: null,
+//   1: 100,
 //   some: 5000,
 // };
 
-// const expression = '{{1}} + 300';
+// const expression = '{{1}} / 1 + 300';
 
 // const parser = new Parser(expression, variables);
 
-// const sqlQuery = parser.toSql();
+// const sqlQuery = parser.toSql(true);
 // console.log('SQL:', sqlQuery); // Outputs the generated SQL query
 
-// const jsFormula = parser.toJs();
+// const jsFormula = parser.toJs(true);
 // console.log('JS:', jsFormula); // Outputs the generated JS query
 
-// console.log('RUN JS:', parser.runJs(jsFormula, values));
+// console.log('RUN JS:', parser.runJs(jsFormula, values, true));
 
 // console.log(parser.replaceWithVariables(sqlQuery, values));
