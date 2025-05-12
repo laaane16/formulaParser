@@ -24,4 +24,6 @@ export interface IOperator {
   operandType: NodeTypesValues | NodeTypesValues[] | null;
   jsFn: IFormatterFunc;
   sqlFn: IFormatterFunc;
+  jsSafeFn?: IFormatterFunc;
+  sqlSafeFn?: IFormatterFunc;
 }

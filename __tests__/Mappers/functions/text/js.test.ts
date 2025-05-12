@@ -77,8 +77,8 @@ describe('textFunctionsToJsMap', () => {
     expect(result).toBe('[1,"1"].join(",")');
   });
 
-  test('TOSTRING', () => {
-    const result = textFunctionsToJsMap.TOSTRING(['1']);
+  test('TO_STRING', () => {
+    const result = textFunctionsToJsMap.TO_STRING(['1']);
     expect(result).toBe('String(1)');
   });
 });

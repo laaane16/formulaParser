@@ -1,7 +1,7 @@
-import { ValidNumberFunctionsNames } from './types';
+import { ValidNumberFunctionsNamesWithSafe } from './types';
 
 export const numberFunctionsToSqlMap: Record<
-  ValidNumberFunctionsNames,
+  ValidNumberFunctionsNamesWithSafe,
   (args: string[]) => string
 > = {
   /**
@@ -75,6 +75,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example SQRT(['9']) => "SQRT(9)"
    */
   SQRT: ([num]: string[]): string => `SQRT(${num})`,
+  SAFE_SQRT: ([num]: string[]): string => `SQRT(${num}) WHERE ${num} >= 0`,
 
   /**
    * @function RANDOM
@@ -124,4 +125,17 @@ export const numberFunctionsToSqlMap: Record<
    * MIN(['1','2']) // => 'LEAST(1, 2)'
    */
   MIN: (args: string[]): string => `LEAST(${args})`,
+
+  /**
+   * @function TO_NUMBER
+   * @description Returns num if it`s possible
+   * @param {string[]} args - Numeric cast
+   * @returns {string} Sql format numeric cas expression.
+   * @example
+   * TO_NUMBER(["'1'"]) // => "'1'::numeric"
+   */
+  TO_NUMBER: (args: string[]): string => `${args}::numeric`,
+  SAFE_TO_NUMBER: (args: string[]): string =>
+    // eslint-disable-next-line no-useless-escape
+    `${args}::numeric WHERE '^\d+(\.\d+)?$'`,
 };

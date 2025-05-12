@@ -1,7 +1,7 @@
-import { ValidNumberFunctionsNames } from './types';
+import { ValidNumberFunctionsNamesWithSafe } from './types';
 
 export const numberFunctionsToJsMap: Record<
-  ValidNumberFunctionsNames,
+  ValidNumberFunctionsNamesWithSafe,
   (args: string[]) => string
 > = {
   /**
@@ -84,6 +84,8 @@ export const numberFunctionsToJsMap: Record<
    * SQRT(['9']) // => 'Math.sqrt(9)'
    */
   SQRT: ([num]: string[]): string => `Math.sqrt(${num})`,
+  SAFE_SQRT: ([num]: string[]): string =>
+    `if (${num} < 0) return; Math.sqrt(${num}) `,
 
   /**
    * @function RANDOM
@@ -134,4 +136,17 @@ export const numberFunctionsToJsMap: Record<
    * MIN(['1','2']) // => 'Math.min(1, 2)'
    */
   MIN: (args: string[]): string => `Math.min(${args})`,
+
+  /**
+   * @function TO_NUMBER
+   * @description Returns num if it`s possible
+   * @param {string[]} args - Numeric cast
+   * @returns {string} Sql format numeric cas expression.
+   * @example
+   * TO_NUMBER(["'1'"]) // => "'1'::numeric"
+   */
+  TO_NUMBER: (args: string[]): string => `Number(${args})`,
+  SAFE_TO_NUMBER: (args: string[]): string =>
+    // eslint-disable-next-line no-useless-escape
+    `if (!/^\d+(\.\d+)?$/.test(${args}) return; Number(${args})'`,
 };

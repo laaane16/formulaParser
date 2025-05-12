@@ -158,5 +158,5 @@ export const textFunctionsToSqlMap: Record<
    * @example
    * TOSTRING([1]) // => '1::text'
    */
-  TOSTRING: ([val]) => `${val}::text`,
+  TO_STRING: ([val]) => `${val}::text`,
 };

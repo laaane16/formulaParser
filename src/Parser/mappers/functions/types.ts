@@ -1,6 +1,5 @@
 import { NodeTypesValues } from '../../../constants/nodeTypes';
 import { ValidDateFunctionsNames } from './dateFunctions/types';
-// import { ValidLogicFunctionsNames } from './logicFunctions/types';
 import { ValidNumberFunctionsNames } from './numberFunctions/types';
 import { ValidTextFunctionsNames } from './textFunctions/types';
 
@@ -20,12 +19,13 @@ export interface IFunction {
   returnType: NodeTypesValues[]; // ?maybe func or array
   jsFn: (args: string[]) => string;
   sqlFn: (args: string[]) => string;
+  jsSafeFn?: (args: string[]) => string;
+  sqlSafeFn?: (args: string[]) => string;
 }
 
 export type ValidFunctionsNames =
   | ValidTextFunctionsNames
   | ValidNumberFunctionsNames
   | ValidDateFunctionsNames;
-// | ValidLogicFunctionsNames
 
 export type VariableFunction = IFunction[];

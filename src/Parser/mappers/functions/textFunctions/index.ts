@@ -193,7 +193,7 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         sqlFn: textFunctionsToSqlMap.LEN,
       },
     ],
-    TOSTRING: [
+    TO_STRING: [
       {
         args: [
           {
@@ -201,8 +201,8 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
           },
         ],
         returnType: [NUMBER_NODE_TYPE],
-        jsFn: textFunctionsToJsMap.TOSTRING,
-        sqlFn: textFunctionsToSqlMap.TOSTRING,
+        jsFn: textFunctionsToJsMap.TO_STRING,
+        sqlFn: textFunctionsToSqlMap.TO_STRING,
       },
     ],
   };

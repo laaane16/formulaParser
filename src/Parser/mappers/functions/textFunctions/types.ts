@@ -11,4 +11,4 @@ export type ValidTextFunctionsNames =
   | 'RIGHT'
   | 'LEN'
   | 'JOIN'
-  | 'TOSTRING';
+  | 'TO_STRING';
