@@ -320,7 +320,7 @@ export default class Parser {
     if (node instanceof StatementsNode) {
       return node.codeStrings.map(
         (i) =>
-          `${this.stringifyAst(i, format, safe)}${this.potentialErrors.length > 0 ? ` WHERE ${this.potentialErrors.join('AND')}` : ''}`,
+          `${this.stringifyAst(i, format, safe)}${this.potentialErrors.length > 0 ? ` WHERE ${this.potentialErrors.join(' AND ')}` : ''}`,
       );
     }
     if (node instanceof NumberNode) {
