@@ -14,14 +14,21 @@ export interface IArg {
   many?: boolean;
 }
 
-export interface IFunction {
+type IFormatterFunc = (args: string[]) => string;
+
+interface BaseFunction {
   args: IArg[];
-  returnType: NodeTypesValues[]; // ?maybe func or array
-  jsFn: (args: string[]) => string;
-  sqlFn: (args: string[]) => string;
-  jsSafeFn?: (args: string[]) => string;
-  sqlSafeFn?: (args: string[]) => string;
+  returnType: NodeTypesValues[];
+  jsFn: IFormatterFunc;
+  sqlFn: IFormatterFunc;
 }
+interface SafeFunction extends BaseFunction {
+  jsSafeFn: IFormatterFunc;
+  sqlSafeFn: IFormatterFunc;
+  filterError: IFormatterFunc;
+}
+
+export type IFunction = SafeFunction | BaseFunction;
 
 export type ValidFunctionsNames =
   | ValidTextFunctionsNames
@@ -29,3 +36,7 @@ export type ValidFunctionsNames =
   | ValidDateFunctionsNames;
 
 export type VariableFunction = IFunction[];
+
+export function isSafeFunction(func: IFunction): func is SafeFunction {
+  return 'filterError' in func;
+}

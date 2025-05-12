@@ -232,37 +232,37 @@ export default class Parser {
 
 // Example usage:
 // key - value in {{...}}
-const variables: Record<string, IVar> = {
-  1: {
-    id: '1',
-    dbId: 2,
-    prevId: '3',
-    name: 'Поле 1',
-    type: 'number',
-  },
-  some: {
-    name: 'Поле 2',
-    dbId: 5,
-    id: '2',
-    type: 'number',
-  },
-};
+// const variables: Record<string, IVar> = {
+//   1: {
+//     id: '1',
+//     dbId: 2,
+//     prevId: '3',
+//     name: 'Поле 1',
+//     type: 'number',
+//   },
+//   some: {
+//     name: 'Поле 2',
+//     dbId: 5,
+//     id: '2',
+//     type: 'number',
+//   },
+// };
 
-const values: Record<string, unknown> = {
-  1: null,
-  some: 5000,
-};
+// const values: Record<string, unknown> = {
+//   1: 100,
+//   some: 5000,
+// };
 
-const expression = '{{1}} / 0 + 300';
+// const expression = '{{1}} / 1 + 300';
 
-const parser = new Parser(expression, variables);
+// const parser = new Parser(expression, variables);
 
-const sqlQuery = parser.toSql(true);
-console.log('SQL:', sqlQuery); // Outputs the generated SQL query
+// const sqlQuery = parser.toSql(true);
+// console.log('SQL:', sqlQuery); // Outputs the generated SQL query
 
-const jsFormula = parser.toJs(true);
-console.log('JS:', jsFormula); // Outputs the generated JS query
+// const jsFormula = parser.toJs(true);
+// console.log('JS:', jsFormula); // Outputs the generated JS query
 
-console.log('RUN JS:', parser.runJs(jsFormula, values, true));
+// console.log('RUN JS:', parser.runJs(jsFormula, values, true));
 
-console.log(parser.replaceWithVariables(sqlQuery, values));
+// console.log(parser.replaceWithVariables(sqlQuery, values));

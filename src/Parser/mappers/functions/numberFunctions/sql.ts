@@ -75,7 +75,8 @@ export const numberFunctionsToSqlMap: Record<
    * @example SQRT(['9']) => "SQRT(9)"
    */
   SQRT: ([num]: string[]): string => `SQRT(${num})`,
-  SAFE_SQRT: ([num]: string[]): string => `SQRT(${num}) WHERE ${num} >= 0`,
+  SAFE_SQRT: ([num]: string[]): string =>
+    `SQRT(CASE WHEN ${num} >= 0 THEN ${num} ELSE 1 END)`,
 
   /**
    * @function RANDOM
@@ -137,5 +138,5 @@ export const numberFunctionsToSqlMap: Record<
   TO_NUMBER: (args: string[]): string => `${args}::numeric`,
   SAFE_TO_NUMBER: (args: string[]): string =>
     // eslint-disable-next-line no-useless-escape
-    `${args}::numeric WHERE '^\d+(\.\d+)?$'`,
+    `CASE WHEN ${args} ~ '^\d+(\.\d+)?$' THEN ${args}::numeric ELSE 1 END`,
 };

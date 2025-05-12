@@ -21,12 +21,15 @@ import BooleanNode from '../AST/BooleanNode';
 import NullNode from '../AST/NullNode';
 
 import { allFunctions } from './mappers/functions';
-import { ValidFunctionsNames } from './mappers/functions/types';
+import { isSafeFunction, ValidFunctionsNames } from './mappers/functions/types';
 import { allUnarOperators } from './mappers/unarOperators';
 import { ValidUnarOperatorsNames } from './mappers/unarOperators/types';
 import { ifStatementMap } from './mappers/if';
 import { allBinOperators } from './mappers/binOperators';
-import { ValidBinOperatorsNames } from './mappers/binOperators/types';
+import {
+  isSafeOperator,
+  ValidBinOperatorsNames,
+} from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
 import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
@@ -46,6 +49,7 @@ export default class Parser {
   pos: number = 0;
   variables: Record<string, ParserVar> = {};
   returnTypesCache: Record<string, INodeReturnType> = {};
+  potentialErrors: string[] = [];
 
   constructor(tokens: Token[], variables: Record<string, ParserVar>) {
     this.tokens = tokens;
@@ -314,7 +318,10 @@ export default class Parser {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     if (node instanceof StatementsNode) {
-      return node.codeStrings.map((i) => this.stringifyAst(i, format, safe));
+      return node.codeStrings.map(
+        (i) =>
+          `${this.stringifyAst(i, format, safe)}${this.potentialErrors.length > 0 ? ` WHERE ${this.potentialErrors.join('AND')}` : ''}`,
+      );
     }
     if (node instanceof NumberNode) {
       return node.number.text;
@@ -389,8 +396,13 @@ export default class Parser {
 
       if (index !== undefined) {
         const neededOperator = operator[index];
-        const safeFn = neededOperator[`${format}SafeFn`];
-        if (safe && safeFn) {
+
+        if (isSafeOperator(neededOperator) && safe) {
+          const safeFn = neededOperator[`${format}SafeFn`];
+
+          this.potentialErrors.push(
+            neededOperator.filterError(leftNode, rightNode),
+          );
           return safeFn(leftNode, rightNode);
         } else {
           return neededOperator[`${format}Fn`](leftNode, rightNode);
@@ -430,8 +442,10 @@ export default class Parser {
         });
 
         const neededFunc = currentFunction[idx];
-        const safeFn = neededFunc[`${format}SafeFn`];
-        if (safe && safeFn) {
+        if (isSafeFunction(neededFunc) && safe) {
+          const safeFn = neededFunc[`${format}SafeFn`];
+          this.potentialErrors.push(neededFunc.filterError(functionArgs));
+
           return safeFn(functionArgs);
         } else {
           return neededFunc[`${format}Fn`](functionArgs);

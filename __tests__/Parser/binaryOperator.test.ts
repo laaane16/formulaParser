@@ -143,14 +143,14 @@ describe('bin operator node to sql', () => {
     const code = '(2 > 1) && (1 == 0)';
     const result = stringifyAstToSql(code);
 
-    expect(result).toBe('WHERE (2 > 1) AND (1 = 0)');
+    expect(result).toBe('(2 > 1) AND (1 = 0)');
   });
 
   test('or', () => {
     const code = '(1 > 1) || (1 < 2)';
     const result = stringifyAstToSql(code);
 
-    expect(result).toBe('WHERE (1 > 1) OR (1 < 2)');
+    expect(result).toBe('(1 > 1) OR (1 < 2)');
   });
 
   test('concatenation', () => {

@@ -3,12 +3,12 @@ import {
   LITERAL_NODE_TYPE,
   NUMBER_NODE_TYPE,
 } from '../../../constants/nodeTypes';
-import { ValidBinOperatorsNames, IOperator } from './types';
+import { ValidBinOperatorsNames, Operator } from './types';
 
 // TODO: write tests
 // null in returnType means all types are valid
 // array in operand type means all types in array are valid in any combination
-export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
+export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
   PLUS: [
     {
       operandType: NUMBER_NODE_TYPE,
@@ -62,7 +62,8 @@ export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
       jsSafeFn: (left, right) =>
         ` (function(){if (${right} === 0) throw ''; ${left} / ${right}})()`,
       sqlSafeFn: (left, right) =>
-        `CASE WHEN ${right} != 0 THEN (${left} / ${right}) ELSE NULL END WHERE (${right} != 0)`,
+        `CASE WHEN ${right} != 0 THEN (${left} / ${right}) ELSE 0 END`,
+      filterError: (_, right) => `${right} != 0`,
     },
   ],
   REMAINDER: [
@@ -74,7 +75,8 @@ export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
       jsSafeFn: (left, right) =>
         `(function(){if (${right} === 0) throw ''; ${left} % ${right}})()`,
       sqlSafeFn: (left, right) =>
-        `CASE WHEN ${right} != 0 THEN (${left} % ${right}) ELSE NULL END WHERE (${right} != 0)`,
+        `CASE WHEN ${right} != 0 THEN (${left} % ${right}) ELSE 0 END`,
+      filterError: (_, right) => `${right} != 0`,
     },
   ],
   POWER: [
@@ -210,7 +212,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
       operandType: BOOLEAN_NODE_TYPE,
       returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) => `${left} && ${right}`,
-      sqlFn: (left, right) => `WHERE ${left} AND ${right}`,
+      sqlFn: (left, right) => `${left} AND ${right}`,
     },
   ],
   OR: [
@@ -218,7 +220,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, IOperator[]> = {
       operandType: BOOLEAN_NODE_TYPE,
       returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) => `${left} || ${right}`,
-      sqlFn: (left, right) => `WHERE ${left} OR ${right}`,
+      sqlFn: (left, right) => `${left} OR ${right}`,
     },
   ],
 };
