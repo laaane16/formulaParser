@@ -137,6 +137,5 @@ export const numberFunctionsToSqlMap: Record<
    */
   TO_NUMBER: (args: string[]): string => `${args}::numeric`,
   SAFE_TO_NUMBER: (args: string[]): string =>
-    // eslint-disable-next-line no-useless-escape
-    `CASE WHEN ${args} ~ '^\d+(\.\d+)?$' THEN ${args}::numeric ELSE 1 END`,
+    `CASE WHEN ${args} ~ '^\\d+(\\.\\d+)?$' THEN ${args}::numeric ELSE 1 END`,
 };

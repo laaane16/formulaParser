@@ -147,6 +147,5 @@ export const numberFunctionsToJsMap: Record<
    */
   TO_NUMBER: (args: string[]): string => `Number(${args})`,
   SAFE_TO_NUMBER: (args: string[]): string =>
-    // eslint-disable-next-line no-useless-escape
-    `if (!/^\d+(\.\d+)?$/.test(${args}) return; Number(${args})'`,
+    `(function(){ if (!/^\\d+(\\.\\d+)?$/.test(${args})) throw ''; return Number(${args})})()`,
 };

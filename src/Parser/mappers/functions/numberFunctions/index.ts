@@ -168,8 +168,8 @@ export const numberFunctions: Record<
       sqlFn: numberFunctionsToSqlMap.TO_NUMBER,
       jsSafeFn: numberFunctionsToJsMap.SAFE_TO_NUMBER,
       sqlSafeFn: numberFunctionsToSqlMap.SAFE_TO_NUMBER,
-      // eslint-disable-next-line no-useless-escape
-      filterError: ([arg]) => `${arg} ~ '^\d+(\.\d+)?$'`,
+
+      filterError: ([arg]) => `${arg} ~ '^\\d+(\\.\\d+)?$'`,
     },
   ],
 };
