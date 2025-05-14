@@ -90,3 +90,76 @@ describe('Lexer', () => {
     ]);
   });
 });
+
+describe('lexer analyze string', () => {
+  test('two brackets', () => {
+    const tokens = new Lexer('""').lexAnalysis();
+    expect(tokens.map((t) => t.token.name)).toEqual(['STRING']);
+  });
+
+  test('one brackets', () => {
+    const tokens = new Lexer(`''`).lexAnalysis();
+    expect(tokens.map((t) => t.token.name)).toEqual(['STRING']);
+  });
+
+  test('nested brackets', () => {
+    const tokens = new Lexer(`"'''''''test'" + '"" "'`).lexAnalysis();
+    expect(tokens.map((t) => t.token.name)).toEqual([
+      'STRING',
+      'PLUS',
+      'STRING',
+    ]);
+  });
+
+  test('Escaped quotes of the same type', () => {
+    const tokens = new Lexer(`" \\" " + ' \\' '`).lexAnalysis();
+    expect(tokens.map((t) => t.token.name)).toEqual([
+      'STRING',
+      'PLUS',
+      'STRING',
+    ]);
+  });
+
+  test('Mixed cases with shielding', () => {
+    const tokens = new Lexer(
+      `"123\\"\\"\\'\\'" + '123\\"\\"\\'\\'\\'' + "text with \\"quote\\" and 'single'"`,
+    ).lexAnalysis();
+    console.log(tokens);
+    expect(tokens.map((t) => t.token.name)).toEqual([
+      'STRING',
+      'PLUS',
+      'STRING',
+      'PLUS',
+      'STRING',
+    ]);
+  });
+
+  test('special symbols in strings', () => {
+    const tokens = new Lexer(
+      `"str with \t and \n " + '\\n \\t \\r \\f'`,
+    ).lexAnalysis();
+    expect(tokens.map((t) => t.token.name)).toEqual([
+      'STRING',
+      'PLUS',
+      'STRING',
+    ]);
+  });
+
+  test('Backslashed strings', () => {
+    const tokens = new Lexer(`" \\\\" + '\\\\'`).lexAnalysis();
+    expect(tokens.map((t) => t.token.name)).toEqual([
+      'STRING',
+      'PLUS',
+      'STRING',
+    ]);
+  });
+
+  test('Complex cases with escaping quotes', () => {
+    const tokens = new Lexer(`" \\"\\" \\\\"\\\\""`).lexAnalysis();
+    expect(tokens.map((t) => t.token.name)).toEqual(['STRING']);
+  });
+
+  test('Boundary and special cases', () => {
+    expect(() => new Lexer(`"`).lexAnalysis()).toThrow();
+  });
+});
