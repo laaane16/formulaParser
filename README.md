@@ -4,6 +4,8 @@
 
 Perfect for low-code platforms, dashboards, calculated fields, and dynamic logic engines.
 
+> 🚧 This project is a work in progress. Expect bugs and frequent updates.
+
 ---
 
 ## 🚀 Features
