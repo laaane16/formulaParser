@@ -18,7 +18,6 @@ import VariableNode from '../AST/VariableNode';
 import UnarOperationNode from '../AST/UnarOperationNode';
 import IfStatementNode from '../AST/IfStatementNode';
 import BooleanNode from '../AST/BooleanNode';
-import NullNode from '../AST/NullNode';
 
 import { allFunctions } from './mappers/functions';
 import { isSafeFunction, ValidFunctionsNames } from './mappers/functions/types';
@@ -96,7 +95,6 @@ export default class Parser {
       this.parseLiteralNode,
       this.parseNumberNode,
       this.parseBooleanNode,
-      this.parseNullNode,
       this.parseVariableNode,
       this.parseUnarOperatorNode,
       this.parseParenthesizedNode,
@@ -137,15 +135,6 @@ export default class Parser {
     const keyword = this.match(...tokenTypesBoolean);
     if (keyword) {
       return new BooleanNode(keyword);
-    }
-
-    return null;
-  }
-
-  parseNullNode(): NullNode | null {
-    const keyword = this.match(tokenTypesList.get('NULL') as TokenType);
-    if (keyword) {
-      return new NullNode(keyword);
     }
 
     return null;
@@ -335,7 +324,7 @@ export default class Parser {
       }
       return `${node.literal.text}`;
     }
-    if (node instanceof BooleanNode || node instanceof NullNode) {
+    if (node instanceof BooleanNode) {
       return node.keyword.text;
     }
     if (node instanceof VariableNode) {
@@ -476,8 +465,7 @@ export default class Parser {
     if (
       node instanceof NumberNode ||
       node instanceof LiteralNode ||
-      node instanceof BooleanNode ||
-      node instanceof NullNode
+      node instanceof BooleanNode
     ) {
       return [new Set([node.type])];
     }
@@ -735,9 +723,6 @@ export default class Parser {
         }
 
         return `${FORMULA_TEMPLATES.PREFIX}${variable[to]}${FORMULA_TEMPLATES.POSTFIX}`;
-      }
-      if (n instanceof BooleanNode || n instanceof NullNode) {
-        return n.keyword.text;
       }
       if (n instanceof ParenthesizedNode) {
         return `(${traverse(n.expression)})`;
