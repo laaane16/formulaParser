@@ -4,6 +4,7 @@ import {
   LITERAL_NODE_TYPE,
   DATE_NODE_TYPE,
 } from './nodeTypes';
+import { ObjectValues } from '../types';
 
 const baseDefaultValues: Record<string, unknown> = {
   [NUMBER_NODE_TYPE]: 0,
