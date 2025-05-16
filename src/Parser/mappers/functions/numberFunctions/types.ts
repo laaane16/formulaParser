@@ -4,6 +4,7 @@ export type ValidNumberFunctionsNamesWithSafe =
   | 'FLOOR'
   | 'EXP'
   | 'MOD'
+  | 'SAFE_MOD'
   | 'POWER'
   | 'ROUND'
   | 'SQRT'
@@ -18,5 +19,5 @@ export type ValidNumberFunctionsNamesWithSafe =
 
 export type ValidNumberFunctionsNames = Exclude<
   ValidNumberFunctionsNamesWithSafe,
-  'SAFE_SQRT' | 'SAFE_TO_NUMBER'
+  'SAFE_SQRT' | 'SAFE_TO_NUMBER' | 'SAFE_MOD'
 >;

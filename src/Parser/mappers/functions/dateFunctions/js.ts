@@ -1,7 +1,8 @@
-import { ValidDateFunctionsNames } from './types';
+import { UNIT } from '../../../../constants/date';
+import { ValidDateFunctionsNamesWithSafe } from './types';
 
 export const dateFunctionsToJsMap: Record<
-  ValidDateFunctionsNames,
+  ValidDateFunctionsNamesWithSafe,
   (args: string[]) => string
 > = {
   /**
@@ -10,7 +11,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning ISO string.
    */
   DATE: ([year, month, day]) => {
-    return `DateTime.fromISO("${year}-${month}-${day}", { zone: 'utc'}).toString()`;
+    return `DateTime.fromObject({ day: ${day}, month:  ${month}, year: ${year}}, { zone: 'utc'}).toString()`;
   },
 
   /**
@@ -19,7 +20,18 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning updated ISO string.
    */
   DATEADD: ([date, amount, unit]) => {
-    return `DateTime.fromISO(${date}, { zone: 'utc'} ).plus({ [${unit}]: Number(${amount}) }).toString()`;
+    const getCaseBlock = (val: string) => {
+      return `if ('${val}'=== ${unit}) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toString();`;
+    };
+    return `
+      (function(){
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+        throw '';
+      })()
+    `;
+  },
+  SAFE_DATEADD(args) {
+    return this.DATEADD(args);
   },
 
   /**
@@ -28,7 +40,18 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning the numeric difference.
    */
   DATETIME_DIFF: ([end, start, unit]) => {
-    return `DateTime.fromISO(${end}, { zone: 'utc'}).diff(DateTime.fromISO(${start}), ${unit}).as(${unit})`;
+    const getCaseBlock = (val: string) => {
+      return `if ('${val}' === ${unit}) return DateTime.fromISO(${end}, { zone: 'utc'}).diff(DateTime.fromISO(${start}), ${unit}).as(${unit});`;
+    };
+    return `
+      (function(){
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+        throw '';
+      })()
+    `;
+  },
+  SAFE_DATETIME_DIFF([end, start, unit]) {
+    return this.DATETIME_DIFF([end, start, unit]);
   },
 
   /**

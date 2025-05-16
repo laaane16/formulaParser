@@ -1,7 +1,8 @@
-import { ValidDateFunctionsNames } from './types';
+import { UNIT } from '../../../../constants/date';
+import { ValidDateFunctionsNamesWithSafe } from './types';
 
 export const dateFunctionsToSqlMap: Record<
-  ValidDateFunctionsNames,
+  ValidDateFunctionsNamesWithSafe,
   (args: string[]) => string
 > = {
   /**
@@ -10,7 +11,7 @@ export const dateFunctionsToSqlMap: Record<
    * @returns {string} SQL string.
    */
   DATE: ([year, month, day]) => {
-    return `'${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}'`;
+    return `MAKE_DATE(${year}, ${month}, ${day})`;
   },
 
   /**
@@ -19,18 +20,54 @@ export const dateFunctionsToSqlMap: Record<
    * @returns {string} SQL string.
    */
   DATEADD: ([date, amount, unit]) => {
-    return `(${date} + INTERVAL '${amount} ${unit.slice(1, -1)}')`;
+    const getCaseBlock = (val: string) => {
+      return `WHEN ${unit} = '${val}' THEN (${date} + INTERVAL  '${amount} ${val}')`;
+    };
+    return `
+      CASE
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}  
+        ELSE 1 / 0
+      END
+    `;
   },
-
+  SAFE_DATEADD: ([date, amount, unit]) => {
+    const getCaseBlock = (val: string) => {
+      return `WHEN ${unit} = '${val}' THEN (${date} + INTERVAL  '${amount} ${val}')`;
+    };
+    return `
+      CASE
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}  
+        ELSE NOW()
+      END
+    `;
+  },
   /**
    * Calculates the difference between two timestamps in given unit.
    * @param {[string, string, string]} args - End date, start date, and unit.
    * @returns {string} SQL string.
    */
   DATETIME_DIFF: ([end, start, unit]) => {
-    return `(EXTRACT(EPOCH FROM (${end} - ${start})) / ${unitMultiplier(unit)})`;
+    const getCaseBlock = (val: string) => {
+      return `WHEN ${unit} = '${val}' EXTRACT(${val} FROM (${end} - ${start}))`;
+    };
+    return `
+      CASE
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}  
+        ELSE 1 / 0
+      END
+    `;
   },
-
+  SAFE_DATETIME_DIFF: ([end, start, unit]) => {
+    const getCaseBlock = (val: string) => {
+      return `WHEN ${unit} = '${val}' EXTRACT(${val} FROM (${end} - ${start}))`;
+    };
+    return `
+      CASE
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}  
+        ELSE NOW()
+      END
+    `;
+  },
   /**
    * Formats a date using a pattern.
    * @param {[string, string]} args - Date and format pattern.
@@ -100,24 +137,3 @@ export const dateFunctionsToSqlMap: Record<
   /** Extracts the year from a date. */
   YEAR: ([date]) => `EXTRACT(YEAR FROM ${date})`,
 };
-
-function unitMultiplier(unit: string): number {
-  switch (unit.toLowerCase().replace(/['"]/g, '')) {
-    case 'seconds':
-      return 1;
-    case 'minutes':
-      return 60;
-    case 'hours':
-      return 3600;
-    case 'days':
-      return 86400;
-    case 'weeks':
-      return 604800;
-    case 'months':
-      return 2629800;
-    case 'years':
-      return 31557600;
-    default:
-      throw new Error(`Unsupported unit: ${unit}`);
-  }
-}

@@ -7,24 +7,50 @@ describe('textFunctionsToJsMap', () => {
   });
 
   test('TRIM both', () => {
-    const result = textFunctionsToJsMap.TRIM(['"both"', '"x"', '"xxabcxx"']);
+    const result = textFunctionsToJsMap.TRIM(["'both'", "'x'", "'xxabcxx'"]);
     expect(result).toBe(
-      "\"xxabcxx\".replace(new RegExp('^(x)+|(x)+$', 'g'), '')",
+      `(function(){
+      const pattern = 'x'.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
+      if ('both' === 'leading') {
+        return 'xxabcxx'.replace(new RegExp('^(' + pattern + ')+', ''));
+      } else if ('both' === 'trailing') {
+        return 'xxabcxx'.replace(new RegExp('(' + pattern + ')+$', ''));
+      } else if ('both' === 'both') {
+        return 'xxabcxx'.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+      }
+      throw '';
+    })()`,
     );
   });
 
   test('TRIM leading', () => {
-    const result = textFunctionsToJsMap.TRIM(['"leading"', '"x"', '"xxabc"']);
-    expect(result).toBe(
-      "\"xxabc\".replace(new RegExp('^(x)+|(x)+$', 'g'), '')",
-    );
+    const result = textFunctionsToJsMap.TRIM(["'leading'", "'x'", "'abcxx'"]);
+    expect(result).toBe(`(function(){
+      const pattern = 'x'.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
+      if ('leading' === 'leading') {
+        return 'abcxx'.replace(new RegExp('^(' + pattern + ')+', ''));
+      } else if ('leading' === 'trailing') {
+        return 'abcxx'.replace(new RegExp('(' + pattern + ')+$', ''));
+      } else if ('leading' === 'both') {
+        return 'abcxx'.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+      }
+      throw '';
+    })()`);
   });
 
   test('TRIM trailing', () => {
-    const result = textFunctionsToJsMap.TRIM(['"trailing"', '"x"', '"abcxx"']);
-    expect(result).toBe(
-      "\"abcxx\".replace(new RegExp('^(x)+|(x)+$', 'g'), '')",
-    );
+    const result = textFunctionsToJsMap.TRIM(["'trailing'", "'x'", "'abcxx'"]);
+    expect(result).toBe(`(function(){
+      const pattern = 'x'.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
+      if ('trailing' === 'leading') {
+        return 'abcxx'.replace(new RegExp('^(' + pattern + ')+', ''));
+      } else if ('trailing' === 'trailing') {
+        return 'abcxx'.replace(new RegExp('(' + pattern + ')+$', ''));
+      } else if ('trailing' === 'both') {
+        return 'abcxx'.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+      }
+      throw '';
+    })()`);
   });
 
   test('SEARCH', () => {
@@ -34,7 +60,9 @@ describe('textFunctionsToJsMap', () => {
 
   test('REPLACE', () => {
     const result = textFunctionsToJsMap.REPLACE(['"banana"', '"a"', '"o"']);
-    expect(result).toBe('"banana".replace(new RegExp(\'a\', \'g\'), "o")');
+    expect(result).toBe(
+      `"banana".replace(new RegExp("a".replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&'), 'g'), "o")`,
+    );
   });
 
   test('LOWER', () => {
@@ -54,7 +82,7 @@ describe('textFunctionsToJsMap', () => {
 
   test('SUBSTRING', () => {
     const result = textFunctionsToJsMap.SUBSTRING(['"abcdef"', '2', '3']);
-    expect(result).toBe('"abcdef".slice(1, 1 + 3)');
+    expect(result).toBe(`"abcdef".slice(2 - 1, 2 + 3 - 1)`);
   });
 
   test('LEFT', () => {

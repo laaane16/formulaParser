@@ -52,7 +52,9 @@ export const numberFunctionsToJsMap: Record<
    * @example
    * MOD(['10', '3']) // => '(10 % 3)'
    */
-  MOD: ([a, b]: string[]): string => `(${a} % ${b})`,
+  MOD: ([a, b]: string[]): string => `(((${a} % ${b}) + ${b}) % ${b})`,
+  SAFE_MOD: ([a, b]: string[]): string =>
+    `(function(){if (${b} === 0) throw ''; return ((${a} % ${b}) + ${b}) % ${b}})()`,
 
   /**
    * @function POWER

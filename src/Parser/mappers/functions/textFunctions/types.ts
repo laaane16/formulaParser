@@ -1,6 +1,7 @@
-export type ValidTextFunctionsNames =
+export type ValidTextFunctionsNamesWithSafe =
   | 'CONCAT'
   | 'TRIM'
+  | 'SAFE_TRIM'
   | 'SEARCH'
   | 'REPLACE'
   | 'LOWER'
@@ -12,3 +13,8 @@ export type ValidTextFunctionsNames =
   | 'LEN'
   | 'JOIN'
   | 'TO_STRING';
+
+export type ValidTextFunctionsNames = Exclude<
+  ValidTextFunctionsNamesWithSafe,
+  'SAFE_TRIM'
+>;

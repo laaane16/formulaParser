@@ -43,7 +43,6 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            // maybe need reserved word, because this arg in ['leading' | 'trailing' | 'both']
             type: [LITERAL_NODE_TYPE],
           },
           {
@@ -57,6 +56,10 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         jsFn: textFunctionsToJsMap.TRIM,
         // trim(both 'xyz' from 'yxTomxx')
         sqlFn: textFunctionsToSqlMap.TRIM,
+        jsSafeFn: textFunctionsToJsMap.SAFE_TRIM,
+        sqlSafeFn: textFunctionsToSqlMap.SAFE_TRIM,
+        filterError: ([dir]: string[]) =>
+          `${dir} IN ('leading', 'trailing', 'both')`,
       },
     ],
     SEARCH: [

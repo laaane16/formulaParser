@@ -2,10 +2,10 @@
  * In this file we work with strings - NODE_STRING_TYPE as ''!!!
  */
 
-import { ValidTextFunctionsNames } from './types';
+import { ValidTextFunctionsNamesWithSafe } from './types';
 
 export const textFunctionsToSqlMap: Record<
-  ValidTextFunctionsNames,
+  ValidTextFunctionsNamesWithSafe,
   (args: string[]) => string
 > = {
   /**
@@ -29,8 +29,25 @@ export const textFunctionsToSqlMap: Record<
    * @example
    * TRIM(["'both'", "'x'", "'xxabcxx'"]) // => "TRIM(both 'x' from 'xxabcxxs')"
    */
-  TRIM: ([dir, chars, str]: string[]): string =>
-    `TRIM(${dir.slice(1, -1)} ${chars} from ${str})`,
+  TRIM: ([position, chars, str]: string[]): string =>
+    `
+      CASE 
+        WHEN ${position} = 'leading' THEN TRIM(LEADING ${chars} FROM ${str})
+        WHEN ${position} = 'trailing' THEN TRIM(TRAILING ${chars} FROM ${str})
+        WHEN ${position} = 'both' THEN TRIM(BOTH ${chars} FROM ${str})
+        ELSE 1 / 0
+      END
+    `,
+  SAFE_TRIM: ([position, chars, str]: string[]): string => {
+    return `
+      CASE 
+        WHEN ${position} = 'leading' THEN TRIM(LEADING ${chars} FROM ${str})
+        WHEN ${position} = 'trailing' THEN TRIM(TRAILING ${chars} FROM ${str})
+        WHEN ${position} = 'both' THEN TRIM(BOTH ${chars} FROM ${str})
+        ELSE ''
+      END
+    `;
+  },
 
   /**
    * @function SEARCH

@@ -332,9 +332,9 @@ export default class Parser {
         const preparedVar = `$$VARIABLES['${globalVarKey}']`;
         const sendedVar = this.variables[globalVarKey];
         if (format === FORMATS.JS) {
-          return `(${preparedVar} === null ? ${defaultValues[sendedVar.type] ?? "''"}: ${preparedVar})`;
+          return `(${preparedVar} === null ? ${defaultValues[format][sendedVar.type] ?? "''"}: ${preparedVar})`;
         } else {
-          return `COALESCE($$VARIABLES['${globalVarKey}'], ${defaultValues[sendedVar.type] ?? "''"})`;
+          return `COALESCE($$VARIABLES['${globalVarKey}'], ${defaultValues[format][sendedVar.type] ?? "''"})`;
         }
       }
       throw new Error(

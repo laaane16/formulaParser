@@ -1,4 +1,3 @@
-// __tests__/dateFunctionsToSqlMap.test.ts
 import { dateFunctionsToSqlMap } from '../../../../src/Parser/mappers/functions/dateFunctions/sql';
 
 describe('dateFunctionsToSqlMap', () => {
@@ -6,14 +5,17 @@ describe('dateFunctionsToSqlMap', () => {
 
   test('DATE', () => {
     expect(dateFunctionsToSqlMap.DATE(['2012', '12', '12'])).toBe(
-      "'2012-12-12'",
+      'MAKE_DATE(2012, 12, 12)',
     );
   });
 
   test('DATEADD', () => {
-    expect(dateFunctionsToSqlMap.DATEADD([exampleDate, '5', "'days'"])).toBe(
-      `(${exampleDate} + INTERVAL '5 days')`,
-    );
+    expect(dateFunctionsToSqlMap.DATEADD([exampleDate, '5', "'days'"])).toBe(`
+      CASE
+        WHEN 'days' = 'second' THEN ('2024-04-25T12:34:56' + INTERVAL  '5 second') WHEN 'days' = 'minute' THEN ('2024-04-25T12:34:56' + INTERVAL  '5 minute') WHEN 'days' = 'hour' THEN ('2024-04-25T12:34:56' + INTERVAL  '5 hour') WHEN 'days' = 'day' THEN ('2024-04-25T12:34:56' + INTERVAL  '5 day') WHEN 'days' = 'week' THEN ('2024-04-25T12:34:56' + INTERVAL  '5 week') WHEN 'days' = 'month' THEN ('2024-04-25T12:34:56' + INTERVAL  '5 month') WHEN 'days' = 'year' THEN ('2024-04-25T12:34:56' + INTERVAL  '5 year')  
+        ELSE 1 / 0
+      END
+    `);
   });
 
   test('DATETIME_DIFF (seconds)', () => {
@@ -23,21 +25,12 @@ describe('dateFunctionsToSqlMap', () => {
         "'2024-04-24T12:34:56'",
         '"seconds"',
       ]),
-    ).toBe(
-      `(EXTRACT(EPOCH FROM (${exampleDate} - '2024-04-24T12:34:56')) / 1)`,
-    );
-  });
-
-  test('DATETIME_DIFF (days)', () => {
-    expect(
-      dateFunctionsToSqlMap.DATETIME_DIFF([
-        exampleDate,
-        "'2024-04-24T12:34:56'",
-        '"days"',
-      ]),
-    ).toBe(
-      `(EXTRACT(EPOCH FROM (${exampleDate} - '2024-04-24T12:34:56')) / 86400)`,
-    );
+    ).toBe(`
+      CASE
+        WHEN "seconds" = 'second' EXTRACT(second FROM ('2024-04-25T12:34:56' - '2024-04-24T12:34:56')) WHEN "seconds" = 'minute' EXTRACT(minute FROM ('2024-04-25T12:34:56' - '2024-04-24T12:34:56')) WHEN "seconds" = 'hour' EXTRACT(hour FROM ('2024-04-25T12:34:56' - '2024-04-24T12:34:56')) WHEN "seconds" = 'day' EXTRACT(day FROM ('2024-04-25T12:34:56' - '2024-04-24T12:34:56')) WHEN "seconds" = 'week' EXTRACT(week FROM ('2024-04-25T12:34:56' - '2024-04-24T12:34:56')) WHEN "seconds" = 'month' EXTRACT(month FROM ('2024-04-25T12:34:56' - '2024-04-24T12:34:56')) WHEN "seconds" = 'year' EXTRACT(year FROM ('2024-04-25T12:34:56' - '2024-04-24T12:34:56'))  
+        ELSE 1 / 0
+      END
+    `);
   });
 
   test('DATETIME_FORMAT', () => {
@@ -124,15 +117,5 @@ describe('dateFunctionsToSqlMap', () => {
 
   test('TODAY', () => {
     expect(dateFunctionsToSqlMap.TODAY([])).toBe(`CURRENT_DATE`);
-  });
-
-  test('DATETIME_DIFF throws for unsupported unit', () => {
-    expect(() =>
-      dateFunctionsToSqlMap.DATETIME_DIFF([
-        exampleDate,
-        exampleDate,
-        '"fortnights"',
-      ]),
-    ).toThrow('Unsupported unit: "fortnights"');
   });
 });

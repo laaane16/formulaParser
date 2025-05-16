@@ -9,9 +9,11 @@
 //   | 'WORKDAY'
 //   | 'WORKDAY_DIFF'
 
-export type ValidDateFunctionsNames =
+export type ValidDateFunctionsNamesWithSafe =
   | 'DATE'
   | 'DATEADD'
+  | 'SAFE_DATEADD'
+  | 'SAFE_DATETIME_DIFF'
   | 'DATETIME_DIFF'
   | 'DATETIME_FORMAT'
   | 'DATETIME_PARSE'
@@ -28,3 +30,8 @@ export type ValidDateFunctionsNames =
   | 'WEEKDAY'
   | 'WEEKNUM'
   | 'YEAR';
+
+export type ValidDateFunctionsNames = Exclude<
+  ValidDateFunctionsNamesWithSafe,
+  'SAFE_DATEADD' | 'SAFE_DATETIME_DIFF'
+>;

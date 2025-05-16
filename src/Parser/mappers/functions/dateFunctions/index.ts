@@ -1,3 +1,4 @@
+import { UNIT } from '../../../../constants/date';
 import {
   BOOLEAN_NODE_TYPE,
   DATE_NODE_TYPE,
@@ -42,6 +43,9 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATEADD,
         sqlFn: dateFunctionsToSqlMap.DATEADD,
+        jsSafeFn: dateFunctionsToJsMap.SAFE_DATEADD,
+        sqlSafeFn: dateFunctionsToSqlMap.SAFE_DATEADD,
+        filterError: ([date, amount, unit]) => `${unit} IN (${UNIT})`,
       },
     ],
     DATETIME_DIFF: [
@@ -56,6 +60,9 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATETIME_DIFF,
         sqlFn: dateFunctionsToSqlMap.DATETIME_DIFF,
+        jsSafeFn: dateFunctionsToJsMap.SAFE_DATETIME_DIFF,
+        sqlSafeFn: dateFunctionsToSqlMap.SAFE_DATETIME_DIFF,
+        filterError: ([date, amount, unit]) => `${unit} IN (${UNIT})`,
       },
     ],
     DATETIME_FORMAT: [

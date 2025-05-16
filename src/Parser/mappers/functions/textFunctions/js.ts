@@ -2,10 +2,10 @@
  *  * In this file we work with strings - NODE_STRING_TYPE as ""!!!
  */
 
-import { ValidTextFunctionsNames } from './types';
+import { ValidTextFunctionsNamesWithSafe } from './types';
 
 export const textFunctionsToJsMap: Record<
-  ValidTextFunctionsNames,
+  ValidTextFunctionsNamesWithSafe,
   // move this type in functions/types
   (args: string[]) => string
 > = {
@@ -30,17 +30,20 @@ export const textFunctionsToJsMap: Record<
    * @example TRIM(['"both"', '"x"', '"xxabcxx"']) // => '"xxabcxx".replace(/^(x)+|(x)+$/g, "")'
    */
   TRIM: ([position, chars, str]: string[]): string => {
-    const escapeRegExp = (s: string): string =>
-      s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pattern = escapeRegExp(chars.slice(1, -1));
-
-    if (position === 'leading') {
-      return `${str}.replace(new RegExp('^(${pattern})+)', '')`;
-    } else if (position === 'trailing') {
-      return `${str}.replace(new RegExp('(${pattern})+$)', '')`;
-    } else {
-      return `${str}.replace(new RegExp('^(${pattern})+|(${pattern})+$', 'g'), '')`;
-    }
+    return `(function(){
+      const pattern = ${chars}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
+      if (${position} === 'leading') {
+        return ${str}.replace(new RegExp('^(' + pattern + ')+', ''));
+      } else if (${position} === 'trailing') {
+        return ${str}.replace(new RegExp('(' + pattern + ')+$', ''));
+      } else if (${position} === 'both') {
+        return ${str}.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+      }
+      throw '';
+    })()`;
+  },
+  SAFE_TRIM(args: string[]) {
+    return this.TRIM(args);
   },
 
   /**
@@ -68,12 +71,8 @@ export const textFunctionsToJsMap: Record<
    * @example
    * REPLACE(['"banana"', '"a"', '"o"']) // => '"banana".replace(/a/g, "o")'
    */
-  REPLACE: ([str, search, replace]: string[]): string => {
-    const escapeRegExp = (s: string): string =>
-      s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const escapedSearch = escapeRegExp(search.slice(1, -1));
-    return `${str}.replace(new RegExp('${escapedSearch}', 'g'), ${replace})`;
-  },
+  REPLACE: ([str, search, replace]: string[]): string =>
+    `${str}.replace(new RegExp(${search}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&'), 'g'), ${replace})`,
 
   /**
    * @function LOWER
@@ -121,7 +120,7 @@ export const textFunctionsToJsMap: Record<
    * SUBSTRING(['"abcdef"', "2", "3"]) // => '"abcdef".slice(1, 1 + 3)'
    */
   SUBSTRING: ([str, start, length]: string[]): string =>
-    `${str}.slice(${+start - 1}, ${+start - 1} + ${length})`,
+    `${str}.slice(${start} - 1, ${start} + ${length} - 1)`,
 
   /**
    * @function LEFT

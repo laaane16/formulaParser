@@ -1,6 +1,25 @@
-import { NUMBER_NODE_TYPE, LITERAL_NODE_TYPE } from './nodeTypes';
+import { FORMATS } from './formats';
+import {
+  NUMBER_NODE_TYPE,
+  LITERAL_NODE_TYPE,
+  DATE_NODE_TYPE,
+} from './nodeTypes';
 
-export const defaultValues: Record<string, unknown> = {
+const baseDefaultValues: Record<string, unknown> = {
   [NUMBER_NODE_TYPE]: 0,
   [LITERAL_NODE_TYPE]: "''",
+};
+
+type DefaultKeys = ObjectValues<typeof FORMATS>;
+type DefaultValues = Record<string, unknown>;
+
+export const defaultValues: Record<DefaultKeys, DefaultValues> = {
+  [FORMATS.JS]: {
+    ...baseDefaultValues,
+    [DATE_NODE_TYPE]: 'DateTime.now().toString()',
+  },
+  [FORMATS.SQL]: {
+    ...baseDefaultValues,
+    [DATE_NODE_TYPE]: 'NOW()',
+  },
 };

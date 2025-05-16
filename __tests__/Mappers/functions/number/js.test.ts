@@ -18,7 +18,9 @@ describe('numberFunctionsToJsMap', () => {
   });
 
   test('MOD', () => {
-    expect(numberFunctionsToJsMap.MOD(['10', '3'])).toBe('(10 % 3)');
+    expect(numberFunctionsToJsMap.MOD(['10', '3'])).toBe(
+      '(((10 % 3) + 3) % 3)',
+    );
   });
 
   test('POWER', () => {

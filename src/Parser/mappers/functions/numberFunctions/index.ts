@@ -73,6 +73,9 @@ export const numberFunctions: Record<
       returnType: [NUMBER_NODE_TYPE],
       jsFn: numberFunctionsToJsMap.MOD,
       sqlFn: numberFunctionsToSqlMap.MOD,
+      jsSafeFn: numberFunctionsToJsMap.SAFE_MOD,
+      sqlSafeFn: numberFunctionsToSqlMap.SAFE_MOD,
+      filterError: ([_, right]) => `${right} != 0`,
     },
   ],
   POWER: [
@@ -168,7 +171,6 @@ export const numberFunctions: Record<
       sqlFn: numberFunctionsToSqlMap.TO_NUMBER,
       jsSafeFn: numberFunctionsToJsMap.SAFE_TO_NUMBER,
       sqlSafeFn: numberFunctionsToSqlMap.SAFE_TO_NUMBER,
-
       filterError: ([arg]) => `${arg} ~ '^\\d+(\\.\\d+)?$'`,
     },
   ],

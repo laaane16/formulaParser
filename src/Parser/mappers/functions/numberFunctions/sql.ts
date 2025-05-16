@@ -48,6 +48,8 @@ export const numberFunctionsToSqlMap: Record<
    * @example MOD(['10', '3']) => "MOD(10, 3)"
    */
   MOD: ([a, b]: string[]): string => `MOD(${a}, ${b})`,
+  SAFE_MOD: ([a, b]: string[]): string =>
+    `CASE WHEN ${b} != 0 THEN MOD(${a}, ${b}) ELSE 0 END`,
 
   /**
    * @function POWER
