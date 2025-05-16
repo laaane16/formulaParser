@@ -62,8 +62,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       jsSafeFn: (left, right) =>
         ` (function(){if (${right} === 0) throw ''; ${left} / ${right}})()`,
       sqlSafeFn: (left, right) =>
-        `CASE WHEN ${right} != 0 THEN (${left} / ${right}) ELSE 0 END`,
-      filterError: (_, right) => `${right} != 0`,
+        `CASE WHEN ${right} != 0 THEN (${left} / ${right}) ELSE NULL END`,
     },
   ],
   REMAINDER: [
@@ -75,8 +74,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       jsSafeFn: (left, right) =>
         `(function(){if (${right} === 0) throw ''; ${left} % ${right}})()`,
       sqlSafeFn: (left, right) =>
-        `CASE WHEN ${right} != 0 THEN (${left} % ${right}) ELSE 0 END`,
-      filterError: (_, right) => `${right} != 0`,
+        `CASE WHEN ${right} != 0 THEN (${left} % ${right}) ELSE NULL END`,
     },
   ],
   POWER: [

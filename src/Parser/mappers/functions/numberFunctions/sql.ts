@@ -49,7 +49,7 @@ export const numberFunctionsToSqlMap: Record<
    */
   MOD: ([a, b]: string[]): string => `MOD(${a}, ${b})`,
   SAFE_MOD: ([a, b]: string[]): string =>
-    `CASE WHEN ${b} != 0 THEN MOD(${a}, ${b}) ELSE 0 END`,
+    `CASE WHEN ${b} != 0 THEN MOD(${a}, ${b}) ELSE NULL END`,
 
   /**
    * @function POWER
@@ -78,7 +78,7 @@ export const numberFunctionsToSqlMap: Record<
    */
   SQRT: ([num]: string[]): string => `SQRT(${num})`,
   SAFE_SQRT: ([num]: string[]): string =>
-    `SQRT(CASE WHEN ${num} >= 0 THEN ${num} ELSE 1 END)`,
+    `SQRT(CASE WHEN ${num} >= 0 THEN ${num} ELSE NULL END)`,
 
   /**
    * @function RANDOM
@@ -139,5 +139,5 @@ export const numberFunctionsToSqlMap: Record<
    */
   TO_NUMBER: (args: string[]): string => `${args}::numeric`,
   SAFE_TO_NUMBER: (args: string[]): string =>
-    `CASE WHEN ${args} ~ '^\\d+(\\.\\d+)?$' THEN ${args}::numeric ELSE 1 END`,
+    `CASE WHEN ${args} ~ '^\\d+(\\.\\d+)?$' THEN ${args}::numeric ELSE NULL END`,
 };

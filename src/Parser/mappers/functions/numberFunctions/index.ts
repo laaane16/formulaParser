@@ -75,7 +75,6 @@ export const numberFunctions: Record<
       sqlFn: numberFunctionsToSqlMap.MOD,
       jsSafeFn: numberFunctionsToJsMap.SAFE_MOD,
       sqlSafeFn: numberFunctionsToSqlMap.SAFE_MOD,
-      filterError: ([_, right]) => `${right} != 0`,
     },
   ],
   POWER: [
@@ -120,7 +119,6 @@ export const numberFunctions: Record<
       sqlFn: numberFunctionsToSqlMap.SQRT,
       jsSafeFn: numberFunctionsToJsMap.SAFE_SQRT,
       sqlSafeFn: numberFunctionsToSqlMap.SAFE_SQRT,
-      filterError: ([num]: string[]) => `${num} != 0`,
     },
   ],
   RANDOM: [
@@ -171,7 +169,6 @@ export const numberFunctions: Record<
       sqlFn: numberFunctionsToSqlMap.TO_NUMBER,
       jsSafeFn: numberFunctionsToJsMap.SAFE_TO_NUMBER,
       sqlSafeFn: numberFunctionsToSqlMap.SAFE_TO_NUMBER,
-      filterError: ([arg]) => `${arg} ~ '^\\d+(\\.\\d+)?$'`,
     },
   ],
 };

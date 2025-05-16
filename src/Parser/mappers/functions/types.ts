@@ -25,7 +25,6 @@ interface BaseFunction {
 interface SafeFunction extends BaseFunction {
   jsSafeFn: IFormatterFunc;
   sqlSafeFn: IFormatterFunc;
-  filterError: IFormatterFunc;
 }
 
 export type IFunction = SafeFunction | BaseFunction;
@@ -38,5 +37,5 @@ export type ValidFunctionsNames =
 export type VariableFunction = IFunction[];
 
 export function isSafeFunction(func: IFunction): func is SafeFunction {
-  return 'filterError' in func;
+  return 'jsSafeFn' in func && 'sqlSafeFn' in func;
 }

@@ -28,11 +28,10 @@ interface BaseOperator {
 interface SafeOperator extends BaseOperator {
   jsSafeFn: IFormatterFunc;
   sqlSafeFn: IFormatterFunc;
-  filterError: IFormatterFunc;
 }
 
 export type Operator = BaseOperator | SafeOperator;
 
 export function isSafeOperator(op: Operator): op is SafeOperator {
-  return 'filterError' in op;
+  return 'jsSafeFn' in op && 'sqlSafeFn' in op;
 }

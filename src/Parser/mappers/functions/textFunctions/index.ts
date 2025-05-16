@@ -58,8 +58,6 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         sqlFn: textFunctionsToSqlMap.TRIM,
         jsSafeFn: textFunctionsToJsMap.SAFE_TRIM,
         sqlSafeFn: textFunctionsToSqlMap.SAFE_TRIM,
-        filterError: ([dir]: string[]) =>
-          `${dir} IN ('leading', 'trailing', 'both')`,
       },
     ],
     SEARCH: [

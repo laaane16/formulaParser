@@ -9,7 +9,7 @@ describe('textFunctionsToSqlMap', () => {
   test('TRIM both', () => {
     const result = textFunctionsToSqlMap.TRIM(["'both'", "'x'", "'xxabcxx'"]);
     expect(result).toBe(`
-      CASE 
+      CASE
         WHEN 'both' = 'leading' THEN TRIM(LEADING 'x' FROM 'xxabcxx')
         WHEN 'both' = 'trailing' THEN TRIM(TRAILING 'x' FROM 'xxabcxx')
         WHEN 'both' = 'both' THEN TRIM(BOTH 'x' FROM 'xxabcxx')
@@ -21,7 +21,7 @@ describe('textFunctionsToSqlMap', () => {
   test('TRIM leading', () => {
     const result = textFunctionsToSqlMap.TRIM(["'leading'", "'x'", "'abcxx'"]);
     expect(result).toBe(`
-      CASE 
+      CASE
         WHEN 'leading' = 'leading' THEN TRIM(LEADING 'x' FROM 'abcxx')
         WHEN 'leading' = 'trailing' THEN TRIM(TRAILING 'x' FROM 'abcxx')
         WHEN 'leading' = 'both' THEN TRIM(BOTH 'x' FROM 'abcxx')
@@ -33,7 +33,7 @@ describe('textFunctionsToSqlMap', () => {
   test('TRIM trailing', () => {
     const result = textFunctionsToSqlMap.TRIM(["'trailing'", "'x'", "'abcxx'"]);
     expect(result).toBe(`
-      CASE 
+      CASE
         WHEN 'trailing' = 'leading' THEN TRIM(LEADING 'x' FROM 'abcxx')
         WHEN 'trailing' = 'trailing' THEN TRIM(TRAILING 'x' FROM 'abcxx')
         WHEN 'trailing' = 'both' THEN TRIM(BOTH 'x' FROM 'abcxx')

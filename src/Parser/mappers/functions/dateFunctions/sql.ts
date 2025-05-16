@@ -25,7 +25,7 @@ export const dateFunctionsToSqlMap: Record<
     };
     return `
       CASE
-        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}  
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
         ELSE 1 / 0
       END
     `;
@@ -36,8 +36,8 @@ export const dateFunctionsToSqlMap: Record<
     };
     return `
       CASE
-        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}  
-        ELSE NOW()
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+        ELSE NULL
       END
     `;
   },
@@ -52,7 +52,7 @@ export const dateFunctionsToSqlMap: Record<
     };
     return `
       CASE
-        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}  
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
         ELSE 1 / 0
       END
     `;
@@ -63,8 +63,8 @@ export const dateFunctionsToSqlMap: Record<
     };
     return `
       CASE
-        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}  
-        ELSE NOW()
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+        ELSE NULL
       END
     `;
   },

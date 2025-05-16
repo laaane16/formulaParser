@@ -45,7 +45,6 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.DATEADD,
         jsSafeFn: dateFunctionsToJsMap.SAFE_DATEADD,
         sqlSafeFn: dateFunctionsToSqlMap.SAFE_DATEADD,
-        filterError: ([date, amount, unit]) => `${unit} IN (${UNIT})`,
       },
     ],
     DATETIME_DIFF: [
@@ -62,7 +61,6 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.DATETIME_DIFF,
         jsSafeFn: dateFunctionsToJsMap.SAFE_DATETIME_DIFF,
         sqlSafeFn: dateFunctionsToSqlMap.SAFE_DATETIME_DIFF,
-        filterError: ([date, amount, unit]) => `${unit} IN (${UNIT})`,
       },
     ],
     DATETIME_FORMAT: [

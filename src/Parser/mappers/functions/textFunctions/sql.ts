@@ -31,7 +31,7 @@ export const textFunctionsToSqlMap: Record<
    */
   TRIM: ([position, chars, str]: string[]): string =>
     `
-      CASE 
+      CASE
         WHEN ${position} = 'leading' THEN TRIM(LEADING ${chars} FROM ${str})
         WHEN ${position} = 'trailing' THEN TRIM(TRAILING ${chars} FROM ${str})
         WHEN ${position} = 'both' THEN TRIM(BOTH ${chars} FROM ${str})
@@ -40,11 +40,11 @@ export const textFunctionsToSqlMap: Record<
     `,
   SAFE_TRIM: ([position, chars, str]: string[]): string => {
     return `
-      CASE 
+      CASE
         WHEN ${position} = 'leading' THEN TRIM(LEADING ${chars} FROM ${str})
         WHEN ${position} = 'trailing' THEN TRIM(TRAILING ${chars} FROM ${str})
         WHEN ${position} = 'both' THEN TRIM(BOTH ${chars} FROM ${str})
-        ELSE ''
+        ELSE NULL
       END
     `;
   },
