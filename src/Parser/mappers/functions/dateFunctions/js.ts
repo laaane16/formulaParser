@@ -30,8 +30,14 @@ export const dateFunctionsToJsMap: Record<
       })()
     `;
   },
-  SAFE_DATEADD(args) {
-    return this.DATEADD(args);
+  SAFE_DATEADD([date, amount, unit]) {
+    const getCaseBlock = (val: string) => {
+      return `if ('${val}'=== ${unit}) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toString();`;
+    };
+    return `(function(){
+      ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+      return null;
+    })()`;
   },
 
   /**
@@ -51,7 +57,15 @@ export const dateFunctionsToJsMap: Record<
     `;
   },
   SAFE_DATETIME_DIFF([end, start, unit]) {
-    return this.DATETIME_DIFF([end, start, unit]);
+    const getCaseBlock = (val: string) => {
+      return `if ('${val}' === ${unit}) return DateTime.fromISO(${end}, { zone: 'utc'}).diff(DateTime.fromISO(${start}), ${unit}).as(${unit});`;
+    };
+    return `
+      (function(){
+        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+        return null;
+      })()
+    `;
   },
 
   /**

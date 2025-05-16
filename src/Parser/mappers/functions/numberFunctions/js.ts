@@ -54,7 +54,7 @@ export const numberFunctionsToJsMap: Record<
    */
   MOD: ([a, b]: string[]): string => `(((${a} % ${b}) + ${b}) % ${b})`,
   SAFE_MOD: ([a, b]: string[]): string =>
-    `(function(){if (${b} === 0) throw ''; return ((${a} % ${b}) + ${b}) % ${b}})()`,
+    `(function(){if (${b} === 0) return null; return ((${a} % ${b}) + ${b}) % ${b}})()`,
 
   /**
    * @function POWER
@@ -149,5 +149,5 @@ export const numberFunctionsToJsMap: Record<
    */
   TO_NUMBER: (args: string[]): string => `Number(${args})`,
   SAFE_TO_NUMBER: (args: string[]): string =>
-    `(function(){ if (!/^\\d+(\\.\\d+)?$/.test(${args})) throw ''; return Number(${args})})()`,
+    `(function(){ if (!/^\\d+(\\.\\d+)?$/.test(${args})) return null; return Number(${args})})()`,
 };

@@ -42,8 +42,18 @@ export const textFunctionsToJsMap: Record<
       throw '';
     })()`;
   },
-  SAFE_TRIM(args: string[]) {
-    return this.TRIM(args);
+  SAFE_TRIM([position, chars, str]: string[]) {
+    return `(function(){
+      const pattern = ${chars}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
+      if (${position} === 'leading') {
+        return ${str}.replace(new RegExp('^(' + pattern + ')+', ''));
+      } else if (${position} === 'trailing') {
+        return ${str}.replace(new RegExp('(' + pattern + ')+$', ''));
+      } else if (${position} === 'both') {
+        return ${str}.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+      }
+      return null;
+    })()`;
   },
 
   /**
