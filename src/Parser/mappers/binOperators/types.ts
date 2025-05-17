@@ -24,6 +24,7 @@ interface BaseOperator {
   operandType: NodeTypesValues | NodeTypesValues[] | null;
   jsFn: IFormatterFunc;
   sqlFn: IFormatterFunc;
+  specialWorkWithNull?: boolean;
 }
 interface SafeOperator extends BaseOperator {
   jsSafeFn: IFormatterFunc;

@@ -17,10 +17,10 @@ type DefaultValues = Record<string, unknown>;
 export const defaultValues: Record<DefaultKeys, DefaultValues> = {
   [FORMATS.JS]: {
     ...baseDefaultValues,
-    [DATE_NODE_TYPE]: 'DateTime.now().toString()',
+    [DATE_NODE_TYPE]: 'null',
   },
   [FORMATS.SQL]: {
     ...baseDefaultValues,
-    [DATE_NODE_TYPE]: 'NOW()',
+    [DATE_NODE_TYPE]: 'NULL',
   },
 };

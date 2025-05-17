@@ -21,6 +21,7 @@ interface BaseFunction {
   returnType: NodeTypesValues[];
   jsFn: IFormatterFunc;
   sqlFn: IFormatterFunc;
+  specialWorkWithNull?: boolean;
 }
 interface SafeFunction extends BaseFunction {
   jsSafeFn: IFormatterFunc;

@@ -184,7 +184,7 @@ export default class Parser {
    */
   public runJs(
     jsFormula: string,
-    values: Record<string, unknown>,
+    values?: Record<string, unknown>,
     safe: boolean = false,
   ): unknown {
     if (safe) {
@@ -200,6 +200,7 @@ export default class Parser {
 
         return runFormula;
       } catch (e) {
+        console.log(e);
         return null;
       }
     }
