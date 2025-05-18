@@ -49,7 +49,7 @@ export const numberFunctionsToSqlMap: Record<
    */
   MOD: ([a, b]: string[]): string => `MOD(${a}, ${b})`,
   SAFE_MOD: ([a, b]: string[]): string =>
-    `CASE WHEN ${b} != 0 THEN MOD(${a}, ${b}) ELSE NULL END`,
+    `(CASE WHEN ${b} != 0 THEN MOD(${a}, ${b}) ELSE NULL END)`,
 
   /**
    * @function POWER
@@ -78,7 +78,7 @@ export const numberFunctionsToSqlMap: Record<
    */
   SQRT: ([num]: string[]): string => `SQRT(${num})`,
   SAFE_SQRT: ([num]: string[]): string =>
-    `SQRT(CASE WHEN ${num} >= 0 THEN ${num} ELSE NULL END)`,
+    `(CASE WHEN ${num} >= 0 THEN SQRT(${num}) ELSE NULL END)`,
 
   /**
    * @function RANDOM
@@ -107,7 +107,8 @@ export const numberFunctionsToSqlMap: Record<
    * @example
    * AVERAGE(['1','2']) // => '(1 + 2) / 2'
    */
-  AVERAGE: (args: string[]): string => `(${args.join(' + ')}) / ${args.length}`,
+  AVERAGE: (args: string[]): string =>
+    `((${args.join(' + ')}) / ${args.length})`,
 
   /**
    * @function MAX
@@ -139,5 +140,5 @@ export const numberFunctionsToSqlMap: Record<
    */
   TO_NUMBER: (args: string[]): string => `${args}::numeric`,
   SAFE_TO_NUMBER: (args: string[]): string =>
-    `CASE WHEN ${args} ~ '^\\d+(\\.\\d+)?$' THEN ${args}::numeric ELSE NULL END`,
+    `(CASE WHEN ${args} ~ '^\\d+(\\.\\d+)?$' THEN REGEXP_REPLACE(${args},'[^0-9.]+', '', 'g')::numeric ELSE NULL END)`,
 };

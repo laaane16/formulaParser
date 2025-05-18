@@ -52,9 +52,9 @@ export const numberFunctionsToJsMap: Record<
    * @example
    * MOD(['10', '3']) // => '(10 % 3)'
    */
-  MOD: ([a, b]: string[]): string => `(((${a} % ${b}) + ${b}) % ${b})`,
+  MOD: ([a, b]: string[]): string => `(${a} % ${b})`,
   SAFE_MOD: ([a, b]: string[]): string =>
-    `(function(){if (${b} === 0) return null; return ((${a} % ${b}) + ${b}) % ${b}})()`,
+    `(function(){if (${b} === 0) return null; return ${a} % ${b}})()`,
 
   /**
    * @function POWER
@@ -87,7 +87,7 @@ export const numberFunctionsToJsMap: Record<
    */
   SQRT: ([num]: string[]): string => `Math.sqrt(${num})`,
   SAFE_SQRT: ([num]: string[]): string =>
-    `if (${num} < 0) return; Math.sqrt(${num}) `,
+    `(function(){if (${num} < 0) return null; return Math.sqrt(${num})})()`,
 
   /**
    * @function RANDOM
@@ -117,7 +117,8 @@ export const numberFunctionsToJsMap: Record<
    * @example
    * AVERAGE(['1','2']) // => '(1 + 2) / 2'
    */
-  AVERAGE: (args: string[]): string => `(${args.join(' + ')}) / ${args.length}`,
+  AVERAGE: (args: string[]): string =>
+    `((${args.join(' + ')}) / ${args.length})`,
 
   /**
    * @function MAX

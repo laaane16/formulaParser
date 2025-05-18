@@ -2,7 +2,7 @@ import { dateFunctions } from './dateFunctions';
 import { textFunctions } from './textFunctions';
 import { numberFunctions } from './numberFunctions';
 
-import { ValidFunctionsNames, VariableFunction } from './types';
+import { isSafeFunction, ValidFunctionsNames, VariableFunction } from './types';
 
 export const allFunctions: Record<ValidFunctionsNames, VariableFunction> = {
   ...textFunctions,
@@ -19,5 +19,11 @@ Object.values(allFunctions).forEach((func) => {
 
     variant.jsFn = (...args) =>
       `[${args}].some((i) => i === null) ? null : ${jsFn(...args)}`;
+
+    if (isSafeFunction(variant)) {
+      const jsSafeFn = variant.jsSafeFn;
+      variant.jsSafeFn = (...args) =>
+        `([${args}].some((i) => i === null) ? null : ${jsSafeFn(...args)})`;
+    }
   });
 });

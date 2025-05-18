@@ -37,6 +37,7 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.JOIN,
         sqlFn: textFunctionsToSqlMap.JOIN,
+        specialWorkWithNull: true,
       },
     ],
     TRIM: [

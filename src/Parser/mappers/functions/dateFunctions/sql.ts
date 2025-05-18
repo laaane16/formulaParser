@@ -24,10 +24,10 @@ export const dateFunctionsToSqlMap: Record<
       return `WHEN ${unit} = '${val}' THEN (${date} + INTERVAL  '${amount} ${val}')`;
     };
     return `
-      CASE
+      (CASE
         ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
         ELSE 1 / 0
-      END
+      END)
     `;
   },
   SAFE_DATEADD: ([date, amount, unit]) => {
@@ -35,10 +35,10 @@ export const dateFunctionsToSqlMap: Record<
       return `WHEN ${unit} = '${val}' THEN (${date} + INTERVAL  '${amount} ${val}')`;
     };
     return `
-      CASE
+      (CASE
         ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
         ELSE NULL
-      END
+      END)
     `;
   },
   /**
@@ -51,10 +51,10 @@ export const dateFunctionsToSqlMap: Record<
       return `WHEN ${unit} = '${val}' EXTRACT(${val} FROM (${end} - ${start}))`;
     };
     return `
-      CASE
+      (CASE
         ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
         ELSE 1 / 0
-      END
+      END)
     `;
   },
   SAFE_DATETIME_DIFF: ([end, start, unit]) => {
@@ -62,10 +62,10 @@ export const dateFunctionsToSqlMap: Record<
       return `WHEN ${unit} = '${val}' EXTRACT(${val} FROM (${end} - ${start}))`;
     };
     return `
-      CASE
+      (CASE
         ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
         ELSE NULL
-      END
+      END)
     `;
   },
   /**

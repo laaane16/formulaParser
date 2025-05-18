@@ -33,11 +33,11 @@ export const textFunctionsToJsMap: Record<
     return `(function(){
       const pattern = ${chars}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
       if (${position} === 'leading') {
-        return ${str}.replace(new RegExp('^(' + pattern + ')+', ''));
+        return ${str}.replace(new RegExp('^[' + pattern + ']+'), '');
       } else if (${position} === 'trailing') {
-        return ${str}.replace(new RegExp('(' + pattern + ')+$', ''));
+        return ${str}.replace(new RegExp('[' + pattern + ']+$'), '');
       } else if (${position} === 'both') {
-        return ${str}.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+        return ${str}.replace(new RegExp('^[' + pattern + ']+|[' + pattern + ']+$', 'g'), '');
       }
       throw '';
     })()`;
@@ -46,11 +46,11 @@ export const textFunctionsToJsMap: Record<
     return `(function(){
       const pattern = ${chars}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
       if (${position} === 'leading') {
-        return ${str}.replace(new RegExp('^(' + pattern + ')+', ''));
+        return ${str}.replace(new RegExp('^[' + pattern + ']+'), '');
       } else if (${position} === 'trailing') {
-        return ${str}.replace(new RegExp('(' + pattern + ')+$', ''));
+        return ${str}.replace(new RegExp('[' + pattern + ']+$'), '');
       } else if (${position} === 'both') {
-        return ${str}.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+        return ${str}.replace(new RegExp('^[' + pattern + ']+|[' + pattern + ']+$', 'g'), '');
       }
       return null;
     })()`;
@@ -82,7 +82,7 @@ export const textFunctionsToJsMap: Record<
    * REPLACE(['"banana"', '"a"', '"o"']) // => '"banana".replace(/a/g, "o")'
    */
   REPLACE: ([str, search, replace]: string[]): string =>
-    `${str}.replace(new RegExp(${search}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&'), 'g'), ${replace})`,
+    `(${search}.length > 0 ? ${str}.replace(new RegExp(${search}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&'), 'g'), ${replace}) : ${str})`,
 
   /**
    * @function LOWER
@@ -116,7 +116,8 @@ export const textFunctionsToJsMap: Record<
    * @example
    * REPEAT(['"x"', "3"]) // => '"x".repeat(3)'
    */
-  REPEAT: ([str, count]: string[]): string => `${str}.repeat(${count})`,
+  REPEAT: ([str, count]: string[]): string =>
+    `(${count} >= 0 ? ${str}.repeat(${count}) : '')`,
 
   /**
    * @function SUBSTRING
@@ -130,8 +131,7 @@ export const textFunctionsToJsMap: Record<
    * SUBSTRING(['"abcdef"', "2", "3"]) // => '"abcdef".slice(1, 1 + 3)'
    */
   SUBSTRING: ([str, start, length]: string[]): string =>
-    `${str}.slice(${start} - 1, ${start} + ${length} - 1)`,
-
+    `(${str}.slice(${start} > 0 ? ${start} - 1 : 0, ${start} > 0 && ${length} > 0? ${start} +  ${length}  - 1 : 0))`,
   /**
    * @function LEFT
    * @description Extracts the leftmost characters from a string.
@@ -142,7 +142,8 @@ export const textFunctionsToJsMap: Record<
    * @example
    * LEFT(['"abcdef"', "2"]) // => '"abcdef".slice(0, 2)'
    */
-  LEFT: ([str, count]: string[]): string => `${str}.slice(0, ${count})`,
+  LEFT: ([str, count]: string[]): string =>
+    `${str}.slice(0, ${count} > 0 ? ${count} : 0)`,
 
   /**
    * @function RIGHT
@@ -154,7 +155,8 @@ export const textFunctionsToJsMap: Record<
    * @example
    * RIGHT(['"abcdef"', "3"]) // => '"abcdef".slice(-3)'
    */
-  RIGHT: ([str, count]: string[]): string => `${str}.slice(-${count})`,
+  RIGHT: ([str, count]: string[]): string =>
+    `${str}.slice(${count} > 0 ? ${count} * (-1): ${str}.length)`,
 
   /**
    * @function LEN
@@ -176,7 +178,7 @@ export const textFunctionsToJsMap: Record<
    * @example
    * JOIN(['","', '"1"', '1']) // => '["1", 1].join(",")'
    */
-  JOIN: ([sep, ...vals]) => `[${vals}].join(${sep})`,
+  JOIN: ([sep, ...vals]) => `[${vals}].filter(v => v).join(${sep})`,
 
   /**
    * @function TOSTRING

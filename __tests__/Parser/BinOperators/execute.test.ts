@@ -59,13 +59,13 @@ describe('Binary operators execute', () => {
     const parser = new Parser('1 + 1 / 0', variables);
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe(null);
+    expect(parser.runJs(jsFormula, values)).toBe(null);
   });
   test('plus with str and null', () => {
     const parser = new Parser('"test" + 1 / 0', variables);
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe('test');
+    expect(parser.runJs(jsFormula, values)).toBe('test');
   });
 
   // CONCATENATION
@@ -109,13 +109,13 @@ describe('Binary operators execute', () => {
     const parser = new Parser('1 & 1 / 0', variables);
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe('1');
+    expect(parser.runJs(jsFormula, values)).toBe('1');
   });
   test('concatenation with str and null', () => {
     const parser = new Parser('"test" & 1 / 0', variables);
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe('test');
+    expect(parser.runJs(jsFormula, values)).toBe('test');
   });
 
   // MINUS
@@ -133,9 +133,9 @@ describe('Binary operators execute', () => {
   });
   test('minus correct with num and null', () => {
     const parser = new Parser('1 - 1 / 0');
-    const jsFormula = parser.toJs();
+    const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe(null);
+    expect(parser.runJs(jsFormula, values)).toBe(null);
   });
 
   // MULTIPLY
@@ -153,9 +153,9 @@ describe('Binary operators execute', () => {
   });
   test('multiply correct with num and null', () => {
     const parser = new Parser('1 * (1 / 0)');
-    const jsFormula = parser.toJs();
+    const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe(null);
+    expect(parser.runJs(jsFormula, values)).toBe(null);
   });
 
   // DIVISION
@@ -175,13 +175,13 @@ describe('Binary operators execute', () => {
     const parser = new Parser('10 / 0');
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe(null);
+    expect(parser.runJs(jsFormula, values)).toBe(null);
   });
   test('division correct with num and field null', () => {
     const parser = new Parser('10 / {{field1}}', variables);
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe(null);
+    expect(parser.runJs(jsFormula, values)).toBe(null);
   });
 
   // REMAINDER
@@ -195,19 +195,19 @@ describe('Binary operators execute', () => {
     const parser = new Parser('-10 % 3');
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe(-1);
+    expect(parser.runJs(jsFormula, values)).toBe(-1);
   });
   test('remainder correct with num and field null', () => {
     const parser = new Parser('10 % {{field1}}', variables);
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe(null);
+    expect(parser.runJs(jsFormula, values)).toBe(null);
   });
   test('remainder correct with zero', () => {
     const parser = new Parser('10 % 0');
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, values, true)).toBe(null);
+    expect(parser.runJs(jsFormula, values)).toBe(null);
   });
 
   // POWER
@@ -252,7 +252,7 @@ describe('Binary operators execute', () => {
   test('equal correct with num and null', () => {
     const parser = new Parser('0 == 1 / 0');
     const jsFormula = parser.toJs(true);
-    expect(parser.runJs(jsFormula, undefined, true)).toBe(null);
+    expect(parser.runJs(jsFormula, undefined)).toBe(null);
   });
 
   // NOT EQUAL
@@ -396,7 +396,7 @@ describe('Binary operators execute', () => {
     const parser = new Parser('1 > 0 && 1 > 1 / 0');
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, undefined, true)).toBe(null);
+    expect(parser.runJs(jsFormula, undefined)).toBe(null);
   });
 
   // OR
@@ -410,6 +410,6 @@ describe('Binary operators execute', () => {
     const parser = new Parser('1 > 0 || 1 > 1 / 0');
     const jsFormula = parser.toJs(true);
 
-    expect(parser.runJs(jsFormula, undefined, true)).toBe(null);
+    expect(parser.runJs(jsFormula, undefined)).toBe(null);
   });
 });

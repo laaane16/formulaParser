@@ -18,9 +18,7 @@ describe('numberFunctionsToJsMap', () => {
   });
 
   test('MOD', () => {
-    expect(numberFunctionsToJsMap.MOD(['10', '3'])).toBe(
-      '(((10 % 3) + 3) % 3)',
-    );
+    expect(numberFunctionsToJsMap.MOD(['10', '3'])).toBe('(10 % 3)');
   });
 
   test('POWER', () => {
@@ -44,7 +42,7 @@ describe('numberFunctionsToJsMap', () => {
   });
 
   test('AVERAGE', () => {
-    expect(numberFunctionsToJsMap.AVERAGE(['2', '3'])).toBe('(2 + 3) / 2');
+    expect(numberFunctionsToJsMap.AVERAGE(['2', '3'])).toBe('((2 + 3) / 2)');
   });
 
   test('MAX', () => {

@@ -12,11 +12,11 @@ describe('textFunctionsToJsMap', () => {
       `(function(){
       const pattern = 'x'.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
       if ('both' === 'leading') {
-        return 'xxabcxx'.replace(new RegExp('^(' + pattern + ')+', ''));
+        return 'xxabcxx'.replace(new RegExp('^[' + pattern + ']+'), '');
       } else if ('both' === 'trailing') {
-        return 'xxabcxx'.replace(new RegExp('(' + pattern + ')+$', ''));
+        return 'xxabcxx'.replace(new RegExp('[' + pattern + ']+$'), '');
       } else if ('both' === 'both') {
-        return 'xxabcxx'.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+        return 'xxabcxx'.replace(new RegExp('^[' + pattern + ']+|[' + pattern + ']+$', 'g'), '');
       }
       throw '';
     })()`,
@@ -28,11 +28,11 @@ describe('textFunctionsToJsMap', () => {
     expect(result).toBe(`(function(){
       const pattern = 'x'.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
       if ('leading' === 'leading') {
-        return 'abcxx'.replace(new RegExp('^(' + pattern + ')+', ''));
+        return 'abcxx'.replace(new RegExp('^[' + pattern + ']+'), '');
       } else if ('leading' === 'trailing') {
-        return 'abcxx'.replace(new RegExp('(' + pattern + ')+$', ''));
+        return 'abcxx'.replace(new RegExp('[' + pattern + ']+$'), '');
       } else if ('leading' === 'both') {
-        return 'abcxx'.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+        return 'abcxx'.replace(new RegExp('^[' + pattern + ']+|[' + pattern + ']+$', 'g'), '');
       }
       throw '';
     })()`);
@@ -43,11 +43,11 @@ describe('textFunctionsToJsMap', () => {
     expect(result).toBe(`(function(){
       const pattern = 'x'.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
       if ('trailing' === 'leading') {
-        return 'abcxx'.replace(new RegExp('^(' + pattern + ')+', ''));
+        return 'abcxx'.replace(new RegExp('^[' + pattern + ']+'), '');
       } else if ('trailing' === 'trailing') {
-        return 'abcxx'.replace(new RegExp('(' + pattern + ')+$', ''));
+        return 'abcxx'.replace(new RegExp('[' + pattern + ']+$'), '');
       } else if ('trailing' === 'both') {
-        return 'abcxx'.replace(new RegExp('^(' + pattern + ')+|(' + pattern + ')+$', 'g'), ''));
+        return 'abcxx'.replace(new RegExp('^[' + pattern + ']+|[' + pattern + ']+$', 'g'), '');
       }
       throw '';
     })()`);
@@ -61,7 +61,7 @@ describe('textFunctionsToJsMap', () => {
   test('REPLACE', () => {
     const result = textFunctionsToJsMap.REPLACE(['"banana"', '"a"', '"o"']);
     expect(result).toBe(
-      `"banana".replace(new RegExp("a".replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&'), 'g'), "o")`,
+      `("a".length > 0 ? "banana".replace(new RegExp("a".replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&'), 'g'), "o") : "banana")`,
     );
   });
 
@@ -77,22 +77,24 @@ describe('textFunctionsToJsMap', () => {
 
   test('REPEAT', () => {
     const result = textFunctionsToJsMap.REPEAT(['"x"', '3']);
-    expect(result).toBe('"x".repeat(3)');
+    expect(result).toBe(`(3 >= 0 ? "x".repeat(3) : '')`);
   });
 
   test('SUBSTRING', () => {
     const result = textFunctionsToJsMap.SUBSTRING(['"abcdef"', '2', '3']);
-    expect(result).toBe(`"abcdef".slice(2 - 1, 2 + 3 - 1)`);
+    expect(result).toBe(
+      `("abcdef".slice(2 > 0 ? 2 - 1 : 0, 2 > 0 && 3 > 0? 2 +  3  - 1 : 0))`,
+    );
   });
 
   test('LEFT', () => {
     const result = textFunctionsToJsMap.LEFT(['"abcdef"', '2']);
-    expect(result).toBe('"abcdef".slice(0, 2)');
+    expect(result).toBe(`"abcdef".slice(0, 2 > 0 ? 2 : 0)`);
   });
 
   test('RIGHT', () => {
     const result = textFunctionsToJsMap.RIGHT(['"abcdef"', '3']);
-    expect(result).toBe('"abcdef".slice(-3)');
+    expect(result).toBe('"abcdef".slice(3 > 0 ? 3 * (-1): "abcdef".length)');
   });
 
   test('LEN', () => {
@@ -102,7 +104,7 @@ describe('textFunctionsToJsMap', () => {
 
   test('JOIN', () => {
     const result = textFunctionsToJsMap.JOIN(['","', '1', '"1"']);
-    expect(result).toBe('[1,"1"].join(",")');
+    expect(result).toBe('[1,"1"].filter(v => v).join(",")');
   });
 
   test('TO_STRING', () => {

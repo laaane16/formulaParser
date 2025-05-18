@@ -34,7 +34,7 @@ describe('bin operator node to sql', () => {
     const result = stringifyAstToSql(code);
 
     expect(result).toBe(
-      'CASE WHEN 2 > 1 THEN 1 ELSE 0 END + CASE WHEN 2 < 1 THEN 1 ELSE 0 END',
+      '(CASE WHEN 2 > 1 THEN 1 ELSE 0 END) + (CASE WHEN 2 < 1 THEN 1 ELSE 0 END)',
     );
   });
   test('binary operators can work with valid vars, which has equal types', () => {

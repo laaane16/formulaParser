@@ -31,21 +31,21 @@ export const textFunctionsToSqlMap: Record<
    */
   TRIM: ([position, chars, str]: string[]): string =>
     `
-      CASE
+      (CASE
         WHEN ${position} = 'leading' THEN TRIM(LEADING ${chars} FROM ${str})
         WHEN ${position} = 'trailing' THEN TRIM(TRAILING ${chars} FROM ${str})
         WHEN ${position} = 'both' THEN TRIM(BOTH ${chars} FROM ${str})
-        ELSE 1 / 0
-      END
+        ELSE CAST(1 / 0 AS TEXT)
+      END)
     `,
   SAFE_TRIM: ([position, chars, str]: string[]): string => {
     return `
-      CASE
+      (CASE
         WHEN ${position} = 'leading' THEN TRIM(LEADING ${chars} FROM ${str})
         WHEN ${position} = 'trailing' THEN TRIM(TRAILING ${chars} FROM ${str})
         WHEN ${position} = 'both' THEN TRIM(BOTH ${chars} FROM ${str})
         ELSE NULL
-      END
+      END)
     `;
   },
 
@@ -120,7 +120,7 @@ export const textFunctionsToSqlMap: Record<
    * SUBSTRING(["'abcdef'", '2', '3']) // => "SUBSTRING('abcdef' from 2 for 3)"
    */
   SUBSTRING: (args: string[]): string =>
-    `SUBSTRING(${args[0]} from ${args[1]} for ${args[2]})`,
+    `SUBSTRING(${args[0]} from (CASE WHEN ${args[1]} > 0 THEN ${args[1]} ELSE 0 END) for (CASE WHEN ${args[1]} > 0 AND ${args[1]} > 0 THEN ${args[2]} ELSE 0 END))`,
 
   /**
    * @function LEFT
@@ -132,7 +132,8 @@ export const textFunctionsToSqlMap: Record<
    * @example
    * LEFT(["'abcdef'", "3"]) // => "LEFT('abcdef', 3)"
    */
-  LEFT: (args: string[]): string => `LEFT(${args[0]}, ${args[1]})`,
+  LEFT: (args: string[]): string =>
+    `LEFT(${args[0]}, CASE WHEN ${args[1]} > 0 THEN ${args[1]} ELSE 0 END)`,
 
   /**
    * @function RIGHT
@@ -144,7 +145,8 @@ export const textFunctionsToSqlMap: Record<
    * @example
    * RIGHT(["'abcdef'", "2"]) // => "RIGHT('abcdef', 2)"
    */
-  RIGHT: (args: string[]): string => `RIGHT(${args[0]}, ${args[1]})`,
+  RIGHT: (args: string[]): string =>
+    `RIGHT(${args[0]}, CASE WHEN ${args[1]} > 0 THEN ${args[1]} ELSE 0 END)`,
 
   /**
    * @function LEN
@@ -155,7 +157,7 @@ export const textFunctionsToSqlMap: Record<
    * @example
    * LEN(["'hello'"]) // => "LEN('hello')" (might be LENGTH in real PostgreSQL)
    */
-  LEN: (args: string[]): string => `LEN(${args})`,
+  LEN: (args: string[]): string => `LENGTH(${args})`,
 
   /**
    * @function JOIN

@@ -19,14 +19,14 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: LITERAL_NODE_TYPE,
       returnType: LITERAL_NODE_TYPE,
-      jsFn: (left, right) => `(${left} ?? '') + (${right} ?? '')`,
+      jsFn: (left, right) => `((${left} ?? '') + (${right} ?? ''))`,
       sqlFn: (left, right) => `CONCAT(${left}, ${right})`,
       specialWorkWithNull: true,
     },
     {
       operandType: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
       returnType: LITERAL_NODE_TYPE,
-      jsFn: (left, right) => `String(${left} ?? '') + String(${right} ?? '')`,
+      jsFn: (left, right) => `(String(${left} ?? '') + String(${right} ?? ''))`,
       sqlFn: (left, right) => `CONCAT(${left}::text, ${right}::text)`,
       specialWorkWithNull: true,
     },
@@ -35,7 +35,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
       returnType: LITERAL_NODE_TYPE,
-      jsFn: (left, right) => `String(${left} ?? '') + String(${right} ?? '')`,
+      jsFn: (left, right) => `(String(${left} ?? '') + String(${right} ?? ''))`,
       sqlFn: (left, right) => `CONCAT(${left}::text, ${right}::text)`,
       specialWorkWithNull: true,
     },
@@ -63,9 +63,9 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       jsFn: (left, right) => `${left} / ${right}`,
       sqlFn: (left, right) => `${left} / ${right}`,
       jsSafeFn: (left, right) =>
-        ` (function(){if (${right} === 0) return null; return ${left} / ${right}})()`,
+        `(function(){if (${right} === 0) return null; return ${left} / ${right}})()`,
       sqlSafeFn: (left, right) =>
-        `CASE WHEN ${right} != 0 THEN ${left} / ${right} ELSE NULL END`,
+        `(CASE WHEN ${right} != 0 THEN ${left} / ${right} ELSE NULL END)`,
     },
   ],
   REMAINDER: [
@@ -77,7 +77,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       jsSafeFn: (left, right) =>
         `(function(){if (${right} === 0) return null; return ${left} % ${right}})()`,
       sqlSafeFn: (left, right) =>
-        `CASE WHEN ${right} != 0 THEN ${left} % ${right} ELSE NULL END`,
+        `(CASE WHEN ${right} != 0 THEN ${left} % ${right} ELSE NULL END)`,
     },
   ],
   POWER: [
@@ -85,7 +85,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       operandType: NUMBER_NODE_TYPE,
       returnType: NUMBER_NODE_TYPE,
       jsFn: (left, right) => `Math.pow(${left}, ${right})`,
-      sqlFn: (left, right) => `${left} ^ ${right}`,
+      sqlFn: (left, right) => `(${left} ^ ${right})`,
     },
   ],
   EQUAL: [

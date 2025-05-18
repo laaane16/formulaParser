@@ -101,7 +101,7 @@ export const numberFunctions: Record<
       ],
       returnType: [NUMBER_NODE_TYPE],
       jsFn: numberFunctionsToJsMap.ROUND,
-      sqlFn: numberFunctionsToSqlMap.RANDOM,
+      sqlFn: numberFunctionsToSqlMap.ROUND,
     },
   ],
   SQRT: [
