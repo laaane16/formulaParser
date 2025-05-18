@@ -7,7 +7,7 @@ import { isSafeFunction, ValidFunctionsNames, VariableFunction } from './types';
 export const allFunctions: Record<ValidFunctionsNames, VariableFunction> = {
   ...textFunctions,
   ...numberFunctions,
-  ...dateFunctions,
+  // ...dateFunctions,
 };
 
 Object.values(allFunctions).forEach((func) => {
