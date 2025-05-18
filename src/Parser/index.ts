@@ -97,7 +97,7 @@ export default class Parser {
       this.parseVariableNode,
       this.parseUnarOperatorNode,
       this.parseParenthesizedNode,
-      this.parseIfStatementNode,
+      // this.parseIfStatementNode,
       this.parseFunctionNode,
     ];
 
@@ -169,51 +169,51 @@ export default class Parser {
     return null;
   }
 
-  parseIfStatementNode(): IfStatementNode | null {
-    const ifStatement = this.match(tokenTypesList.get('IF') as TokenType);
-    if (ifStatement) {
-      const leftPar = this.match(tokenTypesList.get('LPAR') as TokenType);
-      if (leftPar) {
-        const isBracketsEmpty = !!this.match(
-          tokenTypesList.get('RPAR') as TokenType,
-        );
-        if (isBracketsEmpty) {
-          throw new Error(
-            `An empty conditional operator at the position ${ifStatement.pos}`,
-          );
-        }
+  // parseIfStatementNode(): IfStatementNode | null {
+  //   const ifStatement = this.match(tokenTypesList.get('IF') as TokenType);
+  //   if (ifStatement) {
+  //     const leftPar = this.match(tokenTypesList.get('LPAR') as TokenType);
+  //     if (leftPar) {
+  //       const isBracketsEmpty = !!this.match(
+  //         tokenTypesList.get('RPAR') as TokenType,
+  //       );
+  //       if (isBracketsEmpty) {
+  //         throw new Error(
+  //           `An empty conditional operator at the position ${ifStatement.pos}`,
+  //         );
+  //       }
 
-        const result = [];
-        let currentNode = this.parseFormula();
-        if (currentNode) {
-          result.push(currentNode);
+  //       const result = [];
+  //       let currentNode = this.parseFormula();
+  //       if (currentNode) {
+  //         result.push(currentNode);
 
-          let virguleCount = 0;
-          let virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
-          while (virgule) {
-            if (virguleCount >= 2) {
-              throw new Error(
-                `An unexpected number of arguments per position ${virgule.pos + 1}`,
-              );
-            }
-            virguleCount++;
-            currentNode = this.parseFormula();
-            result.push(currentNode);
-            virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
-          }
-        }
+  //         let virguleCount = 0;
+  //         let virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
+  //         while (virgule) {
+  //           if (virguleCount >= 2) {
+  //             throw new Error(
+  //               `An unexpected number of arguments per position ${virgule.pos + 1}`,
+  //             );
+  //           }
+  //           virguleCount++;
+  //           currentNode = this.parseFormula();
+  //           result.push(currentNode);
+  //           virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
+  //         }
+  //       }
 
-        this.require(tokenTypesList.get('RPAR') as TokenType);
-        return new IfStatementNode(
-          ifStatement,
-          result[0],
-          result[1],
-          result[2],
-        );
-      }
-    }
-    return null;
-  }
+  //       this.require(tokenTypesList.get('RPAR') as TokenType);
+  //       return new IfStatementNode(
+  //         ifStatement,
+  //         result[0],
+  //         result[1],
+  //         result[2],
+  //       );
+  //     }
+  //   }
+  //   return null;
+  // }
 
   parseFunctionNode(): FunctionNode | null {
     const func = this.match(tokenTypesList.get('FUNCTION') as TokenType);
@@ -397,13 +397,13 @@ export default class Parser {
         `Unexpected type of data when ${node.operator.text} on the position ${node.operator.pos}`,
       );
     }
-    if (node instanceof IfStatementNode) {
-      const test = this.stringifyAst(node.test, format, safe);
-      const consequent = this.stringifyAst(node.consequent, format, safe);
-      const alternate = this.stringifyAst(node.alternate, format, safe);
+    // if (node instanceof IfStatementNode) {
+    //   const test = this.stringifyAst(node.test, format, safe);
+    //   const consequent = this.stringifyAst(node.consequent, format, safe);
+    //   const alternate = this.stringifyAst(node.alternate, format, safe);
 
-      return ifStatementMap[`${format}Fn`](test, consequent, alternate);
-    }
+    //   return ifStatementMap[`${format}Fn`](test, consequent, alternate);
+    // }
     if (node instanceof FunctionNode) {
       // may use as, because next stroke check valid func
       const currentFunction = allFunctions[node.name as ValidFunctionsNames];

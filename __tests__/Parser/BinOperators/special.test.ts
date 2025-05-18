@@ -29,14 +29,14 @@ describe('bin operator node to sql', () => {
 
     expect(result).toBe(`1::text = '1'::text`);
   });
-  test('binary operators can work with if', () => {
-    const code = 'IF(2 > 1, 1, 0) + IF(2 < 1, 1, 0)';
-    const result = stringifyAstToSql(code);
+  // test('binary operators can work with if', () => {
+  //   const code = 'IF(2 > 1, 1, 0) + IF(2 < 1, 1, 0)';
+  //   const result = stringifyAstToSql(code);
 
-    expect(result).toBe(
-      '(CASE WHEN 2 > 1 THEN 1 ELSE 0 END) + (CASE WHEN 2 < 1 THEN 1 ELSE 0 END)',
-    );
-  });
+  //   expect(result).toBe(
+  //     '(CASE WHEN 2 > 1 THEN 1 ELSE 0 END) + (CASE WHEN 2 < 1 THEN 1 ELSE 0 END)',
+  //   );
+  // });
   test('binary operators can work with valid vars, which has equal types', () => {
     const code = '{{Поле 2}} + {{Поле 2}}';
     const result = stringifyAstToSql(code, fields);
@@ -60,11 +60,11 @@ describe('bin operator node errors', () => {
       'Unexpected type of data when + on the position 11',
     );
   });
-  test('binary operators can`t work with IfStatementNode if it may returns different types', () => {
-    const code = 'IF(2 > 1, "", 0) + 1';
+  // test('binary operators can`t work with IfStatementNode if it may returns different types', () => {
+  //   const code = 'IF(2 > 1, "", 0) + 1';
 
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when + on the position 17',
-    );
-  });
+  //   expect(() => stringifyAstToSql(code)).toThrow(
+  //     'Unexpected type of data when + on the position 17',
+  //   );
+  // });
 });
