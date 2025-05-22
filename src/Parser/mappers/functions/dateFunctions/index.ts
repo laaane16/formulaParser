@@ -1,4 +1,3 @@
-import { UNIT } from '../../../../constants/date';
 import {
   BOOLEAN_NODE_TYPE,
   DATE_NODE_TYPE,
@@ -29,6 +28,8 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATE,
         sqlFn: dateFunctionsToSqlMap.DATE,
+        jsSafeFn: dateFunctionsToJsMap.SAFE_DATE,
+        sqlSafeFn: dateFunctionsToSqlMap.SAFE_DATE,
       },
     ],
     DATEADD: [
@@ -63,33 +64,35 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlSafeFn: dateFunctionsToSqlMap.SAFE_DATETIME_DIFF,
       },
     ],
-    DATETIME_FORMAT: [
-      {
-        args: [
-          {
-            type: [DATE_NODE_TYPE],
-          },
-          { type: [LITERAL_NODE_TYPE] }, // format string
-        ],
-        returnType: [LITERAL_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.DATETIME_FORMAT,
-        sqlFn: dateFunctionsToSqlMap.DATETIME_FORMAT,
-      },
-    ],
-    DATETIME_PARSE: [
-      {
-        args: [
-          // in airtable arg locale last
-          {
-            type: [LITERAL_NODE_TYPE],
-          }, // string
-          { type: [LITERAL_NODE_TYPE] }, // format
-        ],
-        returnType: [DATE_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.DATETIME_PARSE,
-        sqlFn: dateFunctionsToSqlMap.DATETIME_PARSE,
-      },
-    ],
+    // temporary comment this func too
+    // DATETIME_FORMAT: [
+    //   {
+    //     args: [
+    //       {
+    //         type: [DATE_NODE_TYPE],
+    //       },
+    //       { type: [LITERAL_NODE_TYPE] }, // format string
+    //     ],
+    //     returnType: [LITERAL_NODE_TYPE],
+    //     jsFn: dateFunctionsToJsMap.DATETIME_FORMAT,
+    //     sqlFn: dateFunctionsToSqlMap.DATETIME_FORMAT,
+    //   },
+    // ],
+    // i don`t know how make this without exception
+    // DATETIME_PARSE: [
+    //   {
+    //     args: [
+    //       // in airtable arg locale last
+    //       {
+    //         type: [LITERAL_NODE_TYPE],
+    //       }, // string
+    //       { type: [LITERAL_NODE_TYPE] }, // format
+    //     ],
+    //     returnType: [DATE_NODE_TYPE],
+    //     jsFn: dateFunctionsToJsMap.DATETIME_PARSE,
+    //     sqlFn: dateFunctionsToSqlMap.DATETIME_PARSE,
+    //   },
+    // ],
     DAY: [
       {
         args: [

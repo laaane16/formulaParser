@@ -32,8 +32,8 @@ export type IFunction = SafeFunction | BaseFunction;
 
 export type ValidFunctionsNames =
   | ValidTextFunctionsNames
-  | ValidNumberFunctionsNames;
-// | ValidDateFunctionsNames;
+  | ValidNumberFunctionsNames
+  | ValidDateFunctionsNames;
 
 export type VariableFunction = IFunction[];
 

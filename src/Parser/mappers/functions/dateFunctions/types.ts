@@ -11,12 +11,13 @@
 
 export type ValidDateFunctionsNamesWithSafe =
   | 'DATE'
+  | 'SAFE_DATE'
   | 'DATEADD'
   | 'SAFE_DATEADD'
   | 'SAFE_DATETIME_DIFF'
   | 'DATETIME_DIFF'
-  | 'DATETIME_FORMAT'
-  | 'DATETIME_PARSE'
+  // | 'DATETIME_FORMAT'
+  // | 'DATETIME_PARSE'
   | 'DAY'
   | 'HOUR'
   | 'IS_AFTER'
@@ -33,5 +34,5 @@ export type ValidDateFunctionsNamesWithSafe =
 
 export type ValidDateFunctionsNames = Exclude<
   ValidDateFunctionsNamesWithSafe,
-  'SAFE_DATEADD' | 'SAFE_DATETIME_DIFF'
+  'SAFE_DATEADD' | 'SAFE_DATETIME_DIFF' | 'SAFE_DATE'
 >;

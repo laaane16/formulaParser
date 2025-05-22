@@ -460,7 +460,6 @@ export default class Parser {
       const globalVarKey = removePrefixSuffix(node.variable.text);
       // some variables we need to prevent for some knowing types, like progress, stars and etc.
       let variableType = this.variables[globalVarKey]?.type;
-
       variableType =
         typesMapper[variableType as keyof typeof typesMapper] || variableType;
 
@@ -586,7 +585,6 @@ export default class Parser {
       for (const arg of node.args) {
         const argType = this.getReturnType(arg);
         // this.setNodeTypeInCache(argType, arg.start);
-
         if (!argType[0].has(UNKNOWN_NODE_TYPE)) {
           nodeArgs.push(argType);
         } else {
@@ -610,7 +608,6 @@ export default class Parser {
         if (nodeArgs.length === 0 && functionVariantArgs.length !== 0) {
           break;
         }
-
         // in a loop we go through all the arguments of the node
         for (let j = 0; j < nodeArgs.length; j++) {
           const canArgBeLast = functionVariantArgs.length - 1 <= j;

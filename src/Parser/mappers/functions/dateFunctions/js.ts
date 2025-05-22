@@ -1,4 +1,8 @@
-import { UNIT } from '../../../../constants/date';
+import {
+  DATE_FORMATS_LUXON,
+  DATE_FORMATS_FORMULA,
+  UNIT,
+} from '../../../../constants/date';
 import { ValidDateFunctionsNamesWithSafe } from './types';
 
 export const dateFunctionsToJsMap: Record<
@@ -12,6 +16,9 @@ export const dateFunctionsToJsMap: Record<
    */
   DATE: ([year, month, day]) => {
     return `DateTime.fromObject({ day: ${day}, month:  ${month}, year: ${year}}, { zone: 'utc'}).toString()`;
+  },
+  SAFE_DATE: ([year, month, day]) => {
+    return `(function(){const dt = DateTime.fromObject({ day: ${day}, month:  ${month}, year: ${year}}, { zone: 'utc'}); if (dt.isValid) return dt.toString(); return null})()`;
   },
 
   /**
@@ -47,7 +54,7 @@ export const dateFunctionsToJsMap: Record<
    */
   DATETIME_DIFF: ([end, start, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}' === ${unit}) return DateTime.fromISO(${end}, { zone: 'utc'}).diff(DateTime.fromISO(${start}), ${unit}).as(${unit});`;
+      return `if ('${val}' === ${unit}) return Math.floor(Math.abs(DateTime.fromISO(${start}, { zone: 'utc'}).diff(DateTime.fromISO(${end}), ${unit}).as(${unit})));`;
     };
     return `
       (function(){
@@ -58,7 +65,7 @@ export const dateFunctionsToJsMap: Record<
   },
   SAFE_DATETIME_DIFF([end, start, unit]) {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}' === ${unit}) return DateTime.fromISO(${end}, { zone: 'utc'}).diff(DateTime.fromISO(${start}), ${unit}).as(${unit});`;
+      return `if ('${val}' === ${unit}) return Math.floor(Math.abs(DateTime.fromISO(${start}, { zone: 'utc'}).diff(DateTime.fromISO(${end}), ${unit}).as(${unit})));`;
     };
     return `
       (function(){
@@ -73,17 +80,47 @@ export const dateFunctionsToJsMap: Record<
    * @param {[string, string]} args - Date string and format string.
    * @returns {string} JavaScript expression returning formatted string.
    */
-  DATETIME_FORMAT: ([date, format]) => {
-    return `DateTime.fromISO(${date}, { zone: 'utc'}).toFormat(${format})`;
+  // DATETIME_FORMAT: ([date, format]) => {
+  //   return `(function(){
+  //   let preparedFormat;
+  //   Object.entries(${DATE_FORMATS_FORMULA}).forEach(
+  //     ([key, value]) => {
+  //       const matches = ${format}.match(new RegExp(value, 'g'));
+  //       if (matches && matches.length > 0) {
+  //         preparedFormat = format.replaceAll(value, ${DATE_FORMATS_LUXON}[key]);
+  //       }
+  //     }
+  //   );
+  //   return DateTime.fromISO(${date}, { zone: 'utc'}).toFormat(preparedFormat)}()`;
+  // },
+
+  // /**
+  //  * Parses a date string from a custom format.
+  //  * @param {[string, string]} args - Date string and format string.
+  //  * @returns {string} JavaScript expression returning ISO string.
+  //  */
+  // DATETIME_PARSE: ([str, format]) => {
+  //   return `DateTime.fromFormat(${str}, ${format}, { zone: 'utc'}).toString()`;
+  // },
+
+  /** Gets the year from a date. */
+  YEAR: ([date]) => {
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).year`;
   },
 
-  /**
-   * Parses a date string from a custom format.
-   * @param {[string, string]} args - Date string and format string.
-   * @returns {string} JavaScript expression returning ISO string.
-   */
-  DATETIME_PARSE: ([str, format]) => {
-    return `DateTime.fromFormat(${str}, ${format}, { zone: 'utc'}).toString()`;
+  /** Gets the month from a date. */
+  MONTH: ([date]) => {
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).month`;
+  },
+
+  /** Gets the weekday from a date (1 = Saturday, 7 = Sunday). */
+  WEEKDAY: ([date]) => {
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).weekday`;
+  },
+
+  /** Gets the ISO week number from a date. */
+  WEEKNUM: ([date]) => {
+    return `DateTime.fromISO(${date}, { zone: 'utc'}).weekNumber`;
   },
 
   /**
@@ -108,26 +145,6 @@ export const dateFunctionsToJsMap: Record<
   /** Gets the second from a date. */
   SECOND: ([date]) => {
     return `DateTime.fromISO(${date}, { zone: 'utc'}).second`;
-  },
-
-  /** Gets the month from a date. */
-  MONTH: ([date]) => {
-    return `DateTime.fromISO(${date}, { zone: 'utc'}).month`;
-  },
-
-  /** Gets the year from a date. */
-  YEAR: ([date]) => {
-    return `DateTime.fromISO(${date}, { zone: 'utc'}).year`;
-  },
-
-  /** Gets the weekday from a date (1 = Monday, 7 = Sunday). */
-  WEEKDAY: ([date]) => {
-    return `DateTime.fromISO(${date}, { zone: 'utc'}).weekday`;
-  },
-
-  /** Gets the ISO week number from a date. */
-  WEEKNUM: ([date]) => {
-    return `DateTime.fromISO(${date}, { zone: 'utc'}).weekNumber`;
   },
 
   /**

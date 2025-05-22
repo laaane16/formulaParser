@@ -187,22 +187,6 @@ export default class Parser {
     values?: Record<string, unknown>,
     // safe: boolean = false,
   ): unknown {
-    // if (safe) {
-    //   try {
-    //     const runFormula = new Function(
-    //       'DateTime',
-    //       '$$VARIABLES',
-    //       `
-    //        return ${jsFormula}
-    //       `,
-    //     )(DateTime, values);
-    //     validateResultJs(runFormula);
-
-    //     return runFormula;
-    //   } catch (e) {
-    //     return null;
-    //   }
-    // }
     const runFormula = new Function(
       'DateTime',
       '$$VARIABLES',
