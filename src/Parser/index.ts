@@ -506,7 +506,6 @@ export default class Parser {
 
       const leftNodeType = this.getReturnType(node.left, node)[0];
       const rightNodeType = this.getReturnType(node.right, node)[0];
-
       if (
         leftNodeType.has(UNKNOWN_NODE_TYPE) ||
         rightNodeType.has(UNKNOWN_NODE_TYPE)
@@ -588,19 +587,19 @@ export default class Parser {
           } else {
             oneArgType = this.getReturnType(ctx.alternate, node, 'alternate');
           }
+
           if (oneArgType[0].size === 1) {
             const key =
               Array.from(oneArgType[0])[0] +
               ifTypesMapper[
                 Array.from(consequent[0])[0] + Array.from(alternate[0])[0]
               ];
-
             if (key in ifTypesMapper) {
               const type = ifTypesMapper[key];
               if (type) {
                 const res: INodeReturnType = [new Set([type])];
                 this.setReturnTypeInCache(res, node.start, node.end);
-                return consequent;
+                return res;
               }
             }
           }
@@ -614,6 +613,7 @@ export default class Parser {
             if (parentVariantTypes === null) {
               break;
             }
+
             if (Array.isArray(parentVariantTypes)) {
               let coincidence = 0;
               let consequentType = '';
@@ -634,7 +634,7 @@ export default class Parser {
                     if (type) {
                       const res: INodeReturnType = [new Set([type])];
                       this.setReturnTypeInCache(res, node.start, node.end);
-                      return consequent;
+                      return res;
                     }
                   }
                 }
