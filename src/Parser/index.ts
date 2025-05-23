@@ -38,6 +38,7 @@ import { FORMULA_TEMPLATES } from '../constants/templates';
 import { typesMapper } from '../constants/typesMapper';
 import { operatorPrecedence } from '../constants/operatorPrecedence';
 import { defaultValues } from '../constants/defaultValues';
+import { FormulaError } from '../lib/exceptions';
 
 type ParserVar = IVar;
 
@@ -109,7 +110,7 @@ export default class Parser {
       }
     }
 
-    throw new Error(`Unexpected syntax on ${this.pos}`);
+    FormulaError.unknownTokenError(this.pos);
   }
 
   parseLiteralNode(): LiteralNode | null {
@@ -178,9 +179,7 @@ export default class Parser {
   //         tokenTypesList.get('RPAR') as TokenType,
   //       );
   //       if (isBracketsEmpty) {
-  //         throw new Error(
-  //           `An empty conditional operator at the position ${ifStatement.pos}`,
-  //         );
+  //         FormulaError.emptyConditionalOperator(ifStatement.pos);
   //       }
 
   //       const result = [];
@@ -192,9 +191,7 @@ export default class Parser {
   //         let virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
   //         while (virgule) {
   //           if (virguleCount >= 2) {
-  //             throw new Error(
-  //               `An unexpected number of arguments per position ${virgule.pos + 1}`,
-  //             );
+  //             FormulaError.unexpectedArgunmentCount(virgule.pos + 1);
   //           }
   //           virguleCount++;
   //           currentNode = this.parseFormula();
@@ -230,9 +227,7 @@ export default class Parser {
         this.require(tokenTypesList.get('RPAR') as TokenType);
         return new FunctionNode(func, func.text, args);
       }
-      throw new Error(
-        `An enumeration of arguments for the position was expected ${this.pos}`,
-      );
+      FormulaError.expectedFunctionArguments(this.pos);
     }
     return null;
   }
@@ -292,9 +287,7 @@ export default class Parser {
   require(...expected: TokenType[]): Token {
     const token = this.match(...expected);
     if (!token) {
-      throw new Error(
-        `On the position ${this.pos} expected ${expected[0].name}`,
-      );
+      FormulaError.missingRequiredConstruction(this.pos, expected[0].name);
     }
     return token;
   }
@@ -334,9 +327,7 @@ export default class Parser {
           return `COALESCE($$VARIABLES['${globalVarKey}'], ${defaultValues[format][sendedVar.type] ?? "''"})`;
         }
       }
-      throw new Error(
-        `Invalid variable ${node.variable.text} on the position ${node.start}`,
-      );
+      FormulaError.fieldNotFoundError(node.start, node.variable.text);
     }
     if (node instanceof ParenthesizedNode) {
       return `(${this.stringifyAst(node.expression, format, safe)})`;
@@ -362,9 +353,7 @@ export default class Parser {
         return operator[`${format}Fn`](operand);
       }
 
-      throw new Error(
-        `Unexpected type of data when ${node.operator.text} on the position ${node.operand.start}`,
-      );
+      FormulaError.unexpectedDataType(node.operand.start, node.operator.text);
     }
     if (node instanceof BinOperationNode) {
       const operator =
@@ -376,9 +365,7 @@ export default class Parser {
 
       // Maybe change logic for show correct error position
       if (operatorType.has(UNKNOWN_NODE_TYPE)) {
-        throw new Error(
-          `Unexpected type of data when ${node.operator.text} on the position ${node.operator.pos}`,
-        );
+        FormulaError.unexpectedDataType(node.operator.pos, node.operator.text);
       }
 
       if (index !== undefined) {
@@ -393,9 +380,7 @@ export default class Parser {
         }
       }
 
-      throw new Error(
-        `Unexpected type of data when ${node.operator.text} on the position ${node.operator.pos}`,
-      );
+      FormulaError.unexpectedDataType(node.operator.pos, node.operator.text);
     }
     // if (node instanceof IfStatementNode) {
     //   const test = this.stringifyAst(node.test, format, safe);
@@ -410,14 +395,8 @@ export default class Parser {
       if (currentFunction) {
         const [nodeReturnType, idx] = this.getReturnType(node);
 
-        if (nodeReturnType.has(UNKNOWN_NODE_TYPE)) {
-          throw new Error(
-            `Unexpected data type in the function ${node.name} on the position ${node.func.pos}`,
-          );
-        }
-
-        if (idx === undefined) {
-          throw new Error('');
+        if (nodeReturnType.has(UNKNOWN_NODE_TYPE) || idx === undefined) {
+          FormulaError.unexpectedDataType(node.func.pos, node.name);
         }
 
         const functionArgs = node.args.map((arg) => {
@@ -434,11 +413,9 @@ export default class Parser {
           return neededFunc[`${format}Fn`](functionArgs);
         }
       }
-      throw new Error(
-        `Invalid function name ${node.name} on the position ${node.func.pos}`,
-      );
+      FormulaError.invalidFunction(node.func.pos, node.name);
     }
-    throw new Error(`Invalid syntax in the position ${node.start}`);
+    FormulaError.syntaxError(node.start);
   }
 
   // TODO: this func need refactor, in every condition block we repeat code: setReturnType, return res ...
@@ -697,13 +674,11 @@ export default class Parser {
         }
 
         if (!variable) {
-          throw new Error(
-            `Variable ${varKey} or matching 'from' field not found`,
-          );
+          FormulaError.mapIdsFromError(varKey);
         }
 
         if (!variable[to]) {
-          throw new Error(`Variable ${varKey} doesn't have the '${to}' field`);
+          FormulaError.mapIdsToError(varKey, to);
         }
 
         return `${FORMULA_TEMPLATES.PREFIX}${variable[to]}${FORMULA_TEMPLATES.POSTFIX}`;
@@ -726,7 +701,7 @@ export default class Parser {
       if (n instanceof StatementsNode) {
         return n.codeStrings.map((i) => traverse(i));
       }
-      throw new Error('Impossible map identifiers because formula has Error');
+      FormulaError.impossibleMapIds();
     };
     return traverse(node);
   }

@@ -1,4 +1,5 @@
 import { FIND_VARIABLES_REGEXP } from '../constants/templates';
+import { FormulaError } from './exceptions';
 
 export const validateReplacedVariables = (
   formula: string,
@@ -16,8 +17,6 @@ export const validateReplacedVariables = (
   }
 
   if (missingVariables.length > 0) {
-    throw new Error(
-      `Missing variables in values: ${missingVariables.join(', ')}`,
-    );
+    FormulaError.missingVarsInValues(missingVariables);
   }
 };

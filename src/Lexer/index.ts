@@ -1,3 +1,4 @@
+import { FormulaError } from '../lib/exceptions';
 import Token from './Token';
 import { tokenTypesList } from './TokenType';
 
@@ -37,8 +38,6 @@ export default class Lexer {
       }
     }
 
-    throw new Error(
-      `[LEXER]: On the position ${this.pos} an error has been detected`,
-    );
+    FormulaError.lexerError(this.pos);
   }
 }

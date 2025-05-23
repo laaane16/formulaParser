@@ -133,7 +133,7 @@ describe('function node errors', () => {
     const code = `TESTFUNC()`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Invalid function name TESTFUNC on the position 0',
+      'Invalid function TESTFUNC at the position 0',
     );
   });
 
@@ -141,7 +141,7 @@ describe('function node errors', () => {
     const code = 'TO_STRING("test", 1)';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function TO_STRING on the position 0',
+      'Unexpected type of data when TO_STRING on the position 0',
     );
   });
 
@@ -149,7 +149,7 @@ describe('function node errors', () => {
     const code = `CONCAT()`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function CONCAT on the position 0',
+      'Unexpected type of data when CONCAT on the position 0',
     );
   });
 
@@ -157,7 +157,7 @@ describe('function node errors', () => {
     const code = 'CONCAT("test", "test2", true)';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function CONCAT on the position 0',
+      'Unexpected type of data when CONCAT on the position 0',
     );
   });
 
@@ -165,7 +165,7 @@ describe('function node errors', () => {
     const code = `CONCAT(false)`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function CONCAT on the position 0',
+      'Unexpected type of data when CONCAT on the position 0',
     );
   });
 
@@ -173,7 +173,7 @@ describe('function node errors', () => {
     const code = 'CONCAT(1 - "")';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function CONCAT on the position 0',
+      'Unexpected type of data when CONCAT on the position 0',
     );
   });
 
@@ -181,7 +181,7 @@ describe('function node errors', () => {
     const code = `CONCAT((1 + 1 + 1 + RANDOM()), CONCAT("", 1, 2, "test"), (RANDOM() + RANDOM() - ""))`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function CONCAT on the position 0',
+      'Unexpected type of data when CONCAT on the position 0',
     );
   });
 
@@ -189,7 +189,7 @@ describe('function node errors', () => {
     const code = `CONCAT(CONCAT(CONCAT(RANDOM(CONCAT("2")))))`;
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function CONCAT on the position 0',
+      'Unexpected type of data when CONCAT on the position 0',
     );
   });
 
@@ -197,7 +197,7 @@ describe('function node errors', () => {
     const code = 'RANDOM(1)';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function RANDOM on the position 0',
+      'Unexpected type of data when RANDOM on the position 0',
     );
   });
 
@@ -205,7 +205,7 @@ describe('function node errors', () => {
     const code = 'LOWER(IF(2 > 1, 1, ""))';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected data type in the function LOWER on the position 0',
+      'Unexpected type of data when LOWER on the position 0',
     );
   });
 });
