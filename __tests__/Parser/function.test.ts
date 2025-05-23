@@ -112,20 +112,31 @@ describe('function node to sql', () => {
     expect(result).toBe('RANDOM()');
   });
 
-  // UNCOMMENT THIS!!!
-  // test(`function CONCAT can work with IfStatementNode in args if it return one type`, () => {
-  //   const code = `CONCAT(IF(2 > 1, "a", "b"))`;
+  test(`function CONCAT can work with IfStatementNode in args if it return one type`, () => {
+    const code = `CONCAT(IF(2 > 1, "a", "b"))`;
 
-  //   const result = stringifyAstToSql(code);
-  //   expect(result).toBe(`CONCAT(CASE WHEN 2 > 1 THEN 'a' ELSE 'b' END)`);
-  // });
+    const result = stringifyAstToSql(code);
+    expect(result).toBe(
+      `CONCAT((CASE WHEN 2 > 1 THEN 'a'::text ELSE 'b'::text END)::text)`,
+    );
+  });
 
-  // test(`function CONCAT can work with IfStatementNode in args if it returns number | text types`, () => {
-  //   const code = `CONCAT(IF(2 > 1, 1, "b"))`;
+  test(`function CONCAT can work with IfStatementNode in args if it returns number | text types`, () => {
+    const code = `CONCAT(IF(2 > 1, 1, "b"))`;
 
-  //   const result = stringifyAstToSql(code);
-  //   expect(result).toBe(`CONCAT(CASE WHEN 2 > 1 THEN 1 ELSE 'b' END)`);
-  // });
+    const result = stringifyAstToSql(code);
+    expect(result).toBe(
+      `CONCAT((CASE WHEN 2 > 1 THEN 1::text ELSE 'b'::text END)::text)`,
+    );
+  });
+
+  test('function LOWER can work with IfStatementNode if it may return different types', () => {
+    const code = 'LOWER(IF(2 > 1, 1, ""))';
+
+    expect(stringifyAstToSql(code)).toBe(
+      `LOWER((CASE WHEN 2 > 1 THEN 1::text ELSE ''::text END)::text)`,
+    );
+  });
 });
 
 describe('function node errors', () => {
@@ -198,14 +209,6 @@ describe('function node errors', () => {
 
     expect(() => stringifyAstToSql(code)).toThrow(
       'Unexpected type of data when RANDOM on the position 0',
-    );
-  });
-
-  test('function LOWER can’t work with IfStatementNode if it may return different types', () => {
-    const code = 'LOWER(IF(2 > 1, 1, ""))';
-
-    expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when LOWER on the position 0',
     );
   });
 });

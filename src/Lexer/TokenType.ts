@@ -26,7 +26,7 @@ export const tokenTypesList: Map<string, TokenType> = new Map([
   ],
 
   // IF
-  // ['IF', new TokenType('IF', 'IF')],
+  ['IF', new TokenType('IF', 'IF')],
 
   // FUNCTIONS: ASD()
   ['FUNCTION', new TokenType('FUNCTION', '[A-Z]+(_[A-Z]+)*')],

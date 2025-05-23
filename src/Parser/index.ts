@@ -1,4 +1,3 @@
-// TODO: Refactor errors to use the error class from the lib/exceptions
 import Token from '../Lexer/Token';
 import TokenType, {
   tokenTypesBinOperations,
@@ -31,11 +30,16 @@ import {
 } from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
-import { UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
+import { NodeTypesValues, UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
 import { IVar } from '../main';
 import { removePrefixSuffix } from '../lib/removePrefixSuffix';
 import { FORMULA_TEMPLATES } from '../constants/templates';
-import { typesMapper } from '../constants/typesMapper';
+import {
+  ifTypesMapper,
+  typesMapper,
+  typesMapperJs,
+  typesMapperSql,
+} from '../constants/typesMapper';
 import { operatorPrecedence } from '../constants/operatorPrecedence';
 import { defaultValues } from '../constants/defaultValues';
 import { FormulaError } from '../lib/exceptions';
@@ -98,7 +102,7 @@ export default class Parser {
       this.parseVariableNode,
       this.parseUnarOperatorNode,
       this.parseParenthesizedNode,
-      // this.parseIfStatementNode,
+      this.parseIfStatementNode,
       this.parseFunctionNode,
     ];
 
@@ -170,47 +174,47 @@ export default class Parser {
     return null;
   }
 
-  // parseIfStatementNode(): IfStatementNode | null {
-  //   const ifStatement = this.match(tokenTypesList.get('IF') as TokenType);
-  //   if (ifStatement) {
-  //     const leftPar = this.match(tokenTypesList.get('LPAR') as TokenType);
-  //     if (leftPar) {
-  //       const isBracketsEmpty = !!this.match(
-  //         tokenTypesList.get('RPAR') as TokenType,
-  //       );
-  //       if (isBracketsEmpty) {
-  //         FormulaError.emptyConditionalOperator(ifStatement.pos);
-  //       }
+  parseIfStatementNode(): IfStatementNode | null {
+    const ifStatement = this.match(tokenTypesList.get('IF') as TokenType);
+    if (ifStatement) {
+      const leftPar = this.match(tokenTypesList.get('LPAR') as TokenType);
+      if (leftPar) {
+        const isBracketsEmpty = !!this.match(
+          tokenTypesList.get('RPAR') as TokenType,
+        );
+        if (isBracketsEmpty) {
+          FormulaError.emptyConditionalOperator(ifStatement.pos);
+        }
 
-  //       const result = [];
-  //       let currentNode = this.parseFormula();
-  //       if (currentNode) {
-  //         result.push(currentNode);
+        const result = [];
+        let currentNode = this.parseFormula();
+        if (currentNode) {
+          result.push(currentNode);
 
-  //         let virguleCount = 0;
-  //         let virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
-  //         while (virgule) {
-  //           if (virguleCount >= 2) {
-  //             FormulaError.unexpectedArgunmentCount(virgule.pos + 1);
-  //           }
-  //           virguleCount++;
-  //           currentNode = this.parseFormula();
-  //           result.push(currentNode);
-  //           virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
-  //         }
-  //       }
+          let virguleCount = 0;
+          let virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
+          while (virgule) {
+            if (virguleCount >= 2) {
+              FormulaError.unexpectedArgunmentCount(virgule.pos + 1);
+            }
+            virguleCount++;
+            currentNode = this.parseFormula();
+            result.push(currentNode);
+            virgule = this.match(tokenTypesList.get('VIRGULE') as TokenType);
+          }
+        }
 
-  //       this.require(tokenTypesList.get('RPAR') as TokenType);
-  //       return new IfStatementNode(
-  //         ifStatement,
-  //         result[0],
-  //         result[1],
-  //         result[2],
-  //       );
-  //     }
-  //   }
-  //   return null;
-  // }
+        this.require(tokenTypesList.get('RPAR') as TokenType);
+        return new IfStatementNode(
+          ifStatement,
+          result[0],
+          result[1],
+          result[2],
+        );
+      }
+    }
+    return null;
+  }
 
   parseFunctionNode(): FunctionNode | null {
     const func = this.match(tokenTypesList.get('FUNCTION') as TokenType);
@@ -382,13 +386,43 @@ export default class Parser {
 
       FormulaError.unexpectedDataType(node.operator.pos, node.operator.text);
     }
-    // if (node instanceof IfStatementNode) {
-    //   const test = this.stringifyAst(node.test, format, safe);
-    //   const consequent = this.stringifyAst(node.consequent, format, safe);
-    //   const alternate = this.stringifyAst(node.alternate, format, safe);
+    if (node instanceof IfStatementNode) {
+      const test = this.stringifyAst(node.test, format, safe);
+      const consequent = this.stringifyAst(node.consequent, format, safe);
+      const alternate = this.stringifyAst(node.alternate, format, safe);
+      const [consequentType] = this.getReturnType(node.consequent);
+      const [alternateType] = this.getReturnType(node.alternate);
+      if (consequentType.size !== 1 || alternateType.size !== 1) {
+        throw new Error('Failed cast data types try change expression');
+      }
 
-    //   return ifStatementMap[`${format}Fn`](test, consequent, alternate);
-    // }
+      const preparedConsequentType = Array.from(consequentType)[0];
+      const preparedAlternateType = Array.from(alternateType)[0];
+
+      const hasTypeInCache = this.getCachedReturnType(node.start, node.end);
+      if (!hasTypeInCache) {
+        return ifStatementMap[`${format}Fn`](test, consequent, alternate);
+      }
+
+      const type =
+        ifTypesMapper[preparedAlternateType + preparedConsequentType];
+      if (!type) {
+        throw new Error('Failed cast data types try change expression');
+      }
+
+      let preparedType;
+      if (format === FORMATS.JS) {
+        preparedType = typesMapperJs[type];
+      } else {
+        preparedType = typesMapperSql[type];
+      }
+      return ifStatementMap[`${format}Fn`](
+        test,
+        consequent,
+        alternate,
+        preparedType,
+      );
+    }
     if (node instanceof FunctionNode) {
       // may use as, because next stroke check valid func
       const currentFunction = allFunctions[node.name as ValidFunctionsNames];
@@ -421,7 +455,11 @@ export default class Parser {
   // TODO: this func need refactor, in every condition block we repeat code: setReturnType, return res ...
   // return all possible return types
   // for binary operator and funcs operators we return index which founds coincidence
-  getReturnType(node: ExpressionNode): [Set<string>, number?] {
+  getReturnType(
+    node: ExpressionNode,
+    ctx?: ExpressionNode,
+    position?: string,
+  ): [Set<string>, number?] {
     const typeFromCache = this.getCachedReturnType(node.start, node.end);
     if (typeFromCache) {
       return typeFromCache;
@@ -451,7 +489,7 @@ export default class Parser {
       return res;
     }
     if (node instanceof UnarOperationNode) {
-      const res = this.getReturnType(node.operand);
+      const res = this.getReturnType(node.operand, node);
       this.setReturnTypeInCache(res, node.start, node.end);
       return res;
     }
@@ -466,8 +504,8 @@ export default class Parser {
         return res;
       }
 
-      const leftNodeType = this.getReturnType(node.left)[0];
-      const rightNodeType = this.getReturnType(node.right)[0];
+      const leftNodeType = this.getReturnType(node.left, node)[0];
+      const rightNodeType = this.getReturnType(node.right, node)[0];
 
       if (
         leftNodeType.has(UNKNOWN_NODE_TYPE) ||
@@ -531,8 +569,130 @@ export default class Parser {
       return res;
     }
     if (node instanceof IfStatementNode) {
-      const consequent = this.getReturnType(node.consequent);
-      const alternate = this.getReturnType(node.alternate);
+      const consequent = this.getReturnType(
+        node.consequent,
+        node,
+        'consequent',
+      );
+      const alternate = this.getReturnType(node.alternate, node, 'alternate');
+
+      if (
+        consequent[0].size === 1 &&
+        alternate[0].size === 1 &&
+        Array.from(consequent[0])[0] !== Array.from(alternate[0])[0]
+      ) {
+        if (ctx instanceof IfStatementNode) {
+          let oneArgType;
+          if (position === 'alternate') {
+            oneArgType = this.getReturnType(ctx.consequent, node, 'consequent');
+          } else {
+            oneArgType = this.getReturnType(ctx.alternate, node, 'alternate');
+          }
+          if (oneArgType[0].size === 1) {
+            const key =
+              Array.from(oneArgType[0])[0] +
+              ifTypesMapper[
+                Array.from(consequent[0])[0] + Array.from(alternate[0])[0]
+              ];
+
+            if (key in ifTypesMapper) {
+              const type = ifTypesMapper[key];
+              if (type) {
+                const res: INodeReturnType = [new Set([type])];
+                this.setReturnTypeInCache(res, node.start, node.end);
+                return consequent;
+              }
+            }
+          }
+        }
+        if (ctx instanceof BinOperationNode) {
+          const parent =
+            allBinOperators[ctx.operator.token.name as ValidBinOperatorsNames];
+          for (const parentVariant of parent) {
+            const parentVariantTypes = parentVariant.operandType;
+
+            if (parentVariantTypes === null) {
+              break;
+            }
+            if (Array.isArray(parentVariantTypes)) {
+              let coincidence = 0;
+              let consequentType = '';
+              let alternateType = '';
+              for (let i = 0; i < parentVariantTypes.length; i++) {
+                if (consequent[0].has(parentVariantTypes[i])) {
+                  coincidence++;
+                  consequentType = parentVariantTypes[i];
+                }
+                if (alternate[0].has(parentVariantTypes[i])) {
+                  coincidence++;
+                  alternateType = parentVariantTypes[i];
+                }
+                if (coincidence >= 1) {
+                  const key = consequentType + alternateType;
+                  if (key in ifTypesMapper) {
+                    const type = ifTypesMapper[key];
+                    if (type) {
+                      const res: INodeReturnType = [new Set([type])];
+                      this.setReturnTypeInCache(res, node.start, node.end);
+                      return consequent;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (ctx instanceof FunctionNode) {
+          const parent = allFunctions[ctx.func.text as ValidFunctionsNames];
+
+          for (const parentVariant of parent) {
+            const idx = Number(position);
+            if (Number.isNaN(idx)) {
+              if (process.env.NODE_ENV === 'development') {
+                throw new Error('Position should be number!!!');
+              }
+              break;
+            }
+            const arg = parentVariant.args[idx];
+            const argType = arg.type;
+            const canArgBeLast = parentVariant.args.length - 1 <= idx;
+
+            if (argType) {
+              const key =
+                Array.from(consequent[0])[0] + Array.from(alternate[0])[0];
+              if (key in ifTypesMapper) {
+                const type = ifTypesMapper[key];
+                if (type) {
+                  if (argType.includes(type as NodeTypesValues)) {
+                    const res: INodeReturnType = [new Set([type])];
+                    this.setReturnTypeInCache(res, node.start, node.end);
+                    return res;
+                  }
+                }
+              }
+            }
+            if (arg.many && canArgBeLast) {
+              const key =
+                Array.from(consequent[0])[0] + Array.from(alternate[0])[0];
+              if (key in ifTypesMapper) {
+                const type = ifTypesMapper[key];
+                if (type) {
+                  if (
+                    parentVariant.args[
+                      parentVariant.args.length - 1
+                    ].type.includes(type as NodeTypesValues)
+                  ) {
+                    const res: INodeReturnType = [new Set([type])];
+                    this.setReturnTypeInCache(res, node.start, node.end);
+                    return res;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
       alternate[0].forEach((i) => consequent[0].add(i));
 
       this.setReturnTypeInCache(consequent, node.start, node.end);
@@ -559,9 +719,9 @@ export default class Parser {
 
       // get all types for node args
       const nodeArgs: [Set<string>, number?][] = [];
-      for (const arg of node.args) {
-        const argType = this.getReturnType(arg);
-        // this.setNodeTypeInCache(argType, arg.start);
+      for (let i = 0; i < node.args.length; i++) {
+        const argType = this.getReturnType(node.args[i], node, String(i));
+        // this.setNodeTypeInCache(argType, arg.start, arg.end);
         if (!argType[0].has(UNKNOWN_NODE_TYPE)) {
           nodeArgs.push(argType);
         } else {
