@@ -20,14 +20,14 @@ describe('function node to sql', () => {
     const code = 'TO_STRING("test")';
     const result = stringifyAstToSql(code);
 
-    expect(result).toBe(`'test'::text`);
+    expect(result).toBe(`('test')::text`);
   });
 
   test('function TOSTRING can work with any types', () => {
     const code = 'TO_STRING(true)';
     const result = stringifyAstToSql(code);
 
-    expect(result).toBe(`true::text`);
+    expect(result).toBe(`(true)::text`);
   });
 
   test(`function CONCAT can work with string`, () => {
@@ -117,7 +117,7 @@ describe('function node to sql', () => {
 
     const result = stringifyAstToSql(code);
     expect(result).toBe(
-      `CONCAT((CASE WHEN 2 > 1 THEN 'a'::text ELSE 'b'::text END)::text)`,
+      `CONCAT((CASE WHEN 2 > 1 THEN ('a')::text ELSE ('b')::text END)::TEXT)`,
     );
   });
 
@@ -126,7 +126,7 @@ describe('function node to sql', () => {
 
     const result = stringifyAstToSql(code);
     expect(result).toBe(
-      `CONCAT((CASE WHEN 2 > 1 THEN 1::text ELSE 'b'::text END)::text)`,
+      `CONCAT((CASE WHEN 2 > 1 THEN (1)::text ELSE ('b')::text END)::TEXT)`,
     );
   });
 
@@ -134,7 +134,7 @@ describe('function node to sql', () => {
     const code = 'LOWER(IF(2 > 1, 1, ""))';
 
     expect(stringifyAstToSql(code)).toBe(
-      `LOWER((CASE WHEN 2 > 1 THEN 1::text ELSE ''::text END)::text)`,
+      `LOWER((CASE WHEN 2 > 1 THEN (1)::text ELSE ('')::text END)::TEXT)`,
     );
   });
 });

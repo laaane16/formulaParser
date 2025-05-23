@@ -127,12 +127,12 @@ describe('number funcs', () => {
 
   test('to_number', () => {
     const parser = new Parser('TO_NUMBER("123")');
-    expect(parser.toSql()).toBe("'123'::numeric");
+    expect(parser.toSql()).toBe("('123')::numeric");
   });
   test('safe to_number', () => {
     const parser = new Parser('TO_NUMBER("123")');
     expect(parser.toSql(true)).toBe(
-      `(CASE WHEN '123' ~ '^\\d+(\\.\\d+)?$' THEN REGEXP_REPLACE('123','[^0-9.]+', '', 'g')::numeric ELSE NULL END)`,
+      `(CASE WHEN '123' ~ '^\\d+(\\.\\d+)?$' THEN ('123')::text::numeric ELSE NULL END)`,
     );
   });
   /**

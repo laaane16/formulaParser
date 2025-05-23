@@ -11,6 +11,12 @@ import { isNil } from './lib/isNil';
 import { removePrefixSuffix } from './lib/removePrefixSuffix';
 import { validateResultJs } from './lib/valiadateResultJs';
 import { validateReplacedVariables } from './lib/validateReplacedVariables';
+import { NodeTypesValues } from './constants/nodeTypes';
+import {
+  JS_CAST_TYPES,
+  SQL_CAST_TYPES,
+  typesMapper,
+} from './constants/typesMapper';
 
 export interface IVar {
   type: string;
@@ -212,6 +218,46 @@ export default class Parser {
       return JSON.stringify(values[key]);
     });
   }
+
+  /**
+   *
+   * @param result - result after runJs or toSql
+   */
+  public castResultType(
+    result: unknown,
+    format: 'js' | 'sql',
+    to: NodeTypesValues,
+  ): unknown {
+    const resultType = typesMapper[to as keyof typeof typesMapper] || to;
+    if (format === 'js') {
+      const res = JS_CAST_TYPES[resultType](result);
+      const preparedResult = this._validateJsResult(res);
+      return preparedResult;
+    }
+    if (format === 'sql') {
+      const res = SQL_CAST_TYPES[resultType](result);
+      return res;
+    }
+  }
+
+  private _validateJsResult(res: unknown): unknown {
+    switch (typeof res) {
+      case 'number':
+        if (!Number.isNaN(res)) {
+          return res;
+        }
+        break;
+      case 'string':
+        return res;
+      case 'object':
+        if (res instanceof DateTime && res.isValid) {
+          return res.toString();
+        }
+        return null;
+      default:
+        throw new Error('Unsupported type right now');
+    }
+  }
 }
 
 // Example usage:
@@ -247,6 +293,6 @@ export default class Parser {
 // const jsFormula = parser.toJs(true);
 // console.log('JS:', jsFormula); // Outputs the generated JS query
 
-// console.log('RUN JS:', parser.runJs(jsFormula, values, true));
+// console.log('RUN JS:', parser.runJs(jsFormula, values));
 
 // console.log(parser.replaceWithVariables(sqlQuery, values));

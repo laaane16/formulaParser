@@ -138,7 +138,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example
    * TO_NUMBER(["'1'"]) // => "'1'::numeric"
    */
-  TO_NUMBER: (args: string[]): string => `${args}::numeric`,
+  TO_NUMBER: (args: string[]): string => `(${args})::numeric`,
   SAFE_TO_NUMBER: (args: string[]): string =>
-    `(CASE WHEN ${args} ~ '^\\d+(\\.\\d+)?$' THEN REGEXP_REPLACE(${args},'[^0-9.]+', '', 'g')::numeric ELSE NULL END)`,
+    `(CASE WHEN ${args} ~ '^\\d+(\\.\\d+)?$' THEN (${args})::text::numeric ELSE NULL END)`,
 };

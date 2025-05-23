@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { NUMBER, PROGRESS, STARS } from './fieldTypes';
 import {
   NUMBER_NODE_TYPE,
@@ -41,4 +42,21 @@ export const typesMapperSql: Record<string, string> = {
   [NUMBER_NODE_TYPE]: 'NUMERIC',
   [DATE_NODE_TYPE]: 'TIMESTAMPTZ',
   [BOOLEAN_NODE_TYPE]: 'BOOLEAN',
+};
+
+type CastTypeHandler = (res: unknown) => unknown;
+
+export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
+  [NUMBER_NODE_TYPE]: (res: unknown): number => Number(res),
+  [LITERAL_NODE_TYPE]: (res: unknown): string => String(res),
+  [DATE_NODE_TYPE]: (res: unknown): DateTime =>
+    DateTime.fromISO(String(res), { zone: 'utc' }),
+};
+
+export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
+  [NUMBER_NODE_TYPE]: (res) =>
+    `(CASE WHEN (${res})::text ~ '^\\d+(\\.\\d+)?$' THEN (${res})::text::numeric ELSE NULL END)`,
+  [LITERAL_NODE_TYPE]: (res) => `(${res})::text`,
+  [DATE_NODE_TYPE]: (res) =>
+    `(CASE WHEN (${res})::text ~ '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(Z|[+-]\\d{2}:\\d{2})$' THEN (${res})::text::timestamptz ELSE NULL END)`,
 };

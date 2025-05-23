@@ -145,7 +145,7 @@ describe('execute text funcs', () => {
 
   test('to string', () => {
     const parser = new Parser('TO_STRING(1)');
-    expect(parser.toSql()).toBe('1::text');
+    expect(parser.toSql()).toBe('(1)::text');
   });
   /**
    * TO_STRING(2) -> '2'
