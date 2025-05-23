@@ -15,12 +15,12 @@ describe('sql date funcs', () => {
   //For all funcs in comments {{Поле 1}} = '2001-12-12T00:00:00.000Z', {{Поле 2}} = 2005-01-01T00:00:00.000Z
   test('DATE', () => {
     const parser = new Parser('DATE(2012, 12, 12)');
-    expect(parser.toSql()).toBe('MAKE_DATE(2012, 12, 12)::TIMESTAMP');
+    expect(parser.toSql()).toBe('MAKE_DATE(2012, 12, 12)::TIMESTAMPTZ');
   });
   test('safe DATE', () => {
     const parser = new Parser('DATE(2012, 12, 1)');
     expect(parser.toSql(true)).toBe(
-      `(CASE WHEN 2012 >= 0 AND (12 BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE(2012, 12, 1) + INTERVAL '1 month' - INTERVAL '1 day') >= 1 AND 1 >= 0 THEN MAKE_DATE(2012, 12, 1) ELSE NULL END)::TIMESTAMP`,
+      `(CASE WHEN 2012 >= 0 AND (12 BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE(2012, 12, 1) + INTERVAL '1 month' - INTERVAL '1 day') >= 1 AND 1 >= 0 THEN MAKE_DATE(2012, 12, 1) ELSE NULL END)::TIMESTAMPTZ`,
     );
   });
   /**
@@ -220,7 +220,7 @@ describe('sql date funcs', () => {
 
   test('TODAY', () => {
     const parser = new Parser('TODAY()', fields);
-    expect(parser.toSql()).toBe('CURRENT_DATE::TIMESTAMP');
+    expect(parser.toSql()).toBe('CURRENT_DATE::TIMESTAMPTZ');
   });
   /**
    * TODAY() -> 2025-05-20 00:00:00

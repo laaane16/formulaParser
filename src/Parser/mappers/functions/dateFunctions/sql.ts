@@ -11,10 +11,10 @@ export const dateFunctionsToSqlMap: Record<
    * @returns {string} SQL string.
    */
   DATE: ([year, month, day]) => {
-    return `MAKE_DATE(${year}, ${month}, ${day})::TIMESTAMP`;
+    return `MAKE_DATE(${year}, ${month}, ${day})::TIMESTAMPTZ`;
   },
   SAFE_DATE: ([year, month, day]) => {
-    return `(CASE WHEN ${year} >= 0 AND (${month} BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE(${year}, ${month}, 1) + INTERVAL '1 month' - INTERVAL '1 day') >= ${day} AND ${day} >= 0 THEN MAKE_DATE(${year}, ${month}, ${day}) ELSE NULL END)::TIMESTAMP`;
+    return `(CASE WHEN ${year} >= 0 AND (${month} BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE(${year}, ${month}, 1) + INTERVAL '1 month' - INTERVAL '1 day') >= ${day} AND ${day} >= 0 THEN MAKE_DATE(${year}, ${month}, ${day}) ELSE NULL END)::TIMESTAMPTZ`;
   },
 
   /**
@@ -87,7 +87,7 @@ export const dateFunctionsToSqlMap: Record<
   //  */
   // DATETIME_PARSE: ([str, format]) => {
   //   const getCaseBlock = (frmt: string) =>
-  //     `WHEN '${frmt}' THEN TO_TIMESTAMP(${str}, ${format})`;
+  //     `WHEN '${frmt}' THEN TO_TIMESTAMPTZ(${str}, ${format})`;
 
   //   return `CASE ${format} ${Object.values(DATE_FORMATS_FORMULA)
   //     .map((i) => getCaseBlock(format))
@@ -143,5 +143,5 @@ export const dateFunctionsToSqlMap: Record<
   NOW: () => `NOW()`,
 
   /** Returns the current date with timestamp. */
-  TODAY: () => `CURRENT_DATE::TIMESTAMP`,
+  TODAY: () => `CURRENT_DATE::TIMESTAMPTZ`,
 };
