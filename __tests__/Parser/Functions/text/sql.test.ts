@@ -135,7 +135,7 @@ describe('execute text funcs', () => {
   test('join with nums and strs and null', () => {
     const parser = new Parser('JOIN(",", "213", "test", 213, 1 / 0)');
     expect(parser.toSql(true)).toBe(
-      "CONCAT_WS(',', '213','test',213,(CASE WHEN 0 != 0 THEN 1 / 0 ELSE NULL END))",
+      "CONCAT_WS(',', '213','test',213,(CASE WHEN 0 != 0 THEN (1)::numeric / 0 ELSE NULL END))",
     );
   });
   /**

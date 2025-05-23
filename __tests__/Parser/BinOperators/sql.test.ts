@@ -58,14 +58,16 @@ describe('Binary operators to sql', () => {
     const parser = new Parser('1 + 1 / 0', variables);
     const sqlFormula = parser.toSql(true);
 
-    expect(sqlFormula).toBe('1 + (CASE WHEN 0 != 0 THEN 1 / 0 ELSE NULL END)'); // null in psql
+    expect(sqlFormula).toBe(
+      '1 + (CASE WHEN 0 != 0 THEN (1)::numeric / 0 ELSE NULL END)',
+    ); // null in psql
   });
   test('plus with str and null', () => {
     const parser = new Parser('"test" + 1 / 0', variables);
     const sqlFormula = parser.toSql(true);
 
     expect(sqlFormula).toBe(
-      `CONCAT('test'::text, (CASE WHEN 0 != 0 THEN 1 / 0 ELSE NULL END)::text)`,
+      `CONCAT('test'::text, (CASE WHEN 0 != 0 THEN (1)::numeric / 0 ELSE NULL END)::text)`,
     ); // "test" in psql
   });
 
@@ -113,7 +115,7 @@ describe('Binary operators to sql', () => {
   test('division', () => {
     const parser = new Parser('10 / 3');
     expect(parser.toSql(true)).toBe(
-      '(CASE WHEN 3 != 0 THEN 10 / 3 ELSE NULL END)',
+      '(CASE WHEN 3 != 0 THEN (10)::numeric / 3 ELSE NULL END)',
     );
   });
   /**

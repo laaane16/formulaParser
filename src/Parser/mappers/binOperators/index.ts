@@ -65,7 +65,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       jsSafeFn: (left, right) =>
         `(function(){if (${right} === 0) return null; return ${left} / ${right}})()`,
       sqlSafeFn: (left, right) =>
-        `(CASE WHEN ${right} != 0 THEN ${left} / ${right} ELSE NULL END)`,
+        `(CASE WHEN ${right} != 0 THEN (${left})::numeric / ${right} ELSE NULL END)`,
     },
   ],
   REMAINDER: [
