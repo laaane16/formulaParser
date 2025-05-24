@@ -111,7 +111,7 @@ export class FormulaError extends Error {
     throw new FormulaError(
       `On the position ${position} expected ${name}`,
       'missingRequiredConstruction',
-      [position],
+      [position, name],
     );
   }
 
