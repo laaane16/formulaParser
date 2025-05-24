@@ -11,7 +11,7 @@ import { isNil } from './lib/isNil';
 import { removePrefixSuffix } from './lib/removePrefixSuffix';
 import { validateResultJs } from './lib/valiadateResultJs';
 import { validateReplacedVariables } from './lib/validateReplacedVariables';
-import { NodeTypesValues } from './constants/nodeTypes';
+import { NodeTypesValues, NUMBER_NODE_TYPE } from './constants/nodeTypes';
 import {
   JS_CAST_TYPES,
   SQL_CAST_TYPES,
@@ -246,7 +246,7 @@ export default class Parser {
         if (!Number.isNaN(res)) {
           return res;
         }
-        break;
+        return null;
       case 'string':
         return res;
       case 'object':
@@ -283,7 +283,7 @@ export default class Parser {
 //   some: 5000,
 // };
 
-// const expression = '{{1}} / 1 + 300';
+// const expression = 'DATE(2025, 1, 1)';
 
 // const parser = new Parser(expression, variables);
 
