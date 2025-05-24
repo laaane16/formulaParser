@@ -853,7 +853,7 @@ export default class Parser {
         return `${traverse(n.left)} ${n.operator.text} ${traverse(n.right)}`;
       }
       if (n instanceof IfStatementNode) {
-        return `${n.ifToken.text}(${traverse(n.test)}, ${traverse(n.consequent)} ${traverse(n.alternate)})`;
+        return `${n.ifToken.text}(${traverse(n.test)}, ${traverse(n.consequent)}, ${traverse(n.alternate)})`;
       }
       if (n instanceof FunctionNode) {
         return `${n.func.text}(${n.args.map((i) => traverse(i))})`;
