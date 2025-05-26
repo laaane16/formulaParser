@@ -85,12 +85,12 @@ export const dateFunctionsToJsMap: Record<
     const jsonLuxonFormats = JSON.stringify(DATE_FORMATS_LUXON);
 
     return `(function(){
-    let preparedFormat = ${format};
+    let preparedFormat = "'" + ${format}.replaceAll(" ", "' '") + "'";
     Object.entries(${jsonFormulaFormats}).forEach(
       ([key, value]) => {
-        const matches = ${format}.match(new RegExp(value, 'g'));
+        const matches = preparedFormat.match(new RegExp(\`'\${value}'\`, 'g'));
         if (matches && matches.length > 0) {
-          preparedFormat = ${format}.replaceAll(value, ${jsonLuxonFormats}[key]);
+          preparedFormat = preparedFormat.replaceAll("'" + value + "'", ${jsonLuxonFormats}[key]);
         }
       }
     );
