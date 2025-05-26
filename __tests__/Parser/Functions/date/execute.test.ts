@@ -64,18 +64,18 @@ describe('execute date funcs', () => {
 
     expect(parser.runJs(js, values)).toBe(null);
   });
-  // test('datetime_format', () => {
-  //   const parser = new Parser('DATETIME_FORMAT({{Поле 1}}, "yyyy")', fields);
-  //   const js = parser.toJs(true);
+  test('datetime_format', () => {
+    const parser = new Parser('DATETIME_FORMAT({{Поле 1}}, "YYYY")', fields);
+    const js = parser.toJs(true);
 
-  //   expect(parser.runJs(js, values)).toBe('2024');
-  // });
+    expect(parser.runJs(js, values)).toBe('2024');
+  });
   // // NEED VALIDATION FOR FORMAT IN SAFE MODE
   // test('invalid datetime_format', () => {
   //   const parser = new Parser('DATETIME_FORMAT({{Поле 1}}, "YYYY")', fields);
   //   const js = parser.toJs(true);
 
-  //   expect(parser.runJs(js, values)).toBe('2024');
+  //   expect(() => parser.runJs(js, values)).toThrow();
   // });
   // test('datetime_parse', () => {
   //   const parser = new Parser('DATETIME_PARSE("2012", "yyyy")', fields);

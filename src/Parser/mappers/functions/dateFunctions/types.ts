@@ -16,8 +16,7 @@ export type ValidDateFunctionsNamesWithSafe =
   | 'SAFE_DATEADD'
   | 'SAFE_DATETIME_DIFF'
   | 'DATETIME_DIFF'
-  // | 'DATETIME_FORMAT'
-  // | 'DATETIME_PARSE'
+  | 'DATETIME_FORMAT'
   | 'DAY'
   | 'HOUR'
   | 'IS_AFTER'
@@ -31,6 +30,7 @@ export type ValidDateFunctionsNamesWithSafe =
   | 'WEEKDAY'
   | 'WEEKNUM'
   | 'YEAR';
+// | 'DATETIME_PARSE'
 
 export type ValidDateFunctionsNames = Exclude<
   ValidDateFunctionsNamesWithSafe,

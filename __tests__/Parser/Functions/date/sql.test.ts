@@ -89,11 +89,13 @@ describe('sql date funcs', () => {
    */
 
   // NEED VALIDATE!!!
-  // test('datetime_format', () => {
-  //   const parser = new Parser('DATETIME_FORMAT({{Поле 1}}, "yyyy")', fields);
+  test('datetime_format', () => {
+    const parser = new Parser('DATETIME_FORMAT({{Поле 1}}, "YYYY")', fields);
 
-  //   expect(parser.toSql()).toThrow();
-  // });
+    expect(parser.toSql()).toBe(
+      "TO_CHAR(COALESCE($$VARIABLES['Поле 1'], NULL), 'YYYY')",
+    );
+  });
   // // NEED VALIDATE!!!
   // test('datetime_parse', () => {
   //   const parser = new Parser('DATETIME_PARSE("2012", "yyyy")', fields);

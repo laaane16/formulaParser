@@ -31,13 +31,23 @@ describe('dateFunctionsToJsMap', () => {
     `);
   });
 
-  // test('DATETIME_FORMAT', () => {
-  //   expect(
-  //     dateFunctionsToJsMap.DATETIME_FORMAT(['"2023-01-01"', '"yyyy-MM-dd"']),
-  //   ).toBe(
-  //     `DateTime.fromISO("2023-01-01", { zone: 'utc'}).toFormat("yyyy-MM-dd")`,
-  //   );
-  // });
+  test('DATETIME_FORMAT', () => {
+    expect(
+      dateFunctionsToJsMap.DATETIME_FORMAT(['"2023-01-01"', '"yyyy-MM-dd"']),
+    ).toBe(
+      `(function(){
+    let preparedFormat = "yyyy-MM-dd";
+    Object.entries({"msecond":"MS","second":"SS","minute":"MI","hour12":"HH","hour24":"HH24","year":"YYYY","iweekyear":"kkkk","month":"Month","mon":"Mon","mm":"MM","day":"Day","dy":"Dy","ddd":"DDD","dd":"DD","id":"ID","week":"WW","iweek":"IW"}).forEach(
+      ([key, value]) => {
+        const matches = "yyyy-MM-dd".match(new RegExp(value, 'g'));
+        if (matches && matches.length > 0) {
+          preparedFormat = "yyyy-MM-dd".replaceAll(value, {"msecond":"SSS","second":"uu","minute":"mm","hour12":"hh","hour24":"HH","year":"yyyy","iweekyear":"IYYY","month":"LLLL","mon":"LLL","mm":"LL","day":"cccc","dy":"ccc","ddd":"ooo","dd":"dd","id":"c","week":"W","iweek":"WW"}[key]);
+        }
+      }
+    );
+    return DateTime.fromISO("2023-01-01", { zone: 'utc'}).toFormat(preparedFormat)})()`,
+    );
+  });
 
   // test('DATETIME_PARSE', () => {
   //   expect(
