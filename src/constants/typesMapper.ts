@@ -28,6 +28,7 @@ export const ifTypesMapper: Record<string, string> = {
   [LITERAL_NODE_TYPE + LITERAL_NODE_TYPE]: LITERAL_NODE_TYPE,
   [NUMBER_NODE_TYPE + NUMBER_NODE_TYPE]: NUMBER_NODE_TYPE,
   [DATE_NODE_TYPE + DATE_NODE_TYPE]: DATE_NODE_TYPE,
+  [BOOLEAN_NODE_TYPE + BOOLEAN_NODE_TYPE]: BOOLEAN_NODE_TYPE,
 };
 
 export const typesMapperJs: Record<string, string> = {

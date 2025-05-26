@@ -20,7 +20,7 @@ describe('ifStatementNode special tests', () => {
       'IF(IF(1 == 1, "a", "b") == "a", IF(IF(2 > 1, "z", "c") == "c", "q", "w"), "lose")',
     );
     expect(parser.toSql()).toBe(
-      "(CASE WHEN (CASE WHEN 1 = 1 THEN ('a')::text ELSE ('b')::text END)::TEXT = 'a' THEN ((CASE WHEN (CASE WHEN 2 > 1 THEN ('z')::text ELSE ('c')::text END)::TEXT = 'c' THEN ('q')::text ELSE ('w')::text END))::text ELSE ('lose')::text END)",
+      "(CASE WHEN (CASE WHEN 1 = 1 THEN ('a')::text ELSE ('b')::text END)::TEXT = 'a' THEN ((CASE WHEN (CASE WHEN 2 > 1 THEN ('z')::text ELSE ('c')::text END)::TEXT = 'c' THEN ('q')::text ELSE ('w')::text END)::TEXT)::text ELSE ('lose')::text END)",
     );
   });
 });

@@ -339,6 +339,7 @@ export default class Parser {
     if (node instanceof UnarOperationNode) {
       const operator =
         allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
+      const [operatorType] = this.getReturnType(node);
       const operand = this.stringifyAst(node.operand, format, safe);
 
       if (operator.types.length === 0) {
@@ -346,7 +347,7 @@ export default class Parser {
       }
 
       let isOperandValid = false;
-      const [operatorType] = this.getReturnType(node);
+
       operatorType.forEach((i) => {
         if (operator.types.find((j) => j === i)) {
           isOperandValid = true;
@@ -387,11 +388,12 @@ export default class Parser {
       FormulaError.unexpectedDataType(node.operator.pos, node.operator.text);
     }
     if (node instanceof IfStatementNode) {
+      const [consequentType] = this.getReturnType(node.consequent);
+      const [alternateType] = this.getReturnType(node.alternate);
       const test = this.stringifyAst(node.test, format, safe);
       const consequent = this.stringifyAst(node.consequent, format, safe);
       const alternate = this.stringifyAst(node.alternate, format, safe);
-      const [consequentType] = this.getReturnType(node.consequent);
-      const [alternateType] = this.getReturnType(node.alternate);
+
       if (consequentType.size !== 1 || alternateType.size !== 1) {
         throw new Error('Failed cast data types try change expression');
       }
@@ -399,6 +401,7 @@ export default class Parser {
       const preparedConsequentType = Array.from(consequentType)[0];
       const preparedAlternateType = Array.from(alternateType)[0];
 
+      // this hack work because only in one case we expect if is not in the return type cache, this is when in formula is only if (example: IF(1 > 2, 1, 2)), in this case we expect it to be cast correctly above
       const hasTypeInCache = this.getCachedReturnType(node.start, node.end);
       if (!hasTypeInCache) {
         return ifStatementMap[`${format}Fn`](test, consequent, alternate);
@@ -574,12 +577,28 @@ export default class Parser {
         'consequent',
       );
       const alternate = this.getReturnType(node.alternate, node, 'alternate');
-
       if (
         consequent[0].size === 1 &&
         alternate[0].size === 1 &&
         Array.from(consequent[0])[0] !== Array.from(alternate[0])[0]
       ) {
+        if (ctx instanceof UnarOperationNode) {
+          const operator =
+            allUnarOperators[
+              ctx.operator.token.name as ValidUnarOperatorsNames
+            ];
+          const neededTypes = operator.types;
+          const key =
+            Array.from(consequent[0])[0] + Array.from(alternate[0])[0];
+          if (key in ifTypesMapper) {
+            const type = ifTypesMapper[key];
+            if (type && neededTypes.includes(type as NodeTypesValues)) {
+              const res: INodeReturnType = [new Set([type])];
+              this.setReturnTypeInCache(res, node.start, node.end);
+              return res;
+            }
+          }
+        }
         if (ctx instanceof IfStatementNode) {
           let oneArgType;
           if (position === 'alternate') {
@@ -694,7 +713,6 @@ export default class Parser {
       }
 
       alternate[0].forEach((i) => consequent[0].add(i));
-
       this.setReturnTypeInCache(consequent, node.start, node.end);
       return consequent;
     }
