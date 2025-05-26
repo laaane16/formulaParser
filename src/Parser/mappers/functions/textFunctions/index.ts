@@ -202,7 +202,7 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
             type: [],
           },
         ],
-        returnType: [NUMBER_NODE_TYPE],
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.TO_STRING,
         sqlFn: textFunctionsToSqlMap.TO_STRING,
       },
