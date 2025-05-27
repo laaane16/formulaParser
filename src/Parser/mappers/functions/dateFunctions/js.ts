@@ -15,10 +15,10 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning ISO string.
    */
   DATE: ([year, month, day]) => {
-    return `DateTime.fromObject({ day: ${day}, month:  ${month}, year: ${year}}, { zone: 'utc'}).toString()`;
+    return `DateTime.fromObject({ day: ${day}, month:  ${month}, year: ${year}}, { zone: 'utc'}).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`;
   },
   SAFE_DATE: ([year, month, day]) => {
-    return `(function(){const dt = DateTime.fromObject({ day: ${day}, month:  ${month}, year: ${year}}, { zone: 'utc'}); if (dt.isValid) return dt.toString(); return null})()`;
+    return `(function(){const dt = DateTime.fromObject({ day: ${day}, month:  ${month}, year: ${year}}, { zone: 'utc'}); if (dt.isValid) return dt.toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); return null})()`;
   },
 
   /**
@@ -28,7 +28,7 @@ export const dateFunctionsToJsMap: Record<
    */
   DATEADD: ([date, amount, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}'=== ${unit}) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toString();`;
+      return `if ('${val}'=== ${unit}) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);`;
     };
     return `
       (function(){
@@ -39,7 +39,7 @@ export const dateFunctionsToJsMap: Record<
   },
   SAFE_DATEADD([date, amount, unit]) {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}'=== ${unit}) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toString();`;
+      return `if ('${val}'=== ${unit}) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);`;
     };
     return `(function(){
       ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
@@ -182,7 +182,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning current date in ISO.
    */
   NOW: () => {
-    return `DateTime.now().toString()`;
+    return `DateTime.now().toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`;
   },
 
   /**
@@ -190,6 +190,6 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning today's date in ISO.
    */
   TODAY: () => {
-    return `DateTime.now().startOf('day').toString()`;
+    return `DateTime.now().startOf('day').toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`;
   },
 };

@@ -3,14 +3,14 @@ import { dateFunctionsToJsMap } from '../../../../src/Parser/mappers/functions/d
 describe('dateFunctionsToJsMap', () => {
   test('DATE', () => {
     expect(dateFunctionsToJsMap.DATE(['2023', '12', '12'])).toBe(
-      `DateTime.fromObject({ day: 12, month:  12, year: 2023}, { zone: 'utc'}).toString()`,
+      `DateTime.fromObject({ day: 12, month:  12, year: 2023}, { zone: 'utc'}).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
     );
   });
 
   test('DATEADD', () => {
     expect(dateFunctionsToJsMap.DATEADD(['"2023-01-01"', '3', '"days"'])).toBe(`
       (function(){
-        if ('second'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toString(); if ('minute'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toString(); if ('hour'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toString(); if ('day'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toString(); if ('week'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toString(); if ('month'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toString(); if ('year'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toString();
+        if ('second'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('minute'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('hour'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('day'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('week'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('month'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('year'=== "days") return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);
         throw '';
       })()
     `);
@@ -126,12 +126,14 @@ describe('dateFunctionsToJsMap', () => {
   });
 
   test('NOW', () => {
-    expect(dateFunctionsToJsMap.NOW([])).toBe(`DateTime.now().toString()`);
+    expect(dateFunctionsToJsMap.NOW([])).toBe(
+      `DateTime.now().toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
+    );
   });
 
   test('TODAY', () => {
     expect(dateFunctionsToJsMap.TODAY([])).toBe(
-      `DateTime.now().startOf('day').toString()`,
+      `DateTime.now().startOf('day').toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
     );
   });
 });
