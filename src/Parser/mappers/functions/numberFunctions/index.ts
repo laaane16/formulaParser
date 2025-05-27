@@ -110,9 +110,6 @@ export const numberFunctions: Record<
         {
           type: [NUMBER_NODE_TYPE],
         },
-        {
-          type: [NUMBER_NODE_TYPE],
-        },
       ],
       returnType: [NUMBER_NODE_TYPE],
       jsFn: numberFunctionsToJsMap.SQRT,

@@ -156,6 +156,14 @@ describe('function node errors', () => {
     );
   });
 
+  test('DATE should has 3 args', () => {
+    const code = 'DATE(10, 1)';
+
+    expect(() => stringifyAstToSql(code)).toThrow(
+      'Invalid arguments count in DATE function at the position 0',
+    );
+  });
+
   test('function CONCAT can’t be without params', () => {
     const code = `CONCAT()`;
 

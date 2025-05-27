@@ -442,6 +442,13 @@ export default class Parser {
         });
 
         const neededFunc = currentFunction[idx];
+        const requiredArgsCount = neededFunc.args.filter(
+          (i) => i.required === true || i.required === undefined,
+        );
+        if (requiredArgsCount.length > node.args.length) {
+          FormulaError.invalidArgumentsCount(node.start, node.name);
+        }
+
         if (isSafeFunction(neededFunc) && safe) {
           const safeFn = neededFunc[`${format}SafeFn`];
 

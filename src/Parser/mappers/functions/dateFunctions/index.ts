@@ -220,7 +220,6 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
           {
             type: [DATE_NODE_TYPE],
           },
-          { type: [LITERAL_NODE_TYPE], required: false },
         ],
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.WEEKDAY,
@@ -233,7 +232,6 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
           {
             type: [DATE_NODE_TYPE],
           },
-          { type: [LITERAL_NODE_TYPE], required: false },
         ],
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.WEEKNUM,

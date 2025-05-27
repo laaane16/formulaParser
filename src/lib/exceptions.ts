@@ -76,6 +76,20 @@ export class FormulaError extends Error {
   }
 
   /**
+   * Throws an error when in functions arguments list incorrect args count.
+   * @param {number} position - The position of the syntax error.
+   * @param {string} funcName - Function name
+   * @throws {FormulaError}
+   */
+  static invalidArgumentsCount(position: number, funcName: string): never {
+    throw new FormulaError(
+      `Invalid arguments count in ${funcName} function at the position ${position}`,
+      'invalidArgumentsCount',
+      [position, funcName],
+    );
+  }
+
+  /**
    * Throws an error when a function argument list is expected but missing.
    * @param {number} position - The position where arguments are expected.
    * @throws {FormulaError}
