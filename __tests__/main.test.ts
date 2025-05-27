@@ -103,4 +103,9 @@ describe('Parser', () => {
     const replaced = parser.replaceWithVariables(sql, values);
     expect(replaced).toBe('1111 + 3');
   });
+
+  it('should throw error if expression has some code strings.', () => {
+    const parser = new Parser('"test" 123');
+    expect(() => parser.toJs()).toThrow(`Invalid syntax at the position 7`);
+  });
 });

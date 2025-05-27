@@ -66,6 +66,9 @@ export default class Parser {
     const root = new StatementsNode(statementEnd);
 
     while (this.pos < this.tokens.length) {
+      if (root.codeStrings.length > 0) {
+        FormulaError.syntaxError(this.tokens[this.pos].pos);
+      }
       const codeStringNode = this.parseExpression();
       // if we need make formula multiline, uncomment this string and add in tokens symbol, which mean end of line
       // this.require(END_LINE_SYMBOL)
