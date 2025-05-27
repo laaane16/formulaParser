@@ -231,7 +231,7 @@ export default class Parser {
     const resultType = typesMapper[to as keyof typeof typesMapper] || to;
     if (format === 'js') {
       const res = JS_CAST_TYPES[resultType](result);
-      const preparedResult = this._validateJsResult(res);
+      const preparedResult = this._prepareJsResult(res);
       return preparedResult;
     }
     if (format === 'sql') {
@@ -240,7 +240,7 @@ export default class Parser {
     }
   }
 
-  private _validateJsResult(res: unknown): unknown {
+  private _prepareJsResult(res: unknown): unknown {
     switch (typeof res) {
       case 'number':
         if (!Number.isNaN(res)) {
@@ -251,7 +251,7 @@ export default class Parser {
         return res;
       case 'object':
         if (res instanceof DateTime && res.isValid) {
-          return res.toString();
+          return res.toFormat('yyyy-LL-dd HH:mm:ssZZZ').slice(0, -2);
         }
         return null;
       default:
