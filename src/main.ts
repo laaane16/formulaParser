@@ -1,28 +1,28 @@
 import { DateTime } from 'luxon';
-import ExpressionNode from './AST/ExpressionNode';
-import StatementsNode from './AST/StatementsNode';
+
 import Lexer from './Lexer';
 import ParserCore from './Parser';
+
+import ExpressionNode from './AST/ExpressionNode';
+import StatementsNode from './AST/StatementsNode';
+
 import { defaultVarAttr } from './constants/defaults';
+import { NodeTypesValues } from './constants/nodeTypes';
 import { FORMATS } from './constants/formats';
 import { FIND_VARIABLES_REGEXP } from './constants/templates';
-import { FormulaError } from './lib/exceptions';
-import { isNil } from './lib/isNil';
-import { removePrefixSuffix } from './lib/removePrefixSuffix';
-import { validateResultJs } from './lib/valiadateResultJs';
-import { validateReplacedVariables } from './lib/validateReplacedVariables';
-import { NodeTypesValues, NUMBER_NODE_TYPE } from './constants/nodeTypes';
 import {
   JS_CAST_TYPES,
   SQL_CAST_TYPES,
   typesMapper,
 } from './constants/typesMapper';
 
-export interface IVar {
-  type: string;
-  id?: string;
-  [key: string]: unknown;
-}
+import { FormulaError } from './lib/exceptions';
+import { isNil } from './lib/isNil';
+import { removePrefixSuffix } from './lib/removePrefixSuffix';
+import { validateResultJs } from './lib/valiadateResultJs';
+import { validateReplacedVariables } from './lib/validateReplacedVariables';
+
+import { IVar } from './types';
 
 /**
  * The `Parser` class is responsible for converting a JavaScript-like expression into an SQL or JS expression.

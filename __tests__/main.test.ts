@@ -1,5 +1,5 @@
 import Parser from '../src/main';
-import { IVar } from '../src/main';
+import { IVar } from '../src/types';
 
 const mockFields: Record<string, IVar> = {
   'Поле 1': {

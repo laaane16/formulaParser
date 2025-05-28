@@ -1,5 +1,5 @@
 import { stringifyAstToSql } from '../../helpers/stringifyAstToSql';
-import { IVar } from '../../../src/main';
+import { IVar } from '../../../src/types';
 
 const fields: Record<string, IVar> = {
   'Поле 1': {

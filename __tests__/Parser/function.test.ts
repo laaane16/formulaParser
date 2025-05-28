@@ -1,5 +1,4 @@
 import { stringifyAstToSql } from '../helpers/stringifyAstToSql';
-import { stringifyAstToJs } from '../helpers/stringifyAstToJs';
 
 describe('function node to sql', () => {
   test('function CONCAT can work with string', () => {

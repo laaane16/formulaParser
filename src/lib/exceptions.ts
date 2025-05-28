@@ -172,6 +172,19 @@ export class FormulaError extends Error {
   }
 
   /**
+   * Throws an error when an if statement has args, which psql can`t cast.
+   * @param {number} position - The position in the formula.
+   * @throws {FormulaError}
+   */
+  static invalidIfStatement(position: number): never {
+    throw new FormulaError(
+      `Failed cast data types in IF at the position ${position}`,
+      'invalidIfStatement',
+      [position],
+    );
+  }
+
+  /**
    * Throws an error when a field is not found.
    * @param {number} position - The position in the formula.
    * @param {string} fieldName - The name of the missing field.

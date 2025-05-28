@@ -1,4 +1,5 @@
-import Parser, { IVar } from '../../src/main';
+import Parser from '../../src/main';
+import { IVar } from '../../src/types';
 
 export const stringifyAstToJs = (
   code: string,
