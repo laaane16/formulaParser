@@ -140,5 +140,5 @@ export const numberFunctionsToSqlMap: Record<
    */
   TO_NUMBER: (args: string[]): string => `(${args})::numeric`,
   SAFE_TO_NUMBER: (args: string[]): string =>
-    `(CASE WHEN ${args} ~ '^\\d+(\\.\\d+)?$' THEN (${args})::text::numeric ELSE NULL END)`,
+    `(CASE WHEN ${args} ~ '^[-]*\\d+(\\.\\d+)?$' THEN (${args})::text::numeric ELSE NULL END)`,
 };
