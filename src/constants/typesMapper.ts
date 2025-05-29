@@ -51,7 +51,7 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
   [NUMBER_NODE_TYPE]: (res: unknown): number => Number(res),
   [LITERAL_NODE_TYPE]: (res: unknown): string => String(res),
   [DATE_NODE_TYPE]: (res: unknown): DateTime =>
-    DateTime.fromISO(String(res), { zone: 'utc' }),
+    DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
 };
 
 export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {

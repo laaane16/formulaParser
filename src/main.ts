@@ -296,3 +296,5 @@ export default class Parser {
 // console.log('RUN JS:', parser.runJs(jsFormula, values));
 
 // console.log(parser.replaceWithVariables(sqlQuery, values));
+
+// console.log(parser.castResultType(parser.runJs(jsFormula), 'js', 'date'));
