@@ -34,7 +34,8 @@ export const ifTypesMapper: Record<string, string> = {
 export const typesMapperJs: Record<string, string> = {
   [LITERAL_NODE_TYPE]: 'String',
   [NUMBER_NODE_TYPE]: 'Number',
-  [DATE_NODE_TYPE]: 'Date',
+  // date returns only in one case which all args are date
+  [DATE_NODE_TYPE]: '',
   [BOOLEAN_NODE_TYPE]: 'Boolean',
 };
 

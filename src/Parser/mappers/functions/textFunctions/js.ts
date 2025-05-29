@@ -187,5 +187,5 @@ export const textFunctionsToJsMap: Record<
    * @example
    * TOSTRING([1]) // => 'String(1)'
    */
-  TO_STRING: ([val]) => `String(${val})`,
+  TO_STRING: ([val]) => `String(${val} ?? "")`,
 };

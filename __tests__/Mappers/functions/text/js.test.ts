@@ -109,6 +109,6 @@ describe('textFunctionsToJsMap', () => {
 
   test('TO_STRING', () => {
     const result = textFunctionsToJsMap.TO_STRING(['1']);
-    expect(result).toBe('String(1)');
+    expect(result).toBe('String(1 ?? "")');
   });
 });
