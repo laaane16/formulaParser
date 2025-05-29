@@ -250,6 +250,9 @@ export default class Parser {
       case 'string':
         return res;
       case 'object':
+        if (res === null) {
+          return null;
+        }
         if (res instanceof DateTime && res.isValid) {
           return res.toFormat('yyyy-LL-dd HH:mm:ssZZZ').slice(0, -2);
         }

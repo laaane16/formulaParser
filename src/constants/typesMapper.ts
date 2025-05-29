@@ -48,8 +48,10 @@ export const typesMapperSql: Record<string, string> = {
 type CastTypeHandler = (res: unknown) => unknown;
 
 export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
-  [NUMBER_NODE_TYPE]: (res: unknown): number => Number(res),
-  [LITERAL_NODE_TYPE]: (res: unknown): string => String(res),
+  [NUMBER_NODE_TYPE]: (res: unknown): number | null =>
+    res === null ? null : Number(res),
+  [LITERAL_NODE_TYPE]: (res: unknown): string | null =>
+    res === null ? null : String(res),
   [DATE_NODE_TYPE]: (res: unknown): DateTime =>
     DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
 };
