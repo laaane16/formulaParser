@@ -13,9 +13,9 @@ describe('execute text funcs', () => {
     const parser = new Parser('TRIM("leading", "abc" , "ababcd")');
     expect(parser.toSql()).toBe(`
       (CASE
-        WHEN 'leading' = 'leading' THEN TRIM(LEADING 'abc' FROM 'ababcd')
-        WHEN 'leading' = 'trailing' THEN TRIM(TRAILING 'abc' FROM 'ababcd')
-        WHEN 'leading' = 'both' THEN TRIM(BOTH 'abc' FROM 'ababcd')
+        WHEN ('leading') = 'leading' THEN TRIM(LEADING ('abc') FROM ('ababcd'))
+        WHEN ('leading') = 'trailing' THEN TRIM(TRAILING ('abc') FROM ('ababcd'))
+        WHEN ('leading') = 'both' THEN TRIM(BOTH ('abc') FROM ('ababcd'))
         ELSE CAST(1 / 0 AS TEXT)
       END)
     `);
@@ -24,9 +24,9 @@ describe('execute text funcs', () => {
     const parser = new Parser('TRIM("leading", "abc" , "ababcd")');
     expect(parser.toSql(true)).toBe(`
       (CASE
-        WHEN 'leading' = 'leading' THEN TRIM(LEADING 'abc' FROM 'ababcd')
-        WHEN 'leading' = 'trailing' THEN TRIM(TRAILING 'abc' FROM 'ababcd')
-        WHEN 'leading' = 'both' THEN TRIM(BOTH 'abc' FROM 'ababcd')
+        WHEN ('leading') = 'leading' THEN TRIM(LEADING ('abc') FROM ('ababcd'))
+        WHEN ('leading') = 'trailing' THEN TRIM(TRAILING ('abc') FROM ('ababcd'))
+        WHEN ('leading') = 'both' THEN TRIM(BOTH ('abc') FROM ('ababcd'))
         ELSE NULL
       END)
     `);
@@ -44,7 +44,7 @@ describe('execute text funcs', () => {
 
   test('search', () => {
     const parser = new Parser('SEARCH("lo", "Hello")');
-    expect(parser.toSql()).toBe(`POSITION('lo' in 'Hello')`);
+    expect(parser.toSql()).toBe(`POSITION(('lo') in ('Hello'))`);
   });
   /**
    * SEARCH("lo", "Hello") -> 4
@@ -88,7 +88,7 @@ describe('execute text funcs', () => {
   test('substring', () => {
     const parser = new Parser('SUBSTRING("abcdef", 2, 4)');
     expect(parser.toSql()).toBe(
-      "SUBSTRING('abcdef' from (CASE WHEN 2 > 0 THEN 2 ELSE 0 END) for (CASE WHEN 2 > 0 AND 2 > 0 THEN 4 ELSE 0 END))",
+      "SUBSTRING(('abcdef') from (CASE WHEN (2) > 0 THEN (2) ELSE 0 END) for (CASE WHEN (2) > 0 AND (2) > 0 THEN (4) ELSE 0 END))",
     );
   });
   /**
@@ -101,7 +101,7 @@ describe('execute text funcs', () => {
   test('left', () => {
     const parser = new Parser('LEFT("str", 2)');
     expect(parser.toSql()).toBe(
-      "LEFT('str', CASE WHEN 2 > 0 THEN 2 ELSE 0 END)",
+      "LEFT(('str'), CASE WHEN (2) > 0 THEN (2) ELSE 0 END)",
     );
   });
   /**
@@ -112,7 +112,7 @@ describe('execute text funcs', () => {
   test('right', () => {
     const parser = new Parser('RIGHT("str", 2)');
     expect(parser.toSql()).toBe(
-      "RIGHT('str', CASE WHEN 2 > 0 THEN 2 ELSE 0 END)",
+      "RIGHT(('str'), CASE WHEN (2) > 0 THEN (2) ELSE 0 END)",
     );
   });
   /**
@@ -135,7 +135,7 @@ describe('execute text funcs', () => {
   test('join with nums and strs and null', () => {
     const parser = new Parser('JOIN(",", "213", "test", 213, 1 / 0)');
     expect(parser.toSql(true)).toBe(
-      "CONCAT_WS(',', '213','test',213,(CASE WHEN 0 != 0 THEN (1)::numeric / 0 ELSE NULL END))",
+      "CONCAT_WS(',', '213','test',213,(CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END))",
     );
   });
   /**

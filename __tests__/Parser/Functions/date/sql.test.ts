@@ -20,7 +20,7 @@ describe('sql date funcs', () => {
   test('safe DATE', () => {
     const parser = new Parser('DATE(2012, 12, 1)');
     expect(parser.toSql(true)).toBe(
-      `(CASE WHEN 2012 >= 0 AND (12 BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE(2012, 12, 1) + INTERVAL '1 month' - INTERVAL '1 day') >= 1 AND 1 >= 0 THEN MAKE_DATE(2012, 12, 1) ELSE NULL END)::TIMESTAMPTZ`,
+      `(CASE WHEN (2012) >= 0 AND ((12) BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE((2012), (12), 1) + INTERVAL '1 month' - INTERVAL '1 day') >= (1) AND (1) >= 0 THEN MAKE_DATE(2012, 12, 1) ELSE NULL END)::TIMESTAMPTZ`,
     );
   });
   /**
@@ -36,7 +36,7 @@ describe('sql date funcs', () => {
     const parser = new Parser('DATEADD({{Поле 1}}, 10, "month")', fields);
     expect(parser.toSql()).toBe(`
       (CASE
-        WHEN 'month' = 'second' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 second') WHEN 'month' = 'minute' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 minute') WHEN 'month' = 'hour' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 hour') WHEN 'month' = 'day' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 day') WHEN 'month' = 'week' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 week') WHEN 'month' = 'month' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 month') WHEN 'month' = 'year' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 year')
+        WHEN ('month') = 'second' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + INTERVAL  '10 second') WHEN ('month') = 'minute' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + INTERVAL  '10 minute') WHEN ('month') = 'hour' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + INTERVAL  '10 hour') WHEN ('month') = 'day' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + INTERVAL  '10 day') WHEN ('month') = 'week' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + INTERVAL  '10 week') WHEN ('month') = 'month' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + INTERVAL  '10 month') WHEN ('month') = 'year' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + INTERVAL  '10 year')
         ELSE (1 / 0)::text::date
       END)
     `);
@@ -45,7 +45,7 @@ describe('sql date funcs', () => {
     const parser = new Parser('DATEADD({{Поле 1}}, 10, "month")', fields);
     expect(parser.toSql(true)).toBe(`
       (CASE
-        WHEN 'month' = 'second' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 second') WHEN 'month' = 'minute' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 minute') WHEN 'month' = 'hour' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 hour') WHEN 'month' = 'day' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 day') WHEN 'month' = 'week' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 week') WHEN 'month' = 'month' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 month') WHEN 'month' = 'year' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 year')
+        WHEN ('month') = 'second' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 second') WHEN ('month') = 'minute' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 minute') WHEN ('month') = 'hour' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 hour') WHEN ('month') = 'day' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 day') WHEN ('month') = 'week' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 week') WHEN ('month') = 'month' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 month') WHEN ('month') = 'year' THEN (COALESCE($$VARIABLES['Поле 1'], NULL) + INTERVAL  '10 year')
         ELSE NULL
       END)
     `);
@@ -64,7 +64,7 @@ describe('sql date funcs', () => {
     );
     expect(parser.toSql()).toBe(`
       (CASE
-        WHEN 'month' = 'second' THEN EXTRACT(second FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'minute' THEN EXTRACT(minute FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'hour' THEN EXTRACT(hour FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'day' THEN EXTRACT(day FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'week' THEN EXTRACT(week FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'month' THEN EXTRACT(month FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'year' THEN EXTRACT(year FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL)))
+        WHEN ('month') = 'second' THEN EXTRACT(second FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'minute' THEN EXTRACT(minute FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'hour' THEN EXTRACT(hour FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'day' THEN EXTRACT(day FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'week' THEN EXTRACT(week FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'month' THEN EXTRACT(month FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'year' THEN EXTRACT(year FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL)))
         ELSE 1 / 0
       END)
     `);
@@ -76,7 +76,7 @@ describe('sql date funcs', () => {
     );
     expect(parser.toSql(true)).toBe(`
       (CASE
-        WHEN 'month' = 'second' THEN EXTRACT(second FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'minute' THEN EXTRACT(minute FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'hour' THEN EXTRACT(hour FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'day' THEN EXTRACT(day FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'week' THEN EXTRACT(week FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'month' THEN EXTRACT(month FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN 'month' = 'year' THEN EXTRACT(year FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL)))
+        WHEN ('month') = 'second' THEN EXTRACT(second FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'minute' THEN EXTRACT(minute FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'hour' THEN EXTRACT(hour FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'day' THEN EXTRACT(day FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'week' THEN EXTRACT(week FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'month' THEN EXTRACT(month FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL))) WHEN ('month') = 'year' THEN EXTRACT(year FROM (COALESCE($$VARIABLES['Поле 1'], NULL) - COALESCE($$VARIABLES['Поле 2'], NULL)))
         ELSE NULL
       END)
     `);

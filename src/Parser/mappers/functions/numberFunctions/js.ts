@@ -54,7 +54,7 @@ export const numberFunctionsToJsMap: Record<
    */
   MOD: ([a, b]: string[]): string => `(${a} % ${b})`,
   SAFE_MOD: ([a, b]: string[]): string =>
-    `(function(){if (${b} === 0) return null; return ${a} % ${b}})()`,
+    `(function(){if ((${b}) === 0) return null; return ${a} % ${b}})()`,
 
   /**
    * @function POWER
@@ -87,7 +87,7 @@ export const numberFunctionsToJsMap: Record<
    */
   SQRT: ([num]: string[]): string => `Math.sqrt(${num})`,
   SAFE_SQRT: ([num]: string[]): string =>
-    `(function(){if (${num} < 0) return null; return Math.sqrt(${num})})()`,
+    `(function(){if ((${num}) < 0) return null; return Math.sqrt(${num})})()`,
 
   /**
    * @function RANDOM

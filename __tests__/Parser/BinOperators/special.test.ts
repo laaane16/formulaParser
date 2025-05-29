@@ -21,20 +21,20 @@ describe('bin operator node to sql', () => {
     const code = `1 + "test"`;
     const result = stringifyAstToSql(code);
 
-    expect(result).toBe(`CONCAT(1::text, 'test'::text)`);
+    expect(result).toBe(`CONCAT((1)::text, ('test')::text)`);
   });
   test('equal with different types', () => {
     const code = '1 == "1"';
     const result = stringifyAstToSql(code);
 
-    expect(result).toBe(`1::text = '1'::text`);
+    expect(result).toBe(`(1)::text = ('1')::text`);
   });
   test('binary operators can work with if', () => {
     const code = 'IF(2 > 1, 1, 0) + IF(2 < 1, 1, 0)';
     const result = stringifyAstToSql(code);
 
     expect(result).toBe(
-      '(CASE WHEN 2 > 1 THEN (1)::text ELSE (0)::text END)::NUMERIC + (CASE WHEN 2 < 1 THEN (1)::text ELSE (0)::text END)::NUMERIC',
+      '(CASE WHEN (2 > 1) THEN (1)::text ELSE (0)::text END)::NUMERIC + (CASE WHEN (2 < 1) THEN (1)::text ELSE (0)::text END)::NUMERIC',
     );
   });
   test('binary operators can work with valid vars, which has equal types', () => {
@@ -47,21 +47,21 @@ describe('bin operator node to sql', () => {
   });
   test('bin operators precedences take into priorities', () => {
     expect(stringifyAstToSql(`1 * 1 + ""`)).toBe(
-      `CONCAT(1 * 1::text, ''::text)`,
+      `CONCAT((1 * 1)::text, ('')::text)`,
     );
   });
   test('binary operators can`t work with IfStatementNode if it may returns different types', () => {
     const code = 'IF(2 > 1, "", 0) + 1';
 
     expect(stringifyAstToSql(code)).toBe(
-      "CONCAT((CASE WHEN 2 > 1 THEN ('')::text ELSE (0)::text END)::TEXT::text, 1::text)",
+      "CONCAT(((CASE WHEN (2 > 1) THEN ('')::text ELSE (0)::text END)::TEXT)::text, (1)::text)",
     );
   });
   test('binary operators can`t work with IfStatementNode if it may returns different types', () => {
     const code = 'IF(2 > 1, 1, IF(1 > 2, 1, "")) + 1';
 
     expect(stringifyAstToSql(code)).toBe(
-      "CONCAT((CASE WHEN 2 > 1 THEN (1)::text ELSE ((CASE WHEN 1 > 2 THEN (1)::text ELSE ('')::text END)::TEXT)::text END)::TEXT::text, 1::text)",
+      "CONCAT(((CASE WHEN (2 > 1) THEN (1)::text ELSE ((CASE WHEN (1 > 2) THEN (1)::text ELSE ('')::text END)::TEXT)::text END)::TEXT)::text, (1)::text)",
     );
   });
 });

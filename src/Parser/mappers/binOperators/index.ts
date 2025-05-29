@@ -19,15 +19,16 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: LITERAL_NODE_TYPE,
       returnType: LITERAL_NODE_TYPE,
-      jsFn: (left, right) => `((${left} ?? '') + (${right} ?? ''))`,
+      jsFn: (left, right) => `(((${left}) ?? '') + ((${right}) ?? ''))`,
       sqlFn: (left, right) => `CONCAT(${left}, ${right})`,
       specialWorkWithNull: true,
     },
     {
       operandType: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
       returnType: LITERAL_NODE_TYPE,
-      jsFn: (left, right) => `(String(${left} ?? '') + String(${right} ?? ''))`,
-      sqlFn: (left, right) => `CONCAT(${left}::text, ${right}::text)`,
+      jsFn: (left, right) =>
+        `(String((${left}) ?? '') + String((${right}) ?? ''))`,
+      sqlFn: (left, right) => `CONCAT((${left})::text, (${right})::text)`,
       specialWorkWithNull: true,
     },
   ],
@@ -35,8 +36,9 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
       returnType: LITERAL_NODE_TYPE,
-      jsFn: (left, right) => `(String(${left} ?? '') + String(${right} ?? ''))`,
-      sqlFn: (left, right) => `CONCAT(${left}::text, ${right}::text)`,
+      jsFn: (left, right) =>
+        `(String((${left}) ?? '') + String((${right}) ?? ''))`,
+      sqlFn: (left, right) => `CONCAT((${left})::text, (${right})::text)`,
       specialWorkWithNull: true,
     },
   ],
@@ -63,9 +65,9 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       jsFn: (left, right) => `${left} / ${right}`,
       sqlFn: (left, right) => `${left} / ${right}`,
       jsSafeFn: (left, right) =>
-        `(function(){if (${right} === 0) return null; return ${left} / ${right}})()`,
+        `(function(){if ((${right}) === 0) return null; return ${left} / ${right}})()`,
       sqlSafeFn: (left, right) =>
-        `(CASE WHEN ${right} != 0 THEN (${left})::numeric / ${right} ELSE NULL END)`,
+        `(CASE WHEN (${right}) != 0 THEN (${left})::numeric / ${right} ELSE NULL END)`,
     },
   ],
   REMAINDER: [
@@ -75,9 +77,9 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       jsFn: (left, right) => `${left} % ${right}`,
       sqlFn: (left, right) => `${left} % ${right}`,
       jsSafeFn: (left, right) =>
-        `(function(){if (${right} === 0) return null; return ${left} % ${right}})()`,
+        `(function(){if ((${right}) === 0) return null; return ${left} % ${right}})()`,
       sqlSafeFn: (left, right) =>
-        `(CASE WHEN ${right} != 0 THEN ${left} % ${right} ELSE NULL END)`,
+        `(CASE WHEN (${right}) != 0 THEN ${left} % ${right} ELSE NULL END)`,
     },
   ],
   POWER: [
@@ -104,9 +106,8 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: null,
       returnType: BOOLEAN_NODE_TYPE,
-      jsFn: (left, right) => `String(${left} ?? '') == String(${right} ?? '')`,
-      sqlFn: (left, right) => `${left}::text = ${right}::text`,
-      specialWorkWithNull: true,
+      jsFn: (left, right) => `String(${left}) == String(${right})`,
+      sqlFn: (left, right) => `(${left})::text = (${right})::text`,
     },
   ],
   NOT_EQUAL: [
@@ -125,9 +126,8 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: null,
       returnType: BOOLEAN_NODE_TYPE,
-      jsFn: (left, right) => `String(${left} ?? '') != String(${right} ?? '')`,
-      sqlFn: (left, right) => `${left}::text != ${right}::text`,
-      specialWorkWithNull: true,
+      jsFn: (left, right) => `String(${left}) != String(${right})`,
+      sqlFn: (left, right) => `(${left})::text != (${right})::text`,
     },
   ],
   GREATER: [
@@ -146,9 +146,8 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: null,
       returnType: BOOLEAN_NODE_TYPE,
-      jsFn: (left, right) => `String(${left} ?? '') > String(${right} ?? '')`,
-      sqlFn: (left, right) => `${left}::text > ${right}::text`,
-      specialWorkWithNull: true,
+      jsFn: (left, right) => `String(${left}) > String(${right})`,
+      sqlFn: (left, right) => `(${left})::text > (${right})::text`,
     },
   ],
   GREATER_OR_EQUAL: [
@@ -167,9 +166,8 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: null,
       returnType: BOOLEAN_NODE_TYPE,
-      jsFn: (left, right) => `String(${left} ?? '') >= String(${right} ?? '')`,
-      sqlFn: (left, right) => `${left}::text >= ${right}::text`,
-      specialWorkWithNull: true,
+      jsFn: (left, right) => `String(${left}) >= String(${right})`,
+      sqlFn: (left, right) => `(${left})::text >= (${right})::text`,
     },
   ],
   LESS: [
@@ -188,9 +186,8 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: null,
       returnType: BOOLEAN_NODE_TYPE,
-      jsFn: (left, right) => `String(${left} ?? '') < String(${right} ?? '')`,
-      sqlFn: (left, right) => `${left}::text < ${right}::text`,
-      specialWorkWithNull: true,
+      jsFn: (left, right) => `String(${left}) < String(${right})`,
+      sqlFn: (left, right) => `(${left})::text < (${right})::text`,
     },
   ],
   LESS_OR_EQUAL: [
@@ -209,9 +206,8 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: null,
       returnType: BOOLEAN_NODE_TYPE,
-      jsFn: (left, right) => `String(${left} ?? '') <= String(${right} ?? '')`,
-      sqlFn: (left, right) => `${left}::text <= ${right}::text`,
-      specialWorkWithNull: true,
+      jsFn: (left, right) => `String(${left}) <= String(${right})`,
+      sqlFn: (left, right) => `(${left})::text <= (${right})::text`,
     },
   ],
   AND: [
@@ -240,12 +236,12 @@ Object.values(allBinOperators).forEach((op) => {
 
     const jsFn = variant.jsFn;
     variant.jsFn = (...args) =>
-      `([${args}].some((i) => i === null) ? null : ${jsFn(...args)})`;
+      `([${args}].some((i) => i === null) ? null : (${jsFn(...args)}))`;
 
     if (isSafeOperator(variant)) {
       const jsSafeFn = variant.jsSafeFn;
       variant.jsSafeFn = (...args) =>
-        `([${args}].some((i) => i === null) ? null : ${jsSafeFn(...args)})`;
+        `([${args}].some((i) => i === null) ? null : (${jsSafeFn(...args)}))`;
     }
   });
 });

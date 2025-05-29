@@ -32,18 +32,18 @@ export const textFunctionsToSqlMap: Record<
   TRIM: ([position, chars, str]: string[]): string =>
     `
       (CASE
-        WHEN ${position} = 'leading' THEN TRIM(LEADING ${chars} FROM ${str})
-        WHEN ${position} = 'trailing' THEN TRIM(TRAILING ${chars} FROM ${str})
-        WHEN ${position} = 'both' THEN TRIM(BOTH ${chars} FROM ${str})
+        WHEN (${position}) = 'leading' THEN TRIM(LEADING (${chars}) FROM (${str}))
+        WHEN (${position}) = 'trailing' THEN TRIM(TRAILING (${chars}) FROM (${str}))
+        WHEN (${position}) = 'both' THEN TRIM(BOTH (${chars}) FROM (${str}))
         ELSE CAST(1 / 0 AS TEXT)
       END)
     `,
   SAFE_TRIM: ([position, chars, str]: string[]): string => {
     return `
       (CASE
-        WHEN ${position} = 'leading' THEN TRIM(LEADING ${chars} FROM ${str})
-        WHEN ${position} = 'trailing' THEN TRIM(TRAILING ${chars} FROM ${str})
-        WHEN ${position} = 'both' THEN TRIM(BOTH ${chars} FROM ${str})
+        WHEN (${position}) = 'leading' THEN TRIM(LEADING (${chars}) FROM (${str}))
+        WHEN (${position}) = 'trailing' THEN TRIM(TRAILING (${chars}) FROM (${str}))
+        WHEN (${position}) = 'both' THEN TRIM(BOTH (${chars}) FROM (${str}))
         ELSE NULL
       END)
     `;
@@ -59,7 +59,8 @@ export const textFunctionsToSqlMap: Record<
    * @example
    * SEARCH(["'abc'", "'abcde'"]) // => "POSITION('abc' in 'abcde')"
    */
-  SEARCH: ([substr, str]: string[]): string => `POSITION(${substr} in ${str})`,
+  SEARCH: ([substr, str]: string[]): string =>
+    `POSITION((${substr}) in (${str}))`,
 
   /**
    * @function REPLACE
@@ -120,7 +121,7 @@ export const textFunctionsToSqlMap: Record<
    * SUBSTRING(["'abcdef'", '2', '3']) // => "SUBSTRING('abcdef' from 2 for 3)"
    */
   SUBSTRING: (args: string[]): string =>
-    `SUBSTRING(${args[0]} from (CASE WHEN ${args[1]} > 0 THEN ${args[1]} ELSE 0 END) for (CASE WHEN ${args[1]} > 0 AND ${args[1]} > 0 THEN ${args[2]} ELSE 0 END))`,
+    `SUBSTRING((${args[0]}) from (CASE WHEN (${args[1]}) > 0 THEN (${args[1]}) ELSE 0 END) for (CASE WHEN (${args[1]}) > 0 AND (${args[1]}) > 0 THEN (${args[2]}) ELSE 0 END))`,
 
   /**
    * @function LEFT
@@ -133,7 +134,7 @@ export const textFunctionsToSqlMap: Record<
    * LEFT(["'abcdef'", "3"]) // => "LEFT('abcdef', 3)"
    */
   LEFT: (args: string[]): string =>
-    `LEFT(${args[0]}, CASE WHEN ${args[1]} > 0 THEN ${args[1]} ELSE 0 END)`,
+    `LEFT((${args[0]}), CASE WHEN (${args[1]}) > 0 THEN (${args[1]}) ELSE 0 END)`,
 
   /**
    * @function RIGHT
@@ -146,7 +147,7 @@ export const textFunctionsToSqlMap: Record<
    * RIGHT(["'abcdef'", "2"]) // => "RIGHT('abcdef', 2)"
    */
   RIGHT: (args: string[]): string =>
-    `RIGHT(${args[0]}, CASE WHEN ${args[1]} > 0 THEN ${args[1]} ELSE 0 END)`,
+    `RIGHT((${args[0]}), CASE WHEN (${args[1]}) > 0 THEN (${args[1]}) ELSE 0 END)`,
 
   /**
    * @function LEN

@@ -49,7 +49,7 @@ export const numberFunctionsToSqlMap: Record<
    */
   MOD: ([a, b]: string[]): string => `MOD(${a}, ${b})`,
   SAFE_MOD: ([a, b]: string[]): string =>
-    `(CASE WHEN ${b} != 0 THEN MOD(${a}, ${b}) ELSE NULL END)`,
+    `(CASE WHEN (${b}) != 0 THEN MOD(${a}, ${b}) ELSE NULL END)`,
 
   /**
    * @function POWER
@@ -97,7 +97,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example
    * SUM(['1','2']) // => '1 + 2'
    */
-  SUM: (args: string[]): string => `(${args.join(' + ')})`,
+  SUM: (args: string[]): string => `((${args.join(') + (')}))`,
 
   /**
    * @function AVERAGE
@@ -108,7 +108,7 @@ export const numberFunctionsToSqlMap: Record<
    * AVERAGE(['1','2']) // => '(1 + 2) / 2'
    */
   AVERAGE: (args: string[]): string =>
-    `((${args.join(' + ')}) / ${args.length})`,
+    `(((${args.join(') + (')})) / (${args.length}))`,
 
   /**
    * @function MAX
@@ -140,5 +140,5 @@ export const numberFunctionsToSqlMap: Record<
    */
   TO_NUMBER: (args: string[]): string => `(${args})::numeric`,
   SAFE_TO_NUMBER: (args: string[]): string =>
-    `(CASE WHEN ${args} ~ '^[-]*\\d+(\\.\\d+)?$' THEN (${args})::text::numeric ELSE NULL END)`,
+    `(CASE WHEN (${args})::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN (${args})::text::numeric ELSE NULL END)`,
 };

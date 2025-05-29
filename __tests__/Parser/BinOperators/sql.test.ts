@@ -28,7 +28,7 @@ describe('Binary operators to sql', () => {
   });
   test('plus correct with str and num', () => {
     const parser = new Parser(`1 + "1"`);
-    expect(parser.toSql()).toBe(`CONCAT(1::text, '1'::text)`); // '11' in psql
+    expect(parser.toSql()).toBe(`CONCAT((1)::text, ('1')::text)`); // '11' in psql
   });
   test('plus with null and num', () => {
     const parser = new Parser('1 + {{field1}}', variables);
@@ -51,7 +51,7 @@ describe('Binary operators to sql', () => {
     const sqlFormula = parser.toSql();
 
     expect(parser.replaceWithVariables(sqlFormula, values)).toBe(
-      `CONCAT(COALESCE(null, 0)::text, COALESCE(null, '')::text)`, // '0' in psql
+      `CONCAT((COALESCE(null, 0))::text, (COALESCE(null, ''))::text)`, // '0' in psql
     );
   });
   test('plus with null', () => {
@@ -59,7 +59,7 @@ describe('Binary operators to sql', () => {
     const sqlFormula = parser.toSql(true);
 
     expect(sqlFormula).toBe(
-      '1 + (CASE WHEN 0 != 0 THEN (1)::numeric / 0 ELSE NULL END)',
+      '1 + (CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END)',
     ); // null in psql
   });
   test('plus with str and null', () => {
@@ -67,14 +67,14 @@ describe('Binary operators to sql', () => {
     const sqlFormula = parser.toSql(true);
 
     expect(sqlFormula).toBe(
-      `CONCAT('test'::text, (CASE WHEN 0 != 0 THEN (1)::numeric / 0 ELSE NULL END)::text)`,
+      `CONCAT(('test')::text, ((CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END))::text)`,
     ); // "test" in psql
   });
 
   // CONCATENATION
   test('concatenation correct with nums', () => {
     const parser = new Parser('1 & 1');
-    expect(parser.toSql()).toBe('CONCAT(1::text, 1::text)');
+    expect(parser.toSql()).toBe('CONCAT((1)::text, (1)::text)');
   });
   /**
    * In psql results are:
@@ -115,7 +115,7 @@ describe('Binary operators to sql', () => {
   test('division', () => {
     const parser = new Parser('10 / 3');
     expect(parser.toSql(true)).toBe(
-      '(CASE WHEN 3 != 0 THEN (10)::numeric / 3 ELSE NULL END)',
+      '(CASE WHEN (3) != 0 THEN (10)::numeric / 3 ELSE NULL END)',
     );
   });
   /**
@@ -130,7 +130,7 @@ describe('Binary operators to sql', () => {
   test('remainder', () => {
     const parser = new Parser('10 % 3');
     expect(parser.toSql(true)).toBe(
-      '(CASE WHEN 3 != 0 THEN 10 % 3 ELSE NULL END)',
+      '(CASE WHEN (3) != 0 THEN 10 % 3 ELSE NULL END)',
     );
   });
   /**

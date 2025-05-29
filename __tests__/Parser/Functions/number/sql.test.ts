@@ -40,7 +40,7 @@ describe('number funcs', () => {
   test('mod safe', () => {
     const parser = new Parser('MOD(10, 3)');
     expect(parser.toSql(true)).toBe(
-      `(CASE WHEN 3 != 0 THEN MOD(10, 3) ELSE NULL END)`,
+      `(CASE WHEN (3) != 0 THEN MOD(10, 3) ELSE NULL END)`,
     );
   });
   /**
@@ -95,7 +95,7 @@ describe('number funcs', () => {
 
   test('sum', () => {
     const parser = new Parser('SUM(1,2,3,4,5)');
-    expect(parser.toSql()).toBe('(1 + 2 + 3 + 4 + 5)');
+    expect(parser.toSql()).toBe('((1) + (2) + (3) + (4) + (5))');
   });
   /**
    * return 15 in psql
@@ -103,7 +103,7 @@ describe('number funcs', () => {
 
   test('average', () => {
     const parser = new Parser('AVERAGE(1,2,3,4,5)');
-    expect(parser.toSql()).toBe('((1 + 2 + 3 + 4 + 5) / 5)');
+    expect(parser.toSql()).toBe('(((1) + (2) + (3) + (4) + (5)) / (5))');
   });
   /**
    * return 3 in psql
@@ -132,7 +132,7 @@ describe('number funcs', () => {
   test('safe to_number', () => {
     const parser = new Parser('TO_NUMBER("123")');
     expect(parser.toSql(true)).toBe(
-      `(CASE WHEN '123' ~ '^[-]*\\d+(\\.\\d+)?$' THEN ('123')::text::numeric ELSE NULL END)`,
+      `(CASE WHEN ('123')::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN ('123')::text::numeric ELSE NULL END)`,
     );
   });
   /**

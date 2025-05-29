@@ -31,26 +31,26 @@ export const textFunctionsToJsMap: Record<
    */
   TRIM: ([position, chars, str]: string[]): string => {
     return `(function(){
-      const pattern = ${chars}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
-      if (${position} === 'leading') {
-        return ${str}.replace(new RegExp('^[' + pattern + ']+'), '');
-      } else if (${position} === 'trailing') {
-        return ${str}.replace(new RegExp('[' + pattern + ']+$'), '');
-      } else if (${position} === 'both') {
-        return ${str}.replace(new RegExp('^[' + pattern + ']+|[' + pattern + ']+$', 'g'), '');
+      const pattern = (${chars}).replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
+      if ((${position}) === 'leading') {
+        return (${str}).replace(new RegExp('^[' + pattern + ']+'), '');
+      } else if ((${position}) === 'trailing') {
+        return (${str}).replace(new RegExp('[' + pattern + ']+$'), '');
+      } else if ((${position}) === 'both') {
+        return (${str}).replace(new RegExp('^[' + pattern + ']+|[' + pattern + ']+$', 'g'), '');
       }
       throw '';
     })()`;
   },
   SAFE_TRIM([position, chars, str]: string[]) {
     return `(function(){
-      const pattern = ${chars}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
-      if (${position} === 'leading') {
-        return ${str}.replace(new RegExp('^[' + pattern + ']+'), '');
-      } else if (${position} === 'trailing') {
-        return ${str}.replace(new RegExp('[' + pattern + ']+$'), '');
-      } else if (${position} === 'both') {
-        return ${str}.replace(new RegExp('^[' + pattern + ']+|[' + pattern + ']+$', 'g'), '');
+      const pattern = (${chars}).replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
+      if ((${position}) === 'leading') {
+        return (${str}).replace(new RegExp('^[' + pattern + ']+'), '');
+      } else if ((${position}) === 'trailing') {
+        return (${str}).replace(new RegExp('[' + pattern + ']+$'), '');
+      } else if ((${position}) === 'both') {
+        return (${str}).replace(new RegExp('^[' + pattern + ']+|[' + pattern + ']+$', 'g'), '');
       }
       return null;
     })()`;
@@ -67,7 +67,7 @@ export const textFunctionsToJsMap: Record<
    * SEARCH(['"lo"', '"Hello"']) // => '"Hello".indexOf("lo") + 1'
    */
   SEARCH: (args: string[]): string => {
-    return `(${args[1]}.indexOf(${args[0]}) + 1)`;
+    return `((${args[1]}).indexOf(${args[0]}) + 1)`;
   },
 
   /**
@@ -82,7 +82,7 @@ export const textFunctionsToJsMap: Record<
    * REPLACE(['"banana"', '"a"', '"o"']) // => '"banana".replace(/a/g, "o")'
    */
   REPLACE: ([str, search, replace]: string[]): string =>
-    `(${search}.length > 0 ? ${str}.replace(new RegExp(${search}.replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&'), 'g'), ${replace}) : ${str})`,
+    `((${search}).length > 0 ? (${str}).replace(new RegExp((${search}).replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&'), 'g'), ${replace}) : ${str})`,
 
   /**
    * @function LOWER
@@ -93,7 +93,7 @@ export const textFunctionsToJsMap: Record<
    * @example
    * LOWER(['"HELLO"']) // => '"HELLO".toLowerCase()'
    */
-  LOWER: ([str]: string[]): string => `${str}.toLowerCase()`,
+  LOWER: ([str]: string[]): string => `(${str}).toLowerCase()`,
 
   /**
    * @function UPPER
@@ -104,7 +104,7 @@ export const textFunctionsToJsMap: Record<
    * @example
    * UPPER(['"hello"']) // => '"hello".toUpperCase()'
    */
-  UPPER: ([str]: string[]): string => `${str}.toUpperCase()`,
+  UPPER: ([str]: string[]): string => `(${str}).toUpperCase()`,
 
   /**
    * @function REPEAT
@@ -117,7 +117,7 @@ export const textFunctionsToJsMap: Record<
    * REPEAT(['"x"', "3"]) // => '"x".repeat(3)'
    */
   REPEAT: ([str, count]: string[]): string =>
-    `(${count} >= 0 ? ${str}.repeat(${count}) : '')`,
+    `((${count}) >= 0 ? (${str}).repeat(${count}) : '')`,
 
   /**
    * @function SUBSTRING
@@ -131,7 +131,7 @@ export const textFunctionsToJsMap: Record<
    * SUBSTRING(['"abcdef"', "2", "3"]) // => '"abcdef".slice(1, 1 + 3)'
    */
   SUBSTRING: ([str, start, length]: string[]): string =>
-    `(${str}.slice(${start} > 0 ? ${start} - 1 : 0, ${start} > 0 && ${length} > 0? ${start} +  ${length}  - 1 : 0))`,
+    `((${str}).slice((${start}) > 0 ? (${start}) - 1 : 0, (${start}) > 0 && (${length}) > 0? (${start}) +  (${length}) - 1 : 0))`,
   /**
    * @function LEFT
    * @description Extracts the leftmost characters from a string.
@@ -143,7 +143,7 @@ export const textFunctionsToJsMap: Record<
    * LEFT(['"abcdef"', "2"]) // => '"abcdef".slice(0, 2)'
    */
   LEFT: ([str, count]: string[]): string =>
-    `${str}.slice(0, ${count} > 0 ? ${count} : 0)`,
+    `(${str}).slice(0, (${count}) > 0 ? (${count}) : 0)`,
 
   /**
    * @function RIGHT
@@ -156,7 +156,7 @@ export const textFunctionsToJsMap: Record<
    * RIGHT(['"abcdef"', "3"]) // => '"abcdef".slice(-3)'
    */
   RIGHT: ([str, count]: string[]): string =>
-    `${str}.slice(${count} > 0 ? ${count} * (-1): ${str}.length)`,
+    `(${str}).slice((${count}) > 0 ? (${count}) * (-1): (${str}).length)`,
 
   /**
    * @function LEN
@@ -167,7 +167,7 @@ export const textFunctionsToJsMap: Record<
    * @example
    * LEN(['"hello"']) // => '"hello".length'
    */
-  LEN: ([str]: string[]): string => `${str}.length`,
+  LEN: ([str]: string[]): string => `(${str}).length`,
 
   /**
    * @function JOIN
@@ -187,5 +187,5 @@ export const textFunctionsToJsMap: Record<
    * @example
    * TOSTRING([1]) // => 'String(1)'
    */
-  TO_STRING: ([val]) => `String(${val} ?? "")`,
+  TO_STRING: ([val]) => `String(${val})`,
 };

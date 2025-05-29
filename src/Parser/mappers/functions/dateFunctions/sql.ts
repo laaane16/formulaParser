@@ -14,7 +14,7 @@ export const dateFunctionsToSqlMap: Record<
     return `MAKE_DATE(${year}, ${month}, ${day})::TIMESTAMPTZ`;
   },
   SAFE_DATE: ([year, month, day]) => {
-    return `(CASE WHEN ${year} >= 0 AND (${month} BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE(${year}, ${month}, 1) + INTERVAL '1 month' - INTERVAL '1 day') >= ${day} AND ${day} >= 0 THEN MAKE_DATE(${year}, ${month}, ${day}) ELSE NULL END)::TIMESTAMPTZ`;
+    return `(CASE WHEN (${year}) >= 0 AND ((${month}) BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE((${year}), (${month}), 1) + INTERVAL '1 month' - INTERVAL '1 day') >= (${day}) AND (${day}) >= 0 THEN MAKE_DATE(${year}, ${month}, ${day}) ELSE NULL END)::TIMESTAMPTZ`;
   },
 
   /**
@@ -24,7 +24,7 @@ export const dateFunctionsToSqlMap: Record<
    */
   DATEADD: ([date, amount, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `WHEN ${unit} = '${val}' THEN (${date} + INTERVAL  '${amount} ${val}')`;
+      return `WHEN (${unit}) = '${val}' THEN ((${date}) + INTERVAL  '${amount} ${val}')`;
     };
     return `
       (CASE
@@ -35,7 +35,7 @@ export const dateFunctionsToSqlMap: Record<
   },
   SAFE_DATEADD: ([date, amount, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `WHEN ${unit} = '${val}' THEN (${date} + INTERVAL  '${amount} ${val}')`;
+      return `WHEN (${unit}) = '${val}' THEN (${date} + INTERVAL  '${amount} ${val}')`;
     };
     return `
       (CASE
@@ -51,7 +51,7 @@ export const dateFunctionsToSqlMap: Record<
    */
   DATETIME_DIFF: ([end, start, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `WHEN ${unit} = '${val}' THEN EXTRACT(${val} FROM (${end} - ${start}))`;
+      return `WHEN (${unit}) = '${val}' THEN EXTRACT(${val} FROM (${end} - ${start}))`;
     };
     return `
       (CASE
@@ -62,7 +62,7 @@ export const dateFunctionsToSqlMap: Record<
   },
   SAFE_DATETIME_DIFF: ([end, start, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `WHEN ${unit} = '${val}' THEN EXTRACT(${val} FROM (${end} - ${start}))`;
+      return `WHEN (${unit}) = '${val}' THEN EXTRACT(${val} FROM (${end} - ${start}))`;
     };
     return `
       (CASE

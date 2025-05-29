@@ -116,7 +116,7 @@ describe('function node to sql', () => {
 
     const result = stringifyAstToSql(code);
     expect(result).toBe(
-      `CONCAT((CASE WHEN 2 > 1 THEN ('a')::text ELSE ('b')::text END)::TEXT)`,
+      `CONCAT((CASE WHEN (2 > 1) THEN ('a')::text ELSE ('b')::text END)::TEXT)`,
     );
   });
 
@@ -125,7 +125,7 @@ describe('function node to sql', () => {
 
     const result = stringifyAstToSql(code);
     expect(result).toBe(
-      `CONCAT((CASE WHEN 2 > 1 THEN (1)::text ELSE ('b')::text END)::TEXT)`,
+      `CONCAT((CASE WHEN (2 > 1) THEN (1)::text ELSE ('b')::text END)::TEXT)`,
     );
   });
 
@@ -133,7 +133,7 @@ describe('function node to sql', () => {
     const code = 'LOWER(IF(2 > 1, 1, ""))';
 
     expect(stringifyAstToSql(code)).toBe(
-      `LOWER((CASE WHEN 2 > 1 THEN (1)::text ELSE ('')::text END)::TEXT)`,
+      `LOWER((CASE WHEN (2 > 1) THEN (1)::text ELSE ('')::text END)::TEXT)`,
     );
   });
 });

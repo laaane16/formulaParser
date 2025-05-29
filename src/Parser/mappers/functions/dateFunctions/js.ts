@@ -28,7 +28,7 @@ export const dateFunctionsToJsMap: Record<
    */
   DATEADD: ([date, amount, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}'=== ${unit}) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);`;
+      return `if ('${val}'=== (${unit})) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);`;
     };
     return `
       (function(){
@@ -39,7 +39,7 @@ export const dateFunctionsToJsMap: Record<
   },
   SAFE_DATEADD([date, amount, unit]) {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}'=== ${unit}) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);`;
+      return `if ('${val}'=== (${unit})) return DateTime.fromISO(${date}, { zone: 'utc'}).plus({ [${unit}]: Number(${amount}) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);`;
     };
     return `(function(){
       ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
@@ -54,7 +54,7 @@ export const dateFunctionsToJsMap: Record<
    */
   DATETIME_DIFF: ([end, start, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}' === ${unit}) return Math.floor(Math.abs(DateTime.fromISO(${start}, { zone: 'utc'}).diff(DateTime.fromISO(${end}), ${unit}).as(${unit})));`;
+      return `if ('${val}' === (${unit})) return Math.floor(Math.abs(DateTime.fromISO(${start}, { zone: 'utc'}).diff(DateTime.fromISO(${end}), ${unit}).as(${unit})));`;
     };
     return `
       (function(){
@@ -65,7 +65,7 @@ export const dateFunctionsToJsMap: Record<
   },
   SAFE_DATETIME_DIFF([end, start, unit]) {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}' === ${unit}) return Math.floor(Math.abs(DateTime.fromISO(${start}, { zone: 'utc'}).diff(DateTime.fromISO(${end}), ${unit}).as(${unit})));`;
+      return `if ('${val}' === (${unit})) return Math.floor(Math.abs(DateTime.fromISO(${start}, { zone: 'utc'}).diff(DateTime.fromISO(${end}), ${unit}).as(${unit})));`;
     };
     return `
       (function(){
@@ -85,7 +85,7 @@ export const dateFunctionsToJsMap: Record<
     const jsonLuxonFormats = JSON.stringify(DATE_FORMATS_LUXON);
 
     return `(function(){
-    let preparedFormat = "'" + ${format}.replaceAll(" ", "' '") + "'";
+    let preparedFormat = "'" + (${format}).replaceAll(" ", "' '") + "'";
     Object.entries(${jsonFormulaFormats}).forEach(
       ([key, value]) => {
         const matches = preparedFormat.match(new RegExp(\`'\${value}'\`, 'g'));

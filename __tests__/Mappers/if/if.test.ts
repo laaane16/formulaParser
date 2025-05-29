@@ -13,7 +13,7 @@ describe('toSql', () => {
   test('simple test', () => {
     const res = ifStatementMap.sqlFn('2 > 1', "'test1'", "'test2'", 'text');
     expect(res).toBe(
-      `(CASE WHEN 2 > 1 THEN ('test1')::text ELSE ('test2')::text END)::text`,
+      `(CASE WHEN (2 > 1) THEN ('test1')::text ELSE ('test2')::text END)::text`,
     );
   });
 });

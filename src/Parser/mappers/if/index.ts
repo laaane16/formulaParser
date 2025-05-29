@@ -19,8 +19,8 @@ export const ifStatementMap: Record<string, IFunc> = {
     type?: string,
   ) => {
     if (!type) {
-      return `(CASE WHEN ${test} THEN (${consequent})::text ELSE (${alternate})::text END)`;
+      return `(CASE WHEN (${test}) THEN (${consequent})::text ELSE (${alternate})::text END)`;
     }
-    return `(CASE WHEN ${test} THEN (${consequent})::text ELSE (${alternate})::text END)::${type}`;
+    return `(CASE WHEN (${test}) THEN (${consequent})::text ELSE (${alternate})::text END)::${type}`;
   },
 };
