@@ -150,5 +150,5 @@ export const numberFunctionsToJsMap: Record<
    */
   TO_NUMBER: (args: string[]): string => `Number(${args})`,
   SAFE_TO_NUMBER: (args: string[]): string =>
-    `(function(){ if (!/^\\d+(\\.\\d+)?$/.test(${args})) return null; return Number(${args})})()`,
+    `(function(){ if (Number.isNaN(Number(${args}))) return null; return Number(${args})})()`,
 };
