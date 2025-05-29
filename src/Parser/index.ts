@@ -878,6 +878,9 @@ export default class Parser {
       if (n instanceof LiteralNode) {
         return n.literal.text;
       }
+      if (n instanceof BooleanNode) {
+        return n.keyword.text;
+      }
       if (n instanceof VariableNode) {
         const varKey = removePrefixSuffix(n.variable.text);
 
