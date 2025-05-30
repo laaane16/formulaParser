@@ -31,4 +31,12 @@ describe('errors', () => {
 
     expect(() => parser.toJs()).toThrow();
   });
+
+  test('if can`t work with non boolean types in condition', () => {
+    const parser = new Parser('IF(1 + 1, 1, 0)');
+
+    expect(() => parser.toJs()).toThrow(
+      'Invalid condition in IF at the position 0',
+    );
+  });
 });

@@ -185,6 +185,19 @@ export class FormulaError extends Error {
   }
 
   /**
+   * Throws an error when an if statement has invalid type in condition
+   * @param {number} position - The position in the formula.
+   * @throws {FormulaError}
+   */
+  static invalidIfCondition(position: number): never {
+    throw new FormulaError(
+      `Invalid condition in IF at the position ${position}`,
+      'invalidIfСondition',
+      [position],
+    );
+  }
+
+  /**
    * Throws an error when a field is not found.
    * @param {number} position - The position in the formula.
    * @param {string} fieldName - The name of the missing field.

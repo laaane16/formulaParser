@@ -30,7 +30,11 @@ import {
 } from './mappers/binOperators/types';
 
 import { FORMATS } from '../constants/formats';
-import { NodeTypesValues, UNKNOWN_NODE_TYPE } from '../constants/nodeTypes';
+import {
+  BOOLEAN_NODE_TYPE,
+  NodeTypesValues,
+  UNKNOWN_NODE_TYPE,
+} from '../constants/nodeTypes';
 import { IVar } from '../types';
 import { removePrefixSuffix } from '../lib/removePrefixSuffix';
 import { FORMULA_TEMPLATES } from '../constants/templates';
@@ -398,6 +402,11 @@ export default class Parser {
       }
     }
     if (node instanceof IfStatementNode) {
+      const [testType] = this.getReturnType(node.test);
+      if (testType.size !== 1 || !testType.has(BOOLEAN_NODE_TYPE)) {
+        FormulaError.invalidIfCondition(node.start);
+      }
+
       const [consequentType] = this.getReturnType(node.consequent);
       const [alternateType] = this.getReturnType(node.alternate);
 
