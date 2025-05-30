@@ -21,6 +21,7 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.CONCAT,
         sqlFn: textFunctionsToSqlMap.CONCAT,
+        specialWorkWithNull: true,
       },
     ],
     JOIN: [

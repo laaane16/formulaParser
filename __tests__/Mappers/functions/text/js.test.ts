@@ -3,7 +3,9 @@ import { textFunctionsToJsMap } from '../../../../src/Parser/mappers/functions/t
 describe('textFunctionsToJsMap', () => {
   test('CONCAT', () => {
     const result = textFunctionsToJsMap.CONCAT(['"Hello"', '" "', '"World"']);
-    expect(result).toBe('("Hello" + " " + "World")');
+    expect(result).toBe(
+      '["Hello"," ","World"].filter(v => v).reduce((accum, i) => accum + String(i))',
+    );
   });
 
   test('TRIM both', () => {

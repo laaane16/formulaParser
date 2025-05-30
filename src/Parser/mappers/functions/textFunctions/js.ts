@@ -17,7 +17,8 @@ export const textFunctionsToJsMap: Record<
    * @example
    * CONCAT(['"Hello"', '" "', '"World"']) // => '("Hello" + " " + "World")'
    */
-  CONCAT: (args: string[]): string => `(${args.join(' + ')})`,
+  CONCAT: (args: string[]): string =>
+    `[${args}].filter(v => v).reduce((accum, i) => accum + String(i))`,
 
   /**
    * @function TRIM
@@ -72,7 +73,7 @@ export const textFunctionsToJsMap: Record<
 
   /**
    * @function REPLACE
-   * @description Replaces all occurrences of a substring with another substring.
+   * @description Replaces all occurrences of a substring with another substring.t
    * @param {string[]} args -
    *   [0] - The original string,
    *   [1] - The substring to replace,
