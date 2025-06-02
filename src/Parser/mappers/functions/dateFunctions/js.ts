@@ -30,7 +30,7 @@ export const dateFunctionsToJsMap: Record<
    */
   DATEADD: ([date, amount, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}'=== (${unit})) return DateTime.fromISO(${date}).plus({ [${unit}]: Number(${amount}) }).toFormat(${DATE_FORMAT}).slice(0, -2);`;
+      return `if ('${val}'=== (${unit})) return DateTime.fromFormat(${date}, ${DATE_FORMAT}).plus({ [${unit}]: Number(${amount}) }).toFormat(${DATE_FORMAT}).slice(0, -2);`;
     };
     return `
       (function(){
@@ -41,7 +41,7 @@ export const dateFunctionsToJsMap: Record<
   },
   SAFE_DATEADD([date, amount, unit]) {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}'=== (${unit})) return DateTime.fromISO(${date}).plus({ [${unit}]: Number(${amount}) }).toFormat(${DATE_FORMAT}).slice(0, -2);`;
+      return `if ('${val}'=== (${unit})) return DateTime.fromFormat(${date}, ${DATE_FORMAT}).plus({ [${unit}]: Number(${amount}) }).toFormat(${DATE_FORMAT}).slice(0, -2);`;
     };
     return `(function(){
       ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
@@ -56,7 +56,7 @@ export const dateFunctionsToJsMap: Record<
    */
   DATETIME_DIFF: ([end, start, unit]) => {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}' === (${unit})) return Math.floor(Math.abs(DateTime.fromISO(${start}).diff(DateTime.fromISO(${end}), ${unit}).as(${unit})));`;
+      return `if ('${val}' === (${unit})) return Math.floor(Math.abs(DateTime.fromFormat(${start}, ${DATE_FORMAT}).diff(DateTime.fromFormat(${end}, ${DATE_FORMAT}), ${unit}).as(${unit})));`;
     };
     return `
       (function(){
@@ -67,7 +67,7 @@ export const dateFunctionsToJsMap: Record<
   },
   SAFE_DATETIME_DIFF([end, start, unit]) {
     const getCaseBlock = (val: string) => {
-      return `if ('${val}' === (${unit})) return Math.floor(Math.abs(DateTime.fromISO(${start}).diff(DateTime.fromISO(${end}), ${unit}).as(${unit})));`;
+      return `if ('${val}' === (${unit})) return Math.floor(Math.abs(DateTime.fromFormat(${start}, ${DATE_FORMAT}).diff(DateTime.fromFormat(${end}, ${DATE_FORMAT}), ${unit}).as(${unit})));`;
     };
     return `
       (function(){
@@ -96,7 +96,7 @@ export const dateFunctionsToJsMap: Record<
         }
       }
     );
-    return DateTime.fromISO(${date}).toFormat(preparedFormat)})()`;
+    return DateTime.fromFormat(${date}, ${DATE_FORMAT}).toFormat(preparedFormat)})()`;
   },
 
   // /**
@@ -110,22 +110,22 @@ export const dateFunctionsToJsMap: Record<
 
   /** Gets the year from a date. */
   YEAR: ([date]) => {
-    return `DateTime.fromISO(${date}).year`;
+    return `DateTime.fromFormat(${date}, ${DATE_FORMAT}).year`;
   },
 
   /** Gets the month from a date. */
   MONTH: ([date]) => {
-    return `DateTime.fromISO(${date}).month`;
+    return `DateTime.fromFormat(${date}, ${DATE_FORMAT}).month`;
   },
 
   /** Gets the weekday from a date (1 = Saturday, 7 = Sunday). */
   WEEKDAY: ([date]) => {
-    return `DateTime.fromISO(${date}).weekday`;
+    return `DateTime.fromFormat(${date}, ${DATE_FORMAT}).weekday`;
   },
 
   /** Gets the ISO week number from a date. */
   WEEKNUM: ([date]) => {
-    return `DateTime.fromISO(${date}).weekNumber`;
+    return `DateTime.fromFormat(${date}, ${DATE_FORMAT}).weekNumber`;
   },
 
   /**
@@ -134,22 +134,22 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning the day number.
    */
   DAY: ([date]) => {
-    return `DateTime.fromISO(${date}).day`;
+    return `DateTime.fromFormat(${date}, ${DATE_FORMAT}).day`;
   },
 
   /** Gets the hour from a date. */
   HOUR: ([date]) => {
-    return `DateTime.fromISO(${date}).hour`;
+    return `DateTime.fromFormat(${date}, ${DATE_FORMAT}).hour`;
   },
 
   /** Gets the minute from a date. */
   MINUTE: ([date]) => {
-    return `DateTime.fromISO(${date}).minute`;
+    return `DateTime.fromFormat(${date}, ${DATE_FORMAT}).minute`;
   },
 
   /** Gets the second from a date. */
   SECOND: ([date]) => {
-    return `DateTime.fromISO(${date}).second`;
+    return `DateTime.fromFormat(${date}, ${DATE_FORMAT}).second`;
   },
 
   /**
@@ -158,7 +158,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning boolean.
    */
   IS_AFTER: ([a, b]) => {
-    return `DateTime.fromISO(${a}) > DateTime.fromISO(${b})`;
+    return `DateTime.fromFormat(${a}, ${DATE_FORMAT}) > DateTime.fromFormat(${b}, ${DATE_FORMAT})`;
   },
 
   /**
@@ -167,7 +167,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning boolean.
    */
   IS_BEFORE: ([a, b]) => {
-    return `DateTime.fromISO(${a}) < DateTime.fromISO(${b})`;
+    return `DateTime.fromFormat(${a}, ${DATE_FORMAT}) < DateTime.fromFormat(${b}, ${DATE_FORMAT})`;
   },
 
   /**
@@ -176,7 +176,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning boolean.
    */
   IS_SAME: ([a, b]) => {
-    return `DateTime.fromISO(${a}).toString() === DateTime.fromISO(${b}).toString()`;
+    return `DateTime.fromFormat(${a}, ${DATE_FORMAT}).toString() === DateTime.fromFormat(${b}, ${DATE_FORMAT}).toString()`;
   },
 
   /**
