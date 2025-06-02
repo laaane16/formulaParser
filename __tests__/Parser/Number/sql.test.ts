@@ -14,6 +14,6 @@ describe('number to sql', () => {
   test('negative number', () => {
     const parser = new Parser('- 1');
 
-    expect(parser.toSql()).toBe('- 1');
+    expect(parser.toSql()).toBe('(- 1)');
   });
 });

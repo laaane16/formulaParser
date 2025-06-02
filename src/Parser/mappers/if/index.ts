@@ -8,7 +8,7 @@ export const ifStatementMap: Record<string, IFunc> = {
     type?: string,
   ) => {
     if (!type) {
-      return `(function(){if (${test}){return ${consequent}}else{return ${alternate}}})()`;
+      return `((${consequent}) !== null && (${alternate}) !== null ? (function(){if (${test}){return ${consequent}}else{return ${alternate}}})(): null)`;
     }
     return `((${consequent}) !== null && (${alternate}) !== null ? ${type}((function(){if (${test}){return ${consequent}}else{return ${alternate}}})()): null)`;
   },

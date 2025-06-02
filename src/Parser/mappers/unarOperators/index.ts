@@ -8,12 +8,12 @@ import { IOperator, ValidUnarOperatorsNames } from './types';
 export const allUnarOperators: Record<ValidUnarOperatorsNames, IOperator> = {
   NOT: {
     types: [BOOLEAN_NODE_TYPE],
-    jsFn: (operand) => `! ${operand}`,
-    sqlFn: (operand) => `NOT ${operand}`,
+    jsFn: (operand) => `(${operand} === null ? null : ! ${operand})`,
+    sqlFn: (operand) => `(NOT ${operand})`,
   },
   MINUS: {
     types: [NUMBER_NODE_TYPE],
-    jsFn: (operand) => `- ${operand}`,
-    sqlFn: (operand) => `- ${operand}`,
+    jsFn: (operand) => `(${operand} === null ? null : - ${operand})`,
+    sqlFn: (operand) => `(- ${operand})`,
   },
 };

@@ -3,7 +3,7 @@ import { Parser } from '../../../../src';
 describe('number funcs', () => {
   test('abs', () => {
     const parser = new Parser('ABS(-10)');
-    expect(parser.toSql()).toBe('ABS(- 10)');
+    expect(parser.toSql()).toBe('ABS((- 10))');
   });
   /**
    * return 10 in psql
