@@ -3,14 +3,14 @@ import { dateFunctionsToJsMap } from '../../../../src/Parser/mappers/functions/d
 describe('dateFunctionsToJsMap', () => {
   test('DATE', () => {
     expect(dateFunctionsToJsMap.DATE(['2023', '12', '12'])).toBe(
-      `DateTime.fromObject({ day: 12, month:  12, year: 2023}, { zone: 'utc'}).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
+      `DateTime.fromObject({ day: 12, month:  12, year: 2023}).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
     );
   });
 
   test('DATEADD', () => {
     expect(dateFunctionsToJsMap.DATEADD(['"2023-01-01"', '3', '"days"'])).toBe(`
       (function(){
-        if ('second'=== ("days")) return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('minute'=== ("days")) return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('hour'=== ("days")) return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('day'=== ("days")) return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('week'=== ("days")) return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('month'=== ("days")) return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('year'=== ("days")) return DateTime.fromISO("2023-01-01", { zone: 'utc'}).plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);
+        if ('second'=== ("days")) return DateTime.fromISO("2023-01-01").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('minute'=== ("days")) return DateTime.fromISO("2023-01-01").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('hour'=== ("days")) return DateTime.fromISO("2023-01-01").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('day'=== ("days")) return DateTime.fromISO("2023-01-01").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('week'=== ("days")) return DateTime.fromISO("2023-01-01").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('month'=== ("days")) return DateTime.fromISO("2023-01-01").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('year'=== ("days")) return DateTime.fromISO("2023-01-01").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);
         throw '';
       })()
     `);
@@ -25,7 +25,7 @@ describe('dateFunctionsToJsMap', () => {
       ]),
     ).toBe(`
       (function(){
-        if ('second' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01", { zone: 'utc'}).diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('minute' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01", { zone: 'utc'}).diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('hour' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01", { zone: 'utc'}).diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('day' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01", { zone: 'utc'}).diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('week' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01", { zone: 'utc'}).diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('month' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01", { zone: 'utc'}).diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('year' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01", { zone: 'utc'}).diff(DateTime.fromISO("2023-01-05"), "days").as("days")));
+        if ('second' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01").diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('minute' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01").diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('hour' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01").diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('day' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01").diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('week' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01").diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('month' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01").diff(DateTime.fromISO("2023-01-05"), "days").as("days"))); if ('year' === ("days")) return Math.floor(Math.abs(DateTime.fromISO("2023-01-01").diff(DateTime.fromISO("2023-01-05"), "days").as("days")));
         throw '';
       })()
     `);
@@ -44,84 +44,80 @@ describe('dateFunctionsToJsMap', () => {
         }
       }
     );
-    return DateTime.fromISO("2023-01-01", { zone: 'utc'}).toFormat(preparedFormat)})()`);
+    return DateTime.fromISO("2023-01-01").toFormat(preparedFormat)})()`);
   });
 
   // test('DATETIME_PARSE', () => {
   //   expect(
   //     dateFunctionsToJsMap.DATETIME_PARSE(['"01-01-2023"', '"dd-MM-yyyy"']),
   //   ).toBe(
-  //     `DateTime.fromFormat("01-01-2023", "dd-MM-yyyy", { zone: 'utc'}).toString()`,
+  //     `DateTime.fromFormat("01-01-2023", "dd-MM-yyyy").toString()`,
   //   );
   // });
 
   test('DAY', () => {
     expect(dateFunctionsToJsMap.DAY(['"2023-01-01"'])).toBe(
-      `DateTime.fromISO("2023-01-01", { zone: 'utc'}).day`,
+      `DateTime.fromISO("2023-01-01").day`,
     );
   });
 
   test('HOUR', () => {
     expect(dateFunctionsToJsMap.HOUR(['"2023-01-01T12:00:00Z"'])).toBe(
-      `DateTime.fromISO("2023-01-01T12:00:00Z", { zone: 'utc'}).hour`,
+      `DateTime.fromISO("2023-01-01T12:00:00Z").hour`,
     );
   });
 
   test('MINUTE', () => {
     expect(dateFunctionsToJsMap.MINUTE(['"2023-01-01T12:34:56Z"'])).toBe(
-      `DateTime.fromISO("2023-01-01T12:34:56Z", { zone: 'utc'}).minute`,
+      `DateTime.fromISO("2023-01-01T12:34:56Z").minute`,
     );
   });
 
   test('SECOND', () => {
     expect(dateFunctionsToJsMap.SECOND(['"2023-01-01T12:34:56Z"'])).toBe(
-      `DateTime.fromISO("2023-01-01T12:34:56Z", { zone: 'utc'}).second`,
+      `DateTime.fromISO("2023-01-01T12:34:56Z").second`,
     );
   });
 
   test('MONTH', () => {
     expect(dateFunctionsToJsMap.MONTH(['"2023-02-01"'])).toBe(
-      `DateTime.fromISO("2023-02-01", { zone: 'utc'}).month`,
+      `DateTime.fromISO("2023-02-01").month`,
     );
   });
 
   test('YEAR', () => {
     expect(dateFunctionsToJsMap.YEAR(['"2023-02-01"'])).toBe(
-      `DateTime.fromISO("2023-02-01", { zone: 'utc'}).year`,
+      `DateTime.fromISO("2023-02-01").year`,
     );
   });
 
   test('WEEKDAY', () => {
     expect(dateFunctionsToJsMap.WEEKDAY(['"2023-02-01"'])).toBe(
-      `DateTime.fromISO("2023-02-01", { zone: 'utc'}).weekday`,
+      `DateTime.fromISO("2023-02-01").weekday`,
     );
   });
 
   test('WEEKNUM', () => {
     expect(dateFunctionsToJsMap.WEEKNUM(['"2023-02-01"'])).toBe(
-      `DateTime.fromISO("2023-02-01", { zone: 'utc'}).weekNumber`,
+      `DateTime.fromISO("2023-02-01").weekNumber`,
     );
   });
 
   test('IS_AFTER', () => {
     expect(
       dateFunctionsToJsMap.IS_AFTER(['"2023-02-02"', '"2023-01-01"']),
-    ).toBe(
-      `DateTime.fromISO("2023-02-02", { zone: 'utc'}) > DateTime.fromISO("2023-01-01", { zone: 'utc'})`,
-    );
+    ).toBe(`DateTime.fromISO("2023-02-02") > DateTime.fromISO("2023-01-01")`);
   });
 
   test('IS_BEFORE', () => {
     expect(
       dateFunctionsToJsMap.IS_BEFORE(['"2023-01-01"', '"2023-02-02"']),
-    ).toBe(
-      `DateTime.fromISO("2023-01-01", { zone: 'utc'}) < DateTime.fromISO("2023-02-02", { zone: 'utc'})`,
-    );
+    ).toBe(`DateTime.fromISO("2023-01-01") < DateTime.fromISO("2023-02-02")`);
   });
 
   test('IS_SAME', () => {
     expect(dateFunctionsToJsMap.IS_SAME(['"2023-01-01"', '"2023-01-01"'])).toBe(
-      `DateTime.fromISO("2023-01-01", { zone: 'utc'}).toString() === DateTime.fromISO("2023-01-01", { zone: 'utc'}).toString()`,
+      `DateTime.fromISO("2023-01-01").toString() === DateTime.fromISO("2023-01-01").toString()`,
     );
   });
 

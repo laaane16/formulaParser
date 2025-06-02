@@ -124,7 +124,6 @@ describe('lexer analyze string', () => {
     const tokens = new Lexer(
       `"123\\"\\"\\'\\'" + '123\\"\\"\\'\\'\\'' + "text with \\"quote\\" and 'single'"`,
     ).lexAnalysis();
-    console.log(tokens);
     expect(tokens.map((t) => t.token.name)).toEqual([
       'STRING',
       'PLUS',

@@ -21,7 +21,7 @@ describe('execute date funcs', () => {
     const parser = new Parser('DATE(2012, 12, 12)');
     const js = parser.toJs();
 
-    expect(parser.runJs(js)).toBe('2012-12-12 00:00:00+00');
+    expect(parser.runJs(js)).toBe('2012-12-12 00:00:00+04');
   });
   test('DATE with invalid month', () => {
     const parser = new Parser('DATE(2012, 42, 12)');
@@ -39,7 +39,7 @@ describe('execute date funcs', () => {
     const parser = new Parser('DATEADD({{Поле 1}}, 10, "month")', fields);
     const js = parser.toJs();
 
-    expect(parser.runJs(js, values)).toBe('2024-11-01 11:00:00+00');
+    expect(parser.runJs(js, values)).toBe('2024-11-01 14:00:00+03');
   });
   test('safe DATEADD with invalid unit', () => {
     const parser = new Parser('DATEADD({{Поле 1}}, 10, "mth")', fields);
@@ -124,7 +124,7 @@ describe('execute date funcs', () => {
     const parser = new Parser('HOUR({{Поле 1}})', fields);
     const js = parser.toJs();
 
-    expect(parser.runJs(js, values)).toBe(11);
+    expect(parser.runJs(js, values)).toBe(14);
   });
   test('MINUTE', () => {
     const parser = new Parser('MINUTE({{Поле 1}})', fields);
