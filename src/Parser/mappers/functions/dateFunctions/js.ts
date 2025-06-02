@@ -176,7 +176,7 @@ export const dateFunctionsToJsMap: Record<
    * @returns {string} JavaScript expression returning boolean.
    */
   IS_SAME: ([a, b]) => {
-    return `DateTime.fromFormat(${a}, ${DATE_FORMAT}).toString() === DateTime.fromFormat(${b}, ${DATE_FORMAT}).toString()`;
+    return `(${a} === ${b})`;
   },
 
   /**

@@ -13,8 +13,8 @@ describe('execute date funcs', () => {
     },
   };
   const values = {
-    'Поле 1': '2024-01-01T11:00:00.000Z',
-    'Поле 2': '2025-12-12T11:00:00.000Z',
+    'Поле 1': '2024-01-01 11:00:00+03',
+    'Поле 2': '2025-12-12 11:00:00+03',
   };
 
   test('DATE', () => {
@@ -39,7 +39,7 @@ describe('execute date funcs', () => {
     const parser = new Parser('DATEADD({{Поле 1}}, 10, "month")', fields);
     const js = parser.toJs();
 
-    expect(parser.runJs(js, values)).toBe('2024-11-01 14:00:00+03');
+    expect(parser.runJs(js, values)).toBe('2024-11-01 11:00:00+03');
   });
   test('safe DATEADD with invalid unit', () => {
     const parser = new Parser('DATEADD({{Поле 1}}, 10, "mth")', fields);
@@ -124,7 +124,7 @@ describe('execute date funcs', () => {
     const parser = new Parser('HOUR({{Поле 1}})', fields);
     const js = parser.toJs();
 
-    expect(parser.runJs(js, values)).toBe(14);
+    expect(parser.runJs(js, values)).toBe(11);
   });
   test('MINUTE', () => {
     const parser = new Parser('MINUTE({{Поле 1}})', fields);
@@ -172,5 +172,11 @@ describe('execute date funcs', () => {
         .toFormat('yyyy-LL-dd HH:mm:ssZZZ')
         .slice(0, -2),
     );
+  });
+  test('DATE IN DATEADD', () => {
+    const parser = new Parser('DATEADD(DATE(2001,12,12), 12, "day")', fields);
+    const js = parser.toJs();
+
+    expect(parser.runJs(js, values)).toBe('2001-12-24 00:00:00+03');
   });
 });
