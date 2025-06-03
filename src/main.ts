@@ -249,6 +249,8 @@ export default class Parser {
         return null;
       case 'string':
         return res;
+      case 'boolean':
+        return res;
       case 'object':
         if (res === null) {
           return null;
