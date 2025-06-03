@@ -12,10 +12,10 @@ describe('execute text funcs', () => {
   test('trim leading', () => {
     const parser = new Parser('TRIM("leading", "abc" , "ababcd")');
     expect(parser.toSql()).toBe(`
-      (CASE
-        WHEN ('leading') = 'leading' THEN TRIM(LEADING ('abc') FROM ('ababcd'))
-        WHEN ('leading') = 'trailing' THEN TRIM(TRAILING ('abc') FROM ('ababcd'))
-        WHEN ('leading') = 'both' THEN TRIM(BOTH ('abc') FROM ('ababcd'))
+      (CASE ('leading')
+        WHEN 'leading' THEN TRIM(LEADING ('abc') FROM ('ababcd'))
+        WHEN 'trailing' THEN TRIM(TRAILING ('abc') FROM ('ababcd'))
+        WHEN 'both' THEN TRIM(BOTH ('abc') FROM ('ababcd'))
         ELSE CAST(1 / 0 AS TEXT)
       END)
     `);
@@ -23,10 +23,10 @@ describe('execute text funcs', () => {
   test('safe trim leading', () => {
     const parser = new Parser('TRIM("leading", "abc" , "ababcd")');
     expect(parser.toSql(true)).toBe(`
-      (CASE
-        WHEN ('leading') = 'leading' THEN TRIM(LEADING ('abc') FROM ('ababcd'))
-        WHEN ('leading') = 'trailing' THEN TRIM(TRAILING ('abc') FROM ('ababcd'))
-        WHEN ('leading') = 'both' THEN TRIM(BOTH ('abc') FROM ('ababcd'))
+      (CASE ('leading')
+        WHEN 'leading' THEN TRIM(LEADING ('abc') FROM ('ababcd'))
+        WHEN 'trailing' THEN TRIM(TRAILING ('abc') FROM ('ababcd'))
+        WHEN 'both' THEN TRIM(BOTH ('abc') FROM ('ababcd'))
         ELSE NULL
       END)
     `);

@@ -31,19 +31,19 @@ export const textFunctionsToSqlMap: Record<
    */
   TRIM: ([position, chars, str]: string[]): string =>
     `
-      (CASE
-        WHEN (${position}) = 'leading' THEN TRIM(LEADING (${chars}) FROM (${str}))
-        WHEN (${position}) = 'trailing' THEN TRIM(TRAILING (${chars}) FROM (${str}))
-        WHEN (${position}) = 'both' THEN TRIM(BOTH (${chars}) FROM (${str}))
+      (CASE (${position})
+        WHEN 'leading' THEN TRIM(LEADING (${chars}) FROM (${str}))
+        WHEN 'trailing' THEN TRIM(TRAILING (${chars}) FROM (${str}))
+        WHEN 'both' THEN TRIM(BOTH (${chars}) FROM (${str}))
         ELSE CAST(1 / 0 AS TEXT)
       END)
     `,
   SAFE_TRIM: ([position, chars, str]: string[]): string => {
     return `
-      (CASE
-        WHEN (${position}) = 'leading' THEN TRIM(LEADING (${chars}) FROM (${str}))
-        WHEN (${position}) = 'trailing' THEN TRIM(TRAILING (${chars}) FROM (${str}))
-        WHEN (${position}) = 'both' THEN TRIM(BOTH (${chars}) FROM (${str}))
+      (CASE (${position})
+        WHEN 'leading' THEN TRIM(LEADING (${chars}) FROM (${str}))
+        WHEN 'trailing' THEN TRIM(TRAILING (${chars}) FROM (${str}))
+        WHEN 'both' THEN TRIM(BOTH (${chars}) FROM (${str}))
         ELSE NULL
       END)
     `;
