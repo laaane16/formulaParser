@@ -337,7 +337,11 @@ export default class Parser {
       if (this.variables[globalVarKey]) {
         const preparedVar = `$$VARIABLES['${globalVarKey}']`;
         const sendedVar = this.variables[globalVarKey];
-        const defaultValue = defaultValues[format][sendedVar.type];
+        let variableType = sendedVar.type;
+        variableType =
+          typesMapper[variableType as keyof typeof typesMapper] || variableType;
+
+        const defaultValue = defaultValues[format][variableType];
         const alternateValue = "''";
 
         if (format === FORMATS.JS) {

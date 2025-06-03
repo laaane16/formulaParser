@@ -3,12 +3,14 @@ import {
   NUMBER_NODE_TYPE,
   LITERAL_NODE_TYPE,
   DATE_NODE_TYPE,
+  BOOLEAN_NODE_TYPE,
 } from './nodeTypes';
 import { ObjectValues } from '../types';
 
 const baseDefaultValues: Record<string, unknown> = {
   [NUMBER_NODE_TYPE]: 0,
   [LITERAL_NODE_TYPE]: "''",
+  [BOOLEAN_NODE_TYPE]: false,
 };
 
 type DefaultKeys = ObjectValues<typeof FORMATS>;

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { NUMBER, PROGRESS, STARS } from './fieldTypes';
+import { NUMBER, PROGRESS, STARS, SWITCH } from './fieldTypes';
 import {
   NUMBER_NODE_TYPE,
   LITERAL_NODE_TYPE,
@@ -10,6 +10,7 @@ import {
 export const typesMapper = {
   [PROGRESS]: NUMBER,
   [STARS]: NUMBER,
+  [SWITCH]: BOOLEAN_NODE_TYPE,
 };
 
 export const ifTypesMapper: Record<string, string> = {
@@ -55,12 +56,11 @@ export const typesMapperSql: Record<string, string> = {
 type CastTypeHandler = (res: unknown) => unknown;
 
 export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
-  [NUMBER_NODE_TYPE]: (res: unknown): number | null =>
-    res === null ? null : Number(res),
-  [LITERAL_NODE_TYPE]: (res: unknown): string | null =>
-    res === null ? null : String(res),
+  [NUMBER_NODE_TYPE]: (res: unknown) => (res === null ? null : Number(res)),
+  [LITERAL_NODE_TYPE]: (res: unknown) => (res === null ? null : String(res)),
   [DATE_NODE_TYPE]: (res: unknown): DateTime =>
     DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
+  [BOOLEAN_NODE_TYPE]: (res: unknown) => (res === null ? null : Boolean(res)),
 };
 
 export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
@@ -69,4 +69,6 @@ export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
   [LITERAL_NODE_TYPE]: (res) => `(${res})::text`,
   [DATE_NODE_TYPE]: (res) =>
     `(CASE WHEN (${res})::text ~ '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(Z|[+-]\\d{2})$' THEN (${res})::text::timestamptz ELSE NULL END)`,
+  [BOOLEAN_NODE_TYPE]: (res) =>
+    `(CASE WHEN (${res})::text ~* '^(true|false|0|1)$' THEN (${res})::BOOLEAN)`,
 };
