@@ -7,7 +7,7 @@ describe('literal node to js', () => {
   });
 
   test('string', () => {
-    const parser = new Parser('"/qw.e`Ё{{}}"');
-    expect(parser.toSql()).toBe("'/qw.e`Ё{{}}'");
+    const parser = new Parser('"/qw.e`Ё{}"');
+    expect(parser.toSql()).toBe("'/qw.e`Ё{}'");
   });
 });

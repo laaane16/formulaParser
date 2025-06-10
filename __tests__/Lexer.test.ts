@@ -24,12 +24,12 @@ describe('Lexer', () => {
   });
 
   test('должен распознать переменную внутри двойных фигурных скобок', () => {
-    const lexer = new Lexer('{{username}}');
+    const lexer = new Lexer('{username}');
     const tokens = lexer.lexAnalysis();
 
     expect(tokens).toHaveLength(1);
     expect(tokens[0].token.name).toBe('VARIABLE');
-    expect(tokens[0].text).toBe('{{username}}');
+    expect(tokens[0].text).toBe('{username}');
   });
 
   test('должен различать логические значения true и false', () => {

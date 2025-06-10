@@ -45,7 +45,7 @@ const mockFieldsWithFieldProgress = [
 ];
 
 describe('Parser', () => {
-  const expression = '{{9}} + {{FIELD123123}} + 1000';
+  const expression = '{9} + {FIELD123123} + 1000';
 
   it('should throw error if expression is nil', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,14 +68,14 @@ describe('Parser', () => {
   });
 
   it('should map identifiers correctly', () => {
-    const expression = '{{Поле 1}} + {{Поле 1}} + 1000';
+    const expression = '{Поле 1} + {Поле 1} + 1000';
     const parser = new Parser(expression, mockFields);
     const result = parser.mapIdentifiers({ to: 'id' });
     expect(typeof result).toBe('string');
   });
 
   it('should convert to SQL and JS', () => {
-    const expression = '{{Поле 1}} + {{Поле 1}} + 1000';
+    const expression = '{Поле 1} + {Поле 1} + 1000';
     const parser = new Parser(expression, mockFields);
     const sql = parser.toSql();
     const js = parser.toJs();
@@ -98,7 +98,7 @@ describe('Parser', () => {
   });
 
   it('should work well with types like progress and etc.', () => {
-    const parser = new Parser('{{3}} + 3', mockFieldsWithFieldProgress);
+    const parser = new Parser('{3} + 3', mockFieldsWithFieldProgress);
     const sql = "$$VARIABLES['3'] + 3";
     const replaced = parser.replaceWithVariables(sql, values);
     expect(replaced).toBe('1111 + 3');

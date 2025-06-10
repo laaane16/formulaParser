@@ -26,7 +26,7 @@ describe('unar operator node to sql', () => {
   });
 
   test('minus can work with vars which type = number', () => {
-    const parser = new Parser('- {{Поле 2}}', fields);
+    const parser = new Parser('- {Поле 2}', fields);
     const js = parser.toJs();
 
     expect(parser.runJs(js, values)).toBe(-100);

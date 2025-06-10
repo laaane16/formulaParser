@@ -12,7 +12,7 @@ describe('sql date funcs', () => {
     },
   };
 
-  //For all funcs in comments {{Поле 1}} = '2001-12-12T00:00:00.000Z', {{Поле 2}} = 2005-01-01T00:00:00.000Z
+  //For all funcs in comments {Поле 1} = '2001-12-12T00:00:00.000Z', {Поле 2} = 2005-01-01T00:00:00.000Z
   test('DATE', () => {
     const parser = new Parser('DATE(2012, 12, 12)');
     expect(parser.toSql()).toBe('MAKE_DATE(2012, 12, 12)::TIMESTAMPTZ');
@@ -29,11 +29,11 @@ describe('sql date funcs', () => {
    * safe mode: DATE(2012, 15, 1) -> NULL
    * safe mode: DATE(2012, 12, 35) -> NULL
    * safe mode: DATE(2012, 11, 31) -> NULL (november has 30 days)
-   * {{Поле 1}} = null: DATE(2012, {{Поле 1}}, 12) -> NULL
+   * {Поле 1} = null: DATE(2012, {Поле 1}, 12) -> NULL
    * */
 
   test('DATEADD', () => {
-    const parser = new Parser('DATEADD({{Поле 1}}, 10, "month")', fields);
+    const parser = new Parser('DATEADD({Поле 1}, 10, "month")', fields);
     expect(parser.toSql()).toBe(`
       (CASE ('month')
         WHEN 'second' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' second')::INTERVAL) WHEN 'minute' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'hour' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'day' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' day')::INTERVAL) WHEN 'week' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' week')::INTERVAL) WHEN 'month' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' month')::INTERVAL) WHEN 'year' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' year')::INTERVAL)
@@ -42,7 +42,7 @@ describe('sql date funcs', () => {
     `);
   });
   test('safe DATEADD', () => {
-    const parser = new Parser('DATEADD({{Поле 1}}, 10, "month")', fields);
+    const parser = new Parser('DATEADD({Поле 1}, 10, "month")', fields);
     expect(parser.toSql(true)).toBe(`
       (CASE ('month')
         WHEN 'second' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' second')::INTERVAL) WHEN 'minute' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'hour' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'day' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' day')::INTERVAL) WHEN 'week' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' week')::INTERVAL) WHEN 'month' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' month')::INTERVAL) WHEN 'year' THEN ((COALESCE($$VARIABLES['Поле 1'], NULL)) + ((10) || ' year')::INTERVAL)
@@ -51,15 +51,15 @@ describe('sql date funcs', () => {
     `);
   });
   /**
-   * DATEADD({{Поле 1}}, 10, 'month') -> 2002-10-12T00:00:00.000Z
-   * DATEADD({{Поле 1}}, -10, 'month') -> 2001-02-12T00:00:00.000Z
-   * DATEADD({{Поле 1}}, 10, 'mth') -> ERROR
-   * safe mode: DATEADD({{Поле 1}}, 10, 'mth') -> NULL
+   * DATEADD({Поле 1}, 10, 'month') -> 2002-10-12T00:00:00.000Z
+   * DATEADD({Поле 1}, -10, 'month') -> 2001-02-12T00:00:00.000Z
+   * DATEADD({Поле 1}, 10, 'mth') -> ERROR
+   * safe mode: DATEADD({Поле 1}, 10, 'mth') -> NULL
    */
 
   test('datetime diff', () => {
     const parser = new Parser(
-      'DATETIME_DIFF({{Поле 1}}, {{Поле 2}}, "month")',
+      'DATETIME_DIFF({Поле 1}, {Поле 2}, "month")',
       fields,
     );
     expect(parser.toSql()).toBe(`
@@ -71,7 +71,7 @@ describe('sql date funcs', () => {
   });
   test('safe datetime_diff with invalid unit', () => {
     const parser = new Parser(
-      'DATETIME_DIFF({{Поле 1}}, {{Поле 2}}, "month")',
+      'DATETIME_DIFF({Поле 1}, {Поле 2}, "month")',
       fields,
     );
     expect(parser.toSql(true)).toBe(`
@@ -82,15 +82,15 @@ describe('sql date funcs', () => {
     `);
   });
   /**
-   * DATETIME_DIFF({{Поле 1}}, {{Поле 2}} 'month') -> 2002-10-12T00:00:00.000Z
-   * DATETIME_DIFF({{Поле 1}}, {{Поле 2}}, 'month') -> 2001-02-12T00:00:00.000Z
-   * DATETIME_DIFF({{Поле 1}}, {{Поле 2}}, 'mth') -> ERROR
-   * safe mode: DATETIME_DIFF({{Поле 1}}, {{Поле 2}}, 'mth') -> NULL
+   * DATETIME_DIFF({Поле 1}, {Поле 2} 'month') -> 2002-10-12T00:00:00.000Z
+   * DATETIME_DIFF({Поле 1}, {Поле 2}, 'month') -> 2001-02-12T00:00:00.000Z
+   * DATETIME_DIFF({Поле 1}, {Поле 2}, 'mth') -> ERROR
+   * safe mode: DATETIME_DIFF({Поле 1}, {Поле 2}, 'mth') -> NULL
    */
 
   // NEED VALIDATE!!!
   test('datetime_format', () => {
-    const parser = new Parser('DATETIME_FORMAT({{Поле 1}}, "YYYY")', fields);
+    const parser = new Parser('DATETIME_FORMAT({Поле 1}, "YYYY")', fields);
 
     expect(parser.toSql()).toBe(
       "TO_CHAR(COALESCE($$VARIABLES['Поле 1'], NULL), 'YYYY')",
@@ -103,113 +103,113 @@ describe('sql date funcs', () => {
   // });
 
   test('YEAR', () => {
-    const parser = new Parser('YEAR({{Поле 1}})', fields);
+    const parser = new Parser('YEAR({Поле 1})', fields);
     expect(parser.toSql()).toBe(
       "EXTRACT(YEAR FROM COALESCE($$VARIABLES['Поле 1'], NULL))",
     );
   });
   /**
-   * YEAR({{Поле 1}}) -> 2001
+   * YEAR({Поле 1}) -> 2001
    */
 
   test('MONTH', () => {
-    const parser = new Parser('MONTH({{Поле 1}})', fields);
+    const parser = new Parser('MONTH({Поле 1})', fields);
     expect(parser.toSql()).toBe(
       "EXTRACT(MONTH FROM COALESCE($$VARIABLES['Поле 1'], NULL))",
     );
   });
   /**
-   * MONTH({{Поле 1}}) -> 12
+   * MONTH({Поле 1}) -> 12
    */
 
   test('weekday', () => {
-    const parser = new Parser('WEEKDAY({{Поле 1}})', fields);
+    const parser = new Parser('WEEKDAY({Поле 1})', fields);
     expect(parser.toSql()).toBe(
       "(EXTRACT(DOW FROM COALESCE($$VARIABLES['Поле 1'], NULL)) + 1)",
     );
   });
   /**
-   * WEEKDAY({{Поле 1}}) -> 4
+   * WEEKDAY({Поле 1}) -> 4
    */
 
   test('weeknumber', () => {
-    const parser = new Parser('WEEKNUM({{Поле 1}})', fields);
+    const parser = new Parser('WEEKNUM({Поле 1})', fields);
     expect(parser.toSql()).toBe(
       `EXTRACT(WEEK FROM COALESCE($$VARIABLES['Поле 1'], NULL))`,
     );
   });
   /**
-   * WEEKNUM({{Поле 1}}) -> 50
+   * WEEKNUM({Поле 1}) -> 50
    */
 
   test('day', () => {
-    const parser = new Parser('DAY({{Поле 1}})', fields);
+    const parser = new Parser('DAY({Поле 1})', fields);
     expect(parser.toSql()).toBe(
       `EXTRACT(DAY FROM COALESCE($$VARIABLES['Поле 1'], NULL))`,
     );
   });
   /**
-   * DAY({{Поле 1}}) -> 12
+   * DAY({Поле 1}) -> 12
    */
 
   test('HOUR', () => {
-    const parser = new Parser('HOUR({{Поле 1}})', fields);
+    const parser = new Parser('HOUR({Поле 1})', fields);
     expect(parser.toSql()).toBe(
       `EXTRACT(HOUR FROM COALESCE($$VARIABLES['Поле 1'], NULL))`,
     );
   });
   /**
-   * HOUR({{Поле 1}}) -> 0
+   * HOUR({Поле 1}) -> 0
    */
 
   test('MINUTE', () => {
-    const parser = new Parser('MINUTE({{Поле 1}})', fields);
+    const parser = new Parser('MINUTE({Поле 1})', fields);
     expect(parser.toSql()).toBe(
       `EXTRACT(MINUTE FROM COALESCE($$VARIABLES['Поле 1'], NULL))`,
     );
   });
   /**
-   * MINUTE({{Поле 1}}) -> 0
+   * MINUTE({Поле 1}) -> 0
    */
 
   test('SECOND', () => {
-    const parser = new Parser('SECOND({{Поле 1}})', fields);
+    const parser = new Parser('SECOND({Поле 1})', fields);
     expect(parser.toSql()).toBe(
       `EXTRACT(SECOND FROM COALESCE($$VARIABLES['Поле 1'], NULL))`,
     );
   });
   /**
-   * SECOND({{Поле 1}}) -> 0
+   * SECOND({Поле 1}) -> 0
    */
 
   test('IS_AFTER', () => {
-    const parser = new Parser('IS_AFTER({{Поле 1}}, {{Поле 2}})', fields);
+    const parser = new Parser('IS_AFTER({Поле 1}, {Поле 2})', fields);
     expect(parser.toSql()).toBe(
       "(COALESCE($$VARIABLES['Поле 1'], NULL) > COALESCE($$VARIABLES['Поле 2'], NULL))",
     );
   });
   /**
-   * IS_AFTER({{Поле 1}}, {{Поле 2}}) -> FALSE
+   * IS_AFTER({Поле 1}, {Поле 2}) -> FALSE
    */
 
   test('IS_BEFORE', () => {
-    const parser = new Parser('IS_BEFORE({{Поле 1}}, {{Поле 2}})', fields);
+    const parser = new Parser('IS_BEFORE({Поле 1}, {Поле 2})', fields);
     expect(parser.toSql()).toBe(
       "(COALESCE($$VARIABLES['Поле 1'], NULL) < COALESCE($$VARIABLES['Поле 2'], NULL))",
     );
   });
   /**
-   * IS_BEFORE({{Поле 1}}, {{Поле 2}} -> TRUE
+   * IS_BEFORE({Поле 1}, {Поле 2} -> TRUE
    */
 
   test('IS_SAME', () => {
-    const parser = new Parser('IS_SAME({{Поле 1}}, {{Поле 2}})', fields);
+    const parser = new Parser('IS_SAME({Поле 1}, {Поле 2})', fields);
     expect(parser.toSql()).toBe(
       "(COALESCE($$VARIABLES['Поле 1'], NULL) = COALESCE($$VARIABLES['Поле 2'], NULL))",
     );
   });
   /**
-   * IS_SAME({{Поле 1}}, {{Поле 2}} -> FALSE
+   * IS_SAME({Поле 1}, {Поле 2} -> FALSE
    */
 
   test('NOW', () => {

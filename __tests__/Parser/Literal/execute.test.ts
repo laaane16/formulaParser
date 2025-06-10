@@ -9,8 +9,8 @@ describe('execute literal', () => {
   });
 
   test('string', () => {
-    const parser = new Parser('"/qw.e`Ё{{}}"');
+    const parser = new Parser('"/qw.e`Ё{}"');
     const js = parser.toJs();
-    expect(parser.runJs(js)).toBe('/qw.e`Ё{{}}');
+    expect(parser.runJs(js)).toBe('/qw.e`Ё{}');
   });
 });

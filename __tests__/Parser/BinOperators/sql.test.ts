@@ -31,7 +31,7 @@ describe('Binary operators to sql', () => {
     expect(parser.toSql()).toBe(`CONCAT((1)::text, ('1')::text)`); // '11' in psql
   });
   test('plus with null and num', () => {
-    const parser = new Parser('1 + {{field1}}', variables);
+    const parser = new Parser('1 + {field1}', variables);
     const sqlFormula = parser.toSql();
 
     expect(parser.replaceWithVariables(sqlFormula, values)).toBe(
@@ -39,7 +39,7 @@ describe('Binary operators to sql', () => {
     );
   });
   test('plus with null and str', () => {
-    const parser = new Parser('"" + {{field2}}', variables);
+    const parser = new Parser('"" + {field2}', variables);
     const sqlFormula = parser.toSql();
 
     expect(parser.replaceWithVariables(sqlFormula, values)).toBe(
@@ -47,7 +47,7 @@ describe('Binary operators to sql', () => {
     );
   });
   test('plus with null and null', () => {
-    const parser = new Parser('{{field1}} + {{field2}}', variables);
+    const parser = new Parser('{field1} + {field2}', variables);
     const sqlFormula = parser.toSql();
 
     expect(parser.replaceWithVariables(sqlFormula, values)).toBe(
@@ -81,9 +81,9 @@ describe('Binary operators to sql', () => {
    * 1 & 1 -> '11'
    * "1" & "1" -> '11'
    * "1" & 1 -> '11'
-   *  1 & {{field}} -> '10', field - number type and null value
-   *  "" & {{field}} -> '', field - text type and null value
-   *  {{field1}} & {{field2}} -> '0', field1 - number type, field2 - text type and all values = null
+   *  1 & {field} -> '10', field - number type and null value
+   *  "" & {field} -> '', field - text type and null value
+   *  {field1} & {field2} -> '0', field1 - number type, field2 - text type and all values = null
    *  1 & 1 / 0 -> '1'
    */
 
@@ -95,7 +95,7 @@ describe('Binary operators to sql', () => {
   /**
    * In psql results are:
    * 1 - 1 -> 0
-   * 1 - {{field}} -> 1, field = null
+   * 1 - {field} -> 1, field = null
    * 1 - 1 / 0 -> null
    */
 
@@ -107,7 +107,7 @@ describe('Binary operators to sql', () => {
   /**
    * In psql results are:
    * 1 * 3 -> 3
-   * 1 * {{field}} -> 0, field = null
+   * 1 * {field} -> 0, field = null
    * 1 - 1 / 0 -> null
    */
 
@@ -121,7 +121,7 @@ describe('Binary operators to sql', () => {
   /**
    * In psql results are:
    * 10 / 2 -> 5
-   * 10 / {{field}} -> null, field = null
+   * 10 / {field} -> null, field = null
    * 10 / 0  -> null
    * 10 / 3 -> 3
    */
@@ -137,7 +137,7 @@ describe('Binary operators to sql', () => {
    * In psql results are:
    * 10 % 2 -> 5
    * -10 % 3 -> -1
-   * 10 / {{field}} -> null, field = null
+   * 10 / {field} -> null, field = null
    * 10 / 0  -> null
    */
 

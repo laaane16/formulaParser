@@ -17,7 +17,7 @@ describe('Parser.mapIdentifiers', () => {
       columnName: 'field2',
       name: 'Text',
       formulaConfig: {
-        formula: '{{3}} + 11 + 22',
+        formula: '{3} + 11 + 22',
       },
     },
     {
@@ -29,24 +29,24 @@ describe('Parser.mapIdentifiers', () => {
     },
   ];
 
-  const expression = '{{3}} + 11 + 22';
+  const expression = '{3} + 11 + 22';
 
-  it('should map identifiers from dbId to id ({{3}} should remain unchanged)', () => {
+  it('should map identifiers from dbId to id ({3} should remain unchanged)', () => {
     const parser = new Parser(expression, mockFields);
     const result = parser.mapIdentifiers({ from: 'dbId', to: 'id' });
 
-    expect(result).toBe(`{{third}} + 11 + 22`);
+    expect(result).toBe(`{third} + 11 + 22`);
   });
 
-  it('should map identifiers from dbId to columnName ({{3}} should become {{field3}})', () => {
+  it('should map identifiers from dbId to columnName ({3} should become {field3})', () => {
     const parser = new Parser(expression, mockFields);
     const result = parser.mapIdentifiers({ from: 'dbId', to: 'columnName' });
 
-    expect(result).toBe(`{{field3}} + 11 + 22`);
+    expect(result).toBe(`{field3} + 11 + 22`);
   });
 
   it('should throw an error if variable not found using "from" field', () => {
-    const parser = new Parser('{{999}} + 10', mockFields);
+    const parser = new Parser('{999} + 10', mockFields);
 
     expect(() => parser.mapIdentifiers({ from: 'dbId', to: 'id' })).toThrow();
   });
@@ -55,7 +55,7 @@ describe('Parser.mapIdentifiers', () => {
     const fieldsMissingTo = [
       { dbId: 3, type: 'number', id: '3' }, // columnName missing
     ];
-    const parser = new Parser('{{3}} + 1', fieldsMissingTo);
+    const parser = new Parser('{3} + 1', fieldsMissingTo);
 
     expect(() =>
       parser.mapIdentifiers({ from: 'id', to: 'columnName' }),

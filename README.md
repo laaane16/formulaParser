@@ -10,7 +10,7 @@ Perfect for low-code platforms, dashboards, calculated fields, and dynamic logic
 
 ## 🚀 Features
 
-- ✅ Convert formulas like {{Field 1}} + {{Field 2}} * 2 into SQL
+- ✅ Convert formulas like {Field 1} + {Field 2} * 2 into SQL
 - ✅ Generate executable JavaScript functions from formulas
 - ✅ Parse formulas into abstract syntax trees (AST)
 - ✅ Support for custom field mappings and types
@@ -33,7 +33,7 @@ const fields = [
   { id: '2', name: 'Field 2', type: 'number' },
 ];
 
-const expression = '{{Field_1}} + {{Field_2}} * 2';
+const expression = '{Field_1} + {Field_2} * 2';
 
 const parser = new Parser(expression, fields);
 
@@ -55,7 +55,7 @@ const result = parser.runJs(jsFormula, { 1: 10, 2: 5 });
 > new Parser(expression: string, fields?: IField[], fieldAttribute?: keyof IField)
 Creates a new parser instance.
 
-> expression: your input formula (e.g. {{Field 1}} + 10)
+> expression: your input formula (e.g. {Field 1} + 10)
 
 > fields: optional array of fields (with id, name, type)
 
@@ -88,8 +88,8 @@ Replace all variables in formula
 
 | Type         | Operators                          | Example                        |
 |--------------|------------------------------------|--------------------------------|
-| Arithmetic   | `+`, `-`, `*`, `/`, `%`            | `{{price}} * {{quantity}} + 1`      |
-| Comparison   | `==`, `!=`, `>`, `<`, `>=`, `<=`   | `{{amount}} > 100`                |
+| Arithmetic   | `+`, `-`, `*`, `/`, `%`            | `{price} * {quantity} + 1`      |
+| Comparison   | `==`, `!=`, `>`, `<`, `>=`, `<=`   | `{amount} > 100`                |
 | Logical      | `AND`, `OR`, `NOT`                 | `active == true AND score > 5`|
 | Grouping     | Parentheses `( )`                  | `(a + b) * c`                  |
 | Variables    | Dynamic keys from your data        | `user.age`, `order.total`     |

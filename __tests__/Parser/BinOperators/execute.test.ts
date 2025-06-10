@@ -38,19 +38,19 @@ describe('Binary operators execute', () => {
     expect(parser.runJs(jsFormula)).toBe('11');
   });
   test('plus with null in field and num', () => {
-    const parser = new Parser('1 + {{field1}}', variables);
+    const parser = new Parser('1 + {field1}', variables);
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula, values)).toBe(1);
   });
   test('plus with null in field and str', () => {
-    const parser = new Parser('"" + {{field2}}', variables);
+    const parser = new Parser('"" + {field2}', variables);
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula, values)).toBe('');
   });
   test('plus with null in field and null in field', () => {
-    const parser = new Parser('{{field1}} + {{field2}}', variables);
+    const parser = new Parser('{field1} + {field2}', variables);
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula, values)).toBe('0');
@@ -88,19 +88,19 @@ describe('Binary operators execute', () => {
     expect(parser.runJs(jsFormula)).toBe('11');
   });
   test('concatenation with null in field and num', () => {
-    const parser = new Parser('1 & {{field1}}', variables);
+    const parser = new Parser('1 & {field1}', variables);
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula, values)).toBe('10');
   });
   test('concatenation with null in field and str', () => {
-    const parser = new Parser('"" & {{field2}}', variables);
+    const parser = new Parser('"" & {field2}', variables);
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula, values)).toBe('');
   });
   test('concatenation with null in field and null in field', () => {
-    const parser = new Parser('{{field1}} & {{field2}}', variables);
+    const parser = new Parser('{field1} & {field2}', variables);
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula, values)).toBe('0');
@@ -126,7 +126,7 @@ describe('Binary operators execute', () => {
     expect(parser.runJs(jsFormula)).toBe(0);
   });
   test('minus correct with num and field null', () => {
-    const parser = new Parser('1 - {{field1}}', variables);
+    const parser = new Parser('1 - {field1}', variables);
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula, values)).toBe(1);
@@ -146,7 +146,7 @@ describe('Binary operators execute', () => {
     expect(parser.runJs(jsFormula)).toBe(3);
   });
   test('multiply correct with num and field null', () => {
-    const parser = new Parser('1 * {{field1}}', variables);
+    const parser = new Parser('1 * {field1}', variables);
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula, values)).toBe(0);
@@ -178,7 +178,7 @@ describe('Binary operators execute', () => {
     expect(parser.runJs(jsFormula, values)).toBe(null);
   });
   test('division correct with num and field null', () => {
-    const parser = new Parser('10 / {{field1}}', variables);
+    const parser = new Parser('10 / {field1}', variables);
     const jsFormula = parser.toJs(true);
 
     expect(parser.runJs(jsFormula, values)).toBe(null);
@@ -198,7 +198,7 @@ describe('Binary operators execute', () => {
     expect(parser.runJs(jsFormula, values)).toBe(-1);
   });
   test('remainder correct with num and field null', () => {
-    const parser = new Parser('10 % {{field1}}', variables);
+    const parser = new Parser('10 % {field1}', variables);
     const jsFormula = parser.toJs(true);
 
     expect(parser.runJs(jsFormula, values)).toBe(null);

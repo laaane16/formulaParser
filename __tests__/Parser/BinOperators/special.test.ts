@@ -38,7 +38,7 @@ describe('bin operator node to sql', () => {
     );
   });
   test('binary operators can work with valid vars, which has equal types', () => {
-    const code = '{{Поле 2}} + {{Поле 2}}';
+    const code = '{Поле 2} + {Поле 2}';
     const result = stringifyAstToSql(code, fields);
 
     expect(result).toBe(
@@ -68,10 +68,10 @@ describe('bin operator node to sql', () => {
 
 describe('bin operator node errors', () => {
   test('plus can`t work with vats which has different types', () => {
-    const code = '{{Поле 3}} + {{Поле 2}}';
+    const code = '{Поле 3} + {Поле 2}';
 
     expect(() => stringifyAstToSql(code, fields)).toThrow(
-      'Unexpected type of data when + on the position 11',
+      'Unexpected type of data when + on the position 9',
     );
   });
 });

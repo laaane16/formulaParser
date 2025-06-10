@@ -132,7 +132,7 @@ export default class Parser {
 
   /**
    * Extracts the list of unique variable names used in the expression.
-   * Removes templating syntax from variables (e.g., `{{...}}`).
+   * Removes templating syntax from variables (e.g., `{...}`).
    * @returns {string[]} An array of unique variable names.
    */
   public getVariables(): string[] {
@@ -266,7 +266,7 @@ export default class Parser {
 }
 
 // Example usage:
-// key - value in {{...}}
+// key - value in {...}
 // const variables: Record<string, IVar> = {
 //   1: {
 //     id: '1',

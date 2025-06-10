@@ -20,7 +20,7 @@ describe('unar operator node to sql', () => {
   });
 
   test('minus can work with vars which type = number', () => {
-    const parser = new Parser('- {{Поле 2}}', fields);
+    const parser = new Parser('- {Поле 2}', fields);
 
     expect(parser.toSql()).toBe(`(- COALESCE($$VARIABLES['Поле 2'], 0))`);
   });
