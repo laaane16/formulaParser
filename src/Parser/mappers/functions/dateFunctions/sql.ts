@@ -1,4 +1,4 @@
-import { DATE_FORMATS_FORMULA, UNIT } from '../../../../constants/date';
+import { UNIT } from '../../../../constants/date';
 import { ValidDateFunctionsNamesWithSafe } from './types';
 
 export const dateFunctionsToSqlMap: Record<
@@ -140,7 +140,7 @@ export const dateFunctionsToSqlMap: Record<
   SECOND: ([date]) => `EXTRACT(SECOND FROM ${date})`,
 
   /** Returns current timestamp. */
-  NOW: () => `NOW()`,
+  // NOW: () => `NOW()`,
 
   /** Returns the current date with timestamp. */
   TODAY: () => `CURRENT_DATE::TIMESTAMPTZ`,

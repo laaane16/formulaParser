@@ -125,11 +125,11 @@ describe('dateFunctionsToJsMap', () => {
     );
   });
 
-  test('NOW', () => {
-    expect(dateFunctionsToJsMap.NOW([])).toBe(
-      `DateTime.now().toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
-    );
-  });
+  // test('NOW', () => {
+  //   expect(dateFunctionsToJsMap.NOW([])).toBe(
+  //     `DateTime.now().toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
+  //   );
+  // });
 
   test('TODAY', () => {
     expect(dateFunctionsToJsMap.TODAY([])).toBe(

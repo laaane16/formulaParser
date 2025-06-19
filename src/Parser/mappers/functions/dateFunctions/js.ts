@@ -183,9 +183,9 @@ export const dateFunctionsToJsMap: Record<
    * Returns the current timestamp in ISO format.
    * @returns {string} JavaScript expression returning current date in ISO.
    */
-  NOW: () => {
-    return `DateTime.now().toFormat(${DATE_FORMAT}).slice(0, -2)`;
-  },
+  // NOW: () => {
+  //   return `DateTime.now().toFormat(${DATE_FORMAT}).slice(0, -2)`;
+  // },
 
   /**
    * Returns the current date (start of day) in ISO format.

@@ -24,7 +24,7 @@ export type ValidDateFunctionsNamesWithSafe =
   | 'IS_SAME'
   | 'MINUTE'
   | 'MONTH'
-  | 'NOW'
+  // | 'NOW'
   | 'SECOND'
   | 'TODAY'
   | 'WEEKDAY'

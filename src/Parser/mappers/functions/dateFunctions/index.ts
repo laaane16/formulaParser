@@ -186,14 +186,14 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.MONTH,
       },
     ],
-    NOW: [
-      {
-        args: [],
-        returnType: [DATE_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.NOW,
-        sqlFn: dateFunctionsToSqlMap.NOW,
-      },
-    ],
+    // NOW: [
+    //   {
+    //     args: [],
+    //     returnType: [DATE_NODE_TYPE],
+    //     jsFn: dateFunctionsToJsMap.NOW,
+    //     sqlFn: dateFunctionsToSqlMap.NOW,
+    //   },
+    // ],
     SECOND: [
       {
         args: [

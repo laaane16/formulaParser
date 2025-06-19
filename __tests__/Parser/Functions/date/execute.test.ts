@@ -156,12 +156,12 @@ describe('execute date funcs', () => {
 
     expect(parser.runJs(js, values)).toBe(false);
   });
-  test('NOW', () => {
-    const parser = new Parser('NOW()', fields);
-    const js = parser.toJs();
+  // test('NOW', () => {
+  //   const parser = new Parser('NOW()', fields);
+  //   const js = parser.toJs();
 
-    expect(typeof parser.runJs(js, values)).toBe('string');
-  });
+  //   expect(typeof parser.runJs(js, values)).toBe('string');
+  // });
   test('TODAY', () => {
     const parser = new Parser('TODAY()', fields);
     const js = parser.toJs();
