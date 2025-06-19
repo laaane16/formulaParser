@@ -20,43 +20,43 @@ describe('Binary operators to sql', () => {
 
   test('plus correct with nums', () => {
     const parser = new Parser('1 + 1');
-    expect(parser.toSql()).toBe('1 + 1');
+    expect(parser.toSqlWithVariables()).toBe('1 + 1');
   });
   test('plus correct with strs', () => {
     const parser = new Parser(`'1' + "1"`);
-    expect(parser.toSql()).toBe(`CONCAT('1', '1')`); // '11' in psql
+    expect(parser.toSqlWithVariables()).toBe(`CONCAT('1', '1')`); // '11' in psql
   });
   test('plus correct with str and num', () => {
     const parser = new Parser(`1 + "1"`);
-    expect(parser.toSql()).toBe(`CONCAT((1)::text, ('1')::text)`); // '11' in psql
+    expect(parser.toSqlWithVariables()).toBe(`CONCAT((1)::text, ('1')::text)`); // '11' in psql
   });
   test('plus with null and num', () => {
     const parser = new Parser('1 + {field1}', variables);
-    const sqlFormula = parser.toSql();
+    const sqlFormula = parser.toSqlWithVariables(false, values);
 
-    expect(parser.replaceWithVariables(sqlFormula, values)).toBe(
+    expect(sqlFormula).toBe(
       '1 + COALESCE(null, 0)', // 1 in psql
     );
   });
   test('plus with null and str', () => {
     const parser = new Parser('"" + {field2}', variables);
-    const sqlFormula = parser.toSql();
+    const sqlFormula = parser.toSqlWithVariables(false, values);
 
-    expect(parser.replaceWithVariables(sqlFormula, values)).toBe(
+    expect(sqlFormula).toBe(
       `CONCAT('', COALESCE(null, ''))`, // '' in psql
     );
   });
   test('plus with null and null', () => {
     const parser = new Parser('{field1} + {field2}', variables);
-    const sqlFormula = parser.toSql();
+    const sqlFormula = parser.toSqlWithVariables(false, values);
 
-    expect(parser.replaceWithVariables(sqlFormula, values)).toBe(
+    expect(sqlFormula).toBe(
       `CONCAT((COALESCE(null, 0))::text, (COALESCE(null, ''))::text)`, // '0' in psql
     );
   });
   test('plus with null', () => {
     const parser = new Parser('1 + 1 / 0', variables);
-    const sqlFormula = parser.toSql(true);
+    const sqlFormula = parser.toSqlWithVariables(true);
 
     expect(sqlFormula).toBe(
       '1 + (CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END)',
@@ -64,7 +64,7 @@ describe('Binary operators to sql', () => {
   });
   test('plus with str and null', () => {
     const parser = new Parser('"test" + 1 / 0', variables);
-    const sqlFormula = parser.toSql(true);
+    const sqlFormula = parser.toSqlWithVariables(true);
 
     expect(sqlFormula).toBe(
       `CONCAT(('test')::text, ((CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END))::text)`,
@@ -74,7 +74,7 @@ describe('Binary operators to sql', () => {
   // CONCATENATION
   test('concatenation correct with nums', () => {
     const parser = new Parser('1 & 1');
-    expect(parser.toSql()).toBe('CONCAT((1)::text, (1)::text)');
+    expect(parser.toSqlWithVariables()).toBe('CONCAT((1)::text, (1)::text)');
   });
   /**
    * In psql results are:
@@ -90,7 +90,7 @@ describe('Binary operators to sql', () => {
   // MINUS
   test('minus', () => {
     const parser = new Parser('1 - 1');
-    expect(parser.toSql()).toBe('1 - 1');
+    expect(parser.toSqlWithVariables()).toBe('1 - 1');
   });
   /**
    * In psql results are:
@@ -102,7 +102,7 @@ describe('Binary operators to sql', () => {
   // MULTIPLY
   test('multiply', () => {
     const parser = new Parser('1 * 3');
-    expect(parser.toSql()).toBe('1 * 3');
+    expect(parser.toSqlWithVariables()).toBe('1 * 3');
   });
   /**
    * In psql results are:
@@ -114,7 +114,7 @@ describe('Binary operators to sql', () => {
   // DIVISION
   test('division', () => {
     const parser = new Parser('10 / 3');
-    expect(parser.toSql(true)).toBe(
+    expect(parser.toSqlWithVariables(true)).toBe(
       '(CASE WHEN (3) != 0 THEN (10)::numeric / 3 ELSE NULL END)',
     );
   });
@@ -129,7 +129,7 @@ describe('Binary operators to sql', () => {
   // REMAINDER
   test('remainder', () => {
     const parser = new Parser('10 % 3');
-    expect(parser.toSql(true)).toBe(
+    expect(parser.toSqlWithVariables(true)).toBe(
       '(CASE WHEN (3) != 0 THEN 10 % 3 ELSE NULL END)',
     );
   });
@@ -144,7 +144,7 @@ describe('Binary operators to sql', () => {
   // POWER
   test('power', () => {
     const parser = new Parser('10 ^ 3');
-    expect(parser.toSql(true)).toBe('(10 ^ 3)');
+    expect(parser.toSqlWithVariables(true)).toBe('(10 ^ 3)');
   });
   /**
    * In psql results are:
@@ -156,7 +156,7 @@ describe('Binary operators to sql', () => {
   // EQUAL
   test('equal', () => {
     const parser = new Parser('10 == 3');
-    expect(parser.toSql(true)).toBe('10 = 3');
+    expect(parser.toSqlWithVariables(true)).toBe('10 = 3');
   });
   /**
    * In psql results are:
@@ -170,7 +170,7 @@ describe('Binary operators to sql', () => {
   // NOT EQUAL
   test('not equal', () => {
     const parser = new Parser('10 != 3');
-    expect(parser.toSql(true)).toBe('10 != 3');
+    expect(parser.toSqlWithVariables(true)).toBe('10 != 3');
   });
   /**
    * In psql results are:
@@ -184,7 +184,7 @@ describe('Binary operators to sql', () => {
   // GREATER
   test('greater', () => {
     const parser = new Parser('10 > 3');
-    expect(parser.toSql(true)).toBe('10 > 3');
+    expect(parser.toSqlWithVariables(true)).toBe('10 > 3');
   });
   /**
    * In psql results are:
@@ -198,7 +198,7 @@ describe('Binary operators to sql', () => {
   // GREATER OR EQUAL
   test('not equal', () => {
     const parser = new Parser('10 >= 3');
-    expect(parser.toSql(true)).toBe('10 >= 3');
+    expect(parser.toSqlWithVariables(true)).toBe('10 >= 3');
   });
   /**
    * In psql results are:
@@ -212,7 +212,7 @@ describe('Binary operators to sql', () => {
   // LESS
   test('less', () => {
     const parser = new Parser('10 < 3');
-    expect(parser.toSql(true)).toBe('10 < 3');
+    expect(parser.toSqlWithVariables(true)).toBe('10 < 3');
   });
   /**
    * In psql results are:
@@ -226,7 +226,7 @@ describe('Binary operators to sql', () => {
   // LESS OR EQUAL
   test('less or equal', () => {
     const parser = new Parser('10 <= 3');
-    expect(parser.toSql(true)).toBe('10 <= 3');
+    expect(parser.toSqlWithVariables(true)).toBe('10 <= 3');
   });
   /**
    * In psql results are:
@@ -240,7 +240,7 @@ describe('Binary operators to sql', () => {
   // AND
   test('and', () => {
     const parser = new Parser('1 > 0 && 1 > 0');
-    expect(parser.toSql(true)).toBe('1 > 0 AND 1 > 0');
+    expect(parser.toSqlWithVariables(true)).toBe('1 > 0 AND 1 > 0');
   });
   /**
    * In psql results are:
@@ -251,7 +251,7 @@ describe('Binary operators to sql', () => {
   // OR
   test('or', () => {
     const parser = new Parser('1 > 1 || 1 > 0');
-    expect(parser.toSql(true)).toBe('1 > 1 OR 1 > 0');
+    expect(parser.toSqlWithVariables(true)).toBe('1 > 1 OR 1 > 0');
   });
   /**
    * In psql results are:

@@ -3,7 +3,7 @@ import { Parser } from '../../../../src';
 describe('execute text funcs', () => {
   test('concat', () => {
     const parser = new Parser('CONCAT("HELLO", "_",  "WORLD")');
-    expect(parser.toSql()).toBe(`CONCAT('HELLO','_','WORLD')`);
+    expect(parser.toSqlWithVariables()).toBe(`CONCAT('HELLO','_','WORLD')`);
   });
   /**
    * return HELLO_WORLD in psql
@@ -11,7 +11,7 @@ describe('execute text funcs', () => {
 
   test('trim leading', () => {
     const parser = new Parser('TRIM("leading", "abc" , "ababcd")');
-    expect(parser.toSql()).toBe(`
+    expect(parser.toSqlWithVariables()).toBe(`
       (CASE ('leading')
         WHEN 'leading' THEN TRIM(LEADING ('abc') FROM ('ababcd'))
         WHEN 'trailing' THEN TRIM(TRAILING ('abc') FROM ('ababcd'))
@@ -22,7 +22,7 @@ describe('execute text funcs', () => {
   });
   test('safe trim leading', () => {
     const parser = new Parser('TRIM("leading", "abc" , "ababcd")');
-    expect(parser.toSql(true)).toBe(`
+    expect(parser.toSqlWithVariables(true)).toBe(`
       (CASE ('leading')
         WHEN 'leading' THEN TRIM(LEADING ('abc') FROM ('ababcd'))
         WHEN 'trailing' THEN TRIM(TRAILING ('abc') FROM ('ababcd'))
@@ -44,7 +44,7 @@ describe('execute text funcs', () => {
 
   test('search', () => {
     const parser = new Parser('SEARCH("lo", "Hello")');
-    expect(parser.toSql()).toBe(`POSITION(('lo') in ('Hello'))`);
+    expect(parser.toSqlWithVariables()).toBe(`POSITION(('lo') in ('Hello'))`);
   });
   /**
    * SEARCH("lo", "Hello") -> 4
@@ -53,7 +53,7 @@ describe('execute text funcs', () => {
 
   test('replace', () => {
     const parser = new Parser('REPLACE("banana", "a", "o")');
-    expect(parser.toSql()).toBe(`REPLACE('banana','a','o')`);
+    expect(parser.toSqlWithVariables()).toBe(`REPLACE('banana','a','o')`);
   });
   /**
    * REPLACE("banana", "a", "o") -> "bonono"
@@ -62,7 +62,7 @@ describe('execute text funcs', () => {
 
   test('lower', () => {
     const parser = new Parser('LOWER("BANANa")');
-    expect(parser.toSql()).toBe("LOWER('BANANa')");
+    expect(parser.toSqlWithVariables()).toBe("LOWER('BANANa')");
   });
   /**
    * return banana in psql
@@ -70,7 +70,7 @@ describe('execute text funcs', () => {
 
   test('upper', () => {
     const parser = new Parser('UPPER("BaNANa")');
-    expect(parser.toSql()).toBe("UPPER('BaNANa')");
+    expect(parser.toSqlWithVariables()).toBe("UPPER('BaNANa')");
   });
   /**
    * return BANANA in psql
@@ -78,7 +78,7 @@ describe('execute text funcs', () => {
 
   test('repeat', () => {
     const parser = new Parser('REPEAT("x", 3)');
-    expect(parser.toSql()).toBe("REPEAT('x',3)");
+    expect(parser.toSqlWithVariables()).toBe("REPEAT('x',3)");
   });
   /**
    * REPEAT("x", 3) -> "xxx"
@@ -87,7 +87,7 @@ describe('execute text funcs', () => {
    */
   test('substring', () => {
     const parser = new Parser('SUBSTRING("abcdef", 2, 4)');
-    expect(parser.toSql()).toBe(
+    expect(parser.toSqlWithVariables()).toBe(
       "SUBSTRING(('abcdef') from (CASE WHEN (2) > 0 THEN (2) ELSE 0 END) for (CASE WHEN (2) > 0 AND (2) > 0 THEN (4) ELSE 0 END))",
     );
   });
@@ -100,7 +100,7 @@ describe('execute text funcs', () => {
 
   test('left', () => {
     const parser = new Parser('LEFT("str", 2)');
-    expect(parser.toSql()).toBe(
+    expect(parser.toSqlWithVariables()).toBe(
       "LEFT(('str'), CASE WHEN (2) > 0 THEN (2) ELSE 0 END)",
     );
   });
@@ -111,7 +111,7 @@ describe('execute text funcs', () => {
 
   test('right', () => {
     const parser = new Parser('RIGHT("str", 2)');
-    expect(parser.toSql()).toBe(
+    expect(parser.toSqlWithVariables()).toBe(
       "RIGHT(('str'), CASE WHEN (2) > 0 THEN (2) ELSE 0 END)",
     );
   });
@@ -122,7 +122,7 @@ describe('execute text funcs', () => {
 
   test('len', () => {
     const parser = new Parser('LEN("str")');
-    expect(parser.toSql()).toBe("LENGTH('str')");
+    expect(parser.toSqlWithVariables()).toBe("LENGTH('str')");
   });
   /**
    * return in psql 3
@@ -130,11 +130,13 @@ describe('execute text funcs', () => {
 
   test('join with nums and strs', () => {
     const parser = new Parser('JOIN(",", "213", "test", 213)');
-    expect(parser.toSql()).toBe("CONCAT_WS(',', '213','test',213)");
+    expect(parser.toSqlWithVariables()).toBe(
+      "CONCAT_WS(',', '213','test',213)",
+    );
   });
   test('join with nums and strs and null', () => {
     const parser = new Parser('JOIN(",", "213", "test", 213, 1 / 0)');
-    expect(parser.toSql(true)).toBe(
+    expect(parser.toSqlWithVariables(true)).toBe(
       "CONCAT_WS(',', '213','test',213,(CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END))",
     );
   });
@@ -145,7 +147,7 @@ describe('execute text funcs', () => {
 
   test('to string', () => {
     const parser = new Parser('TO_STRING(1)');
-    expect(parser.toSql()).toBe('(1)::text');
+    expect(parser.toSqlWithVariables()).toBe('(1)::text');
   });
   /**
    * TO_STRING(2) -> '2'

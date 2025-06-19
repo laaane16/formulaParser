@@ -37,9 +37,7 @@ const expression = '{Field_1} + {Field_2} * 2';
 
 const parser = new Parser(expression, fields);
 
-const sql = parser.toSql()
-
-parser.replaceWithVariables(sql, { Field_1: 123, Field_1: 321 })
+const sql = parser.toSqlWithVariables()
 // => (123 + (321 * 2))
 
 const jsFormula = parser.toJs();
@@ -61,7 +59,7 @@ Creates a new parser instance.
 
 > fieldAttribute: defines how variables are resolved (id, name, etc.)
 
-> parser.toSql(): string
+> parser.toSqlWithVariables(): string
 Converts the formula into a valid SQL expression string.
 
 > parser.toJs(): string
@@ -80,9 +78,6 @@ Supported node types: Number, Variable, BinaryExpression, CallExpression, UnaryE
 
 > parser.getVariables(): string[]
 Returns all unique variable names used in the formula.
-
-> parser.replaceWithVariables(sqlCode, { [var1]: 123 }): string[]
-Replace all variables in formula
 
 ## 🧮 Supported Operators
 

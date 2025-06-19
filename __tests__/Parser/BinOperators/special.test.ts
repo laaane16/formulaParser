@@ -16,6 +16,11 @@ const fields: Record<string, IVar> = {
   },
 };
 
+const values = {
+  'Поле 2': 150,
+  'Поле 3': 'str',
+};
+
 describe('bin operator node to sql', () => {
   test('plus can work with different types', () => {
     const code = `1 + "test"`;
@@ -39,11 +44,9 @@ describe('bin operator node to sql', () => {
   });
   test('binary operators can work with valid vars, which has equal types', () => {
     const code = '{Поле 2} + {Поле 2}';
-    const result = stringifyAstToSql(code, fields);
+    const result = stringifyAstToSql(code, fields, values);
 
-    expect(result).toBe(
-      "COALESCE($$VARIABLES['Поле 2'], 0) + COALESCE($$VARIABLES['Поле 2'], 0)",
-    );
+    expect(result).toBe('COALESCE(150, 0) + COALESCE(150, 0)');
   });
   test('bin operators precedences take into priorities', () => {
     expect(stringifyAstToSql(`1 * 1 + ""`)).toBe(
@@ -70,7 +73,7 @@ describe('bin operator node errors', () => {
   test('plus can`t work with vats which has different types', () => {
     const code = '{Поле 3} + {Поле 2}';
 
-    expect(() => stringifyAstToSql(code, fields)).toThrow(
+    expect(() => stringifyAstToSql(code, fields, values)).toThrow(
       'Unexpected type of data when + on the position 9',
     );
   });

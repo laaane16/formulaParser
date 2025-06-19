@@ -4,11 +4,11 @@ describe('boolean to sql', () => {
   test('true', () => {
     const parser = new Parser('true');
 
-    expect(parser.toSql()).toBe('true');
+    expect(parser.toSqlWithVariables()).toBe('true');
   });
   test('false', () => {
     const parser = new Parser('false');
 
-    expect(parser.toSql()).toBe('false');
+    expect(parser.toSqlWithVariables()).toBe('false');
   });
 });

@@ -9,7 +9,6 @@ import StatementsNode from './AST/StatementsNode';
 import { defaultVarAttr } from './constants/defaults';
 import { NodeTypesValues } from './constants/nodeTypes';
 import { FORMATS } from './constants/formats';
-import { FIND_VARIABLES_REGEXP } from './constants/templates';
 import {
   JS_CAST_TYPES,
   SQL_CAST_TYPES,
@@ -20,7 +19,6 @@ import { FormulaError } from './lib/exceptions';
 import { isNil } from './lib/isNil';
 import { removePrefixSuffix } from './lib/removePrefixSuffix';
 import { validateResultJs } from './lib/valiadateResultJs';
-import { validateReplacedVariables } from './lib/validateReplacedVariables';
 
 import { IVar } from './types';
 
@@ -165,12 +163,15 @@ export default class Parser {
   }
 
   /**
-   * Converts the parsed expression into an SQL string.
+   * Converts the parsed expression into an SQL string with variables replacement.
    * @returns {string} The SQL representation of the formula.
    */
-  public toSql(safe: boolean = false): string {
+  public toSqlWithVariables(
+    safe: boolean = false,
+    values: Record<string, unknown> = {},
+  ): string {
     const [parser, node] = this.prepareParser();
-    return parser.stringifyAst(node, FORMATS.SQL, safe)[0]; // Currently, returns only the first SQL line
+    return parser.stringifyAst(node, FORMATS.SQL, safe, values)[0]; // Currently, returns only the first SQL line
   }
 
   /**
@@ -204,24 +205,10 @@ export default class Parser {
 
     return runFormula;
   }
-  /**
-   * Replace vars on values
-   * @param {string} sqlFormula - The Sql format formula
-   * @param {Record<string, unknown>} values - An object with key-value pairs for variables. Key always id in fields
-   */
-  public replaceWithVariables(
-    sqlFormula: string,
-    values: Record<string, unknown>,
-  ): string {
-    validateReplacedVariables(sqlFormula, values);
-    return sqlFormula.replace(FIND_VARIABLES_REGEXP, (_, key) => {
-      return JSON.stringify(values[key]);
-    });
-  }
 
   /**
    *
-   * @param result - result after runJs or toSql
+   * @param result - result after runJs or toSqlWithVariables
    */
   public castResultType(
     result: unknown,
@@ -288,18 +275,18 @@ export default class Parser {
 //   some: 5000,
 // };
 
-// const expression = 'DATE(2025, 1, 1)';
+// const expression = 'DATE(2025, {1}, 1)';
 
 // const parser = new Parser(expression, variables);
 
-// const sqlQuery = parser.toSql(true);
-// console.log('SQL:', sqlQuery); // Outputs the generated SQL query
+// const sqlQuery = parser.toSqlWithVariablesWithVariables(true, values);
+// console.log('SQL:', sqlQuery, values); // Outputs the generated SQL query
 
 // const jsFormula = parser.toJs(true);
 // console.log('JS:', jsFormula); // Outputs the generated JS query
 
 // console.log('RUN JS:', parser.runJs(jsFormula, values));
 
-// console.log(parser.replaceWithVariables(sqlQuery, values));
-
-// console.log(parser.castResultType(parser.runJs(jsFormula), 'js', 'date'));
+// console.log(
+//   parser.castResultType(parser.runJs(jsFormula, values), 'js', 'date'),
+// );

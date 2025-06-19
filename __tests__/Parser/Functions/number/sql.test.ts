@@ -3,7 +3,7 @@ import { Parser } from '../../../../src';
 describe('number funcs', () => {
   test('abs', () => {
     const parser = new Parser('ABS(-10)');
-    expect(parser.toSql()).toBe('ABS((- 10))');
+    expect(parser.toSqlWithVariables()).toBe('ABS((- 10))');
   });
   /**
    * return 10 in psql
@@ -11,7 +11,7 @@ describe('number funcs', () => {
 
   test('ceil', () => {
     const parser = new Parser('CEIL(10.123)');
-    expect(parser.toSql()).toBe('CEIL(10.123)');
+    expect(parser.toSqlWithVariables()).toBe('CEIL(10.123)');
   });
   /**
    * return 11 in psql
@@ -19,7 +19,7 @@ describe('number funcs', () => {
 
   test('floor', () => {
     const parser = new Parser('FLOOR(4.8)');
-    expect(parser.toSql()).toBe('FLOOR(4.8)');
+    expect(parser.toSqlWithVariables()).toBe('FLOOR(4.8)');
   });
   /**
    * return 4 in psql
@@ -27,7 +27,7 @@ describe('number funcs', () => {
 
   test('exp', () => {
     const parser = new Parser('EXP(2)');
-    expect(parser.toSql()).toBe('EXP(2)');
+    expect(parser.toSqlWithVariables()).toBe('EXP(2)');
   });
   /**
    * return 7.38905609893065 in psql
@@ -35,11 +35,11 @@ describe('number funcs', () => {
 
   test('mod', () => {
     const parser = new Parser('MOD(10, 3)');
-    expect(parser.toSql()).toBe('MOD(10, 3)');
+    expect(parser.toSqlWithVariables()).toBe('MOD(10, 3)');
   });
   test('mod safe', () => {
     const parser = new Parser('MOD(10, 3)');
-    expect(parser.toSql(true)).toBe(
+    expect(parser.toSqlWithVariables(true)).toBe(
       `(CASE WHEN (3) != 0 THEN MOD(10, 3) ELSE NULL END)`,
     );
   });
@@ -52,7 +52,7 @@ describe('number funcs', () => {
 
   test('power', () => {
     const parser = new Parser('POWER(2, 3)');
-    expect(parser.toSql()).toBe('POWER(2, 3)');
+    expect(parser.toSqlWithVariables()).toBe('POWER(2, 3)');
   });
   /**
    * return 8 in psql
@@ -60,7 +60,7 @@ describe('number funcs', () => {
 
   test('round', () => {
     const parser = new Parser('ROUND(4.4)');
-    expect(parser.toSql()).toBe('ROUND(4.4)');
+    expect(parser.toSqlWithVariables()).toBe('ROUND(4.4)');
   });
   /**
    * ROUND(4.4) -> 4
@@ -70,11 +70,11 @@ describe('number funcs', () => {
 
   test('sqrt', () => {
     const parser = new Parser('SQRT(25)');
-    expect(parser.toSql()).toBe('SQRT(25)');
+    expect(parser.toSqlWithVariables()).toBe('SQRT(25)');
   });
   test('sqrt safe', () => {
     const parser = new Parser('SQRT(25)');
-    expect(parser.toSql(true)).toBe(
+    expect(parser.toSqlWithVariables(true)).toBe(
       '(CASE WHEN 25 >= 0 THEN SQRT(25) ELSE NULL END)',
     );
   });
@@ -87,7 +87,7 @@ describe('number funcs', () => {
 
   test('random', () => {
     const parser = new Parser('RANDOM()');
-    expect(parser.toSql()).toBe('RANDOM()');
+    expect(parser.toSqlWithVariables()).toBe('RANDOM()');
   });
   /**
    * return random number; 0 <= number < 1
@@ -95,7 +95,7 @@ describe('number funcs', () => {
 
   test('sum', () => {
     const parser = new Parser('SUM(1,2,3,4,5)');
-    expect(parser.toSql()).toBe('((1) + (2) + (3) + (4) + (5))');
+    expect(parser.toSqlWithVariables()).toBe('((1) + (2) + (3) + (4) + (5))');
   });
   /**
    * return 15 in psql
@@ -103,7 +103,9 @@ describe('number funcs', () => {
 
   test('average', () => {
     const parser = new Parser('AVERAGE(1,2,3,4,5)');
-    expect(parser.toSql()).toBe('(((1) + (2) + (3) + (4) + (5)) / (5))');
+    expect(parser.toSqlWithVariables()).toBe(
+      '(((1) + (2) + (3) + (4) + (5)) / (5))',
+    );
   });
   /**
    * return 3 in psql
@@ -111,7 +113,7 @@ describe('number funcs', () => {
 
   test('max', () => {
     const parser = new Parser('MAX(1,2,3,4)');
-    expect(parser.toSql()).toBe('GREATEST(1,2,3,4)');
+    expect(parser.toSqlWithVariables()).toBe('GREATEST(1,2,3,4)');
   });
   /**
    * return 4 in psql
@@ -119,7 +121,7 @@ describe('number funcs', () => {
 
   test('min', () => {
     const parser = new Parser('MIN(1,2,3,4,5)');
-    expect(parser.toSql()).toBe('LEAST(1,2,3,4,5)');
+    expect(parser.toSqlWithVariables()).toBe('LEAST(1,2,3,4,5)');
   });
   /**
    * return 1 in psql
@@ -127,11 +129,11 @@ describe('number funcs', () => {
 
   test('to_number', () => {
     const parser = new Parser('TO_NUMBER("123")');
-    expect(parser.toSql()).toBe("('123')::numeric");
+    expect(parser.toSqlWithVariables()).toBe("('123')::numeric");
   });
   test('safe to_number', () => {
     const parser = new Parser('TO_NUMBER("123")');
-    expect(parser.toSql(true)).toBe(
+    expect(parser.toSqlWithVariables(true)).toBe(
       `(CASE WHEN ('123')::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN ('123')::text::numeric ELSE NULL END)`,
     );
   });

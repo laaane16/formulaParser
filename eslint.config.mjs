@@ -24,7 +24,7 @@ export default tseslint.config(
 
     rules: {
       '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/explicit-function-return-type': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
 
     languageOptions: {

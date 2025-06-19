@@ -311,11 +311,12 @@ export default class Parser {
     node: ExpressionNode,
     format: (typeof FORMATS)[keyof typeof FORMATS],
     safe: boolean,
+    values?: Record<string, unknown>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     if (node instanceof StatementsNode) {
       return node.codeStrings.map(
-        (i) => `${this.stringifyAst(i, format, safe)}`,
+        (i) => `${this.stringifyAst(i, format, safe, values)}`,
       );
     }
     if (node instanceof NumberNode) {
@@ -335,7 +336,6 @@ export default class Parser {
       const globalVarKey = removePrefixSuffix(node.variable.text);
 
       if (this.variables[globalVarKey]) {
-        const preparedVar = `$$VARIABLES['${globalVarKey}']`;
         const sendedVar = this.variables[globalVarKey];
         let variableType = sendedVar.type;
         variableType =
@@ -345,23 +345,35 @@ export default class Parser {
         const alternateValue = "''";
 
         if (format === FORMATS.JS) {
+          const preparedVar = `$$VARIABLES['${globalVarKey}']`;
+
           return `(${preparedVar} === null ? ${defaultValue ?? alternateValue}: ${preparedVar})`;
         } else {
-          return `COALESCE(${preparedVar}, ${defaultValue ?? alternateValue})`;
+          if (!values) {
+            FormulaError.requiredParamsError(['values']);
+          }
+
+          const value = values[globalVarKey];
+          if (value === undefined) {
+            FormulaError.missingVarsInValues([globalVarKey]);
+          }
+          const preparedValue = this.prepareVariableValue(value);
+
+          return `COALESCE(${preparedValue}, ${defaultValue ?? alternateValue})`;
         }
       }
 
       FormulaError.fieldNotFoundError(node.start, node.variable.text);
     }
     if (node instanceof ParenthesizedNode) {
-      return `(${this.stringifyAst(node.expression, format, safe)})`;
+      return `(${this.stringifyAst(node.expression, format, safe, values)})`;
     }
     if (node instanceof UnarOperationNode) {
       const operator =
         allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
       const [operatorType] = this.getReturnType(node);
 
-      const operand = this.stringifyAst(node.operand, format, safe);
+      const operand = this.stringifyAst(node.operand, format, safe, values);
       const preparedOperator = operator[`${format}Fn`](operand);
 
       const isPolymorphic = operator.types.length === 0;
@@ -388,8 +400,8 @@ export default class Parser {
         allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
       const [operatorType, index] = this.getReturnType(node);
 
-      const leftNode = this.stringifyAst(node.left, format, safe);
-      const rightNode = this.stringifyAst(node.right, format, safe);
+      const leftNode = this.stringifyAst(node.left, format, safe, values);
+      const rightNode = this.stringifyAst(node.right, format, safe, values);
 
       if (operatorType.has(UNKNOWN_NODE_TYPE) || index === undefined) {
         FormulaError.unexpectedDataType(node.operator.pos, node.operator.text);
@@ -414,9 +426,14 @@ export default class Parser {
       const [consequentType] = this.getReturnType(node.consequent);
       const [alternateType] = this.getReturnType(node.alternate);
 
-      const test = this.stringifyAst(node.test, format, safe);
-      const consequent = this.stringifyAst(node.consequent, format, safe);
-      const alternate = this.stringifyAst(node.alternate, format, safe);
+      const test = this.stringifyAst(node.test, format, safe, values);
+      const consequent = this.stringifyAst(
+        node.consequent,
+        format,
+        safe,
+        values,
+      );
+      const alternate = this.stringifyAst(node.alternate, format, safe, values);
 
       if (consequentType.size !== 1 || alternateType.size !== 1) {
         FormulaError.invalidIfStatement(node.start);
@@ -458,7 +475,7 @@ export default class Parser {
         }
 
         const functionArgs = node.args.map((arg) =>
-          this.stringifyAst(arg, format, safe),
+          this.stringifyAst(arg, format, safe, values),
         );
         const neededFunc = currentFunction[idx];
 
@@ -481,6 +498,13 @@ export default class Parser {
     }
     FormulaError.syntaxError(node.start);
   }
+
+  prepareVariableValue = (value: unknown) => {
+    if (typeof value === 'string') {
+      return `'${value}'`;
+    }
+    return value;
+  };
 
   // == TYPE CHECK ==
 
