@@ -28,8 +28,12 @@ export const tokenTypesList: Map<string, TokenType> = new Map([
   // IF
   ['IF', new TokenType('IF', 'IF')],
 
+  // KEYWORDS
+  ['TRUE', new TokenType('TRUE', 'true')], // TRUE psql
+  ['FALSE', new TokenType('FALSE', 'false')], // FALSE psql
+
   // FUNCTIONS: ASD()
-  ['FUNCTION', new TokenType('FUNCTION', '[A-Z]+(_[A-Z]+)*')],
+  ['FUNCTION', new TokenType('FUNCTION', '[a-zA-Z]+(_[a-zA-Z]+)*')],
 
   // SYMBOLS
   ['SPACE', new TokenType('SPACE', '[ \\n\\t\\r]')],
@@ -39,10 +43,6 @@ export const tokenTypesList: Map<string, TokenType> = new Map([
 
   // UNAR_OPERATORS
   ['NOT', new TokenType('NOT', '(?!\\!=)!')], // NOT psql
-
-  // KEYWORDS
-  ['TRUE', new TokenType('TRUE', 'true')], // TRUE psql
-  ['FALSE', new TokenType('FALSE', 'false')], // FALSE psql
 
   //BIN_OPERATORS
   ['PLUS', new TokenType('PLUS', '\\+')], // + PSQL

@@ -236,11 +236,11 @@ export default class Parser {
           tokenTypesList.get('RPAR') as TokenType,
         );
         if (isBracketsEmpty) {
-          return new FunctionNode(func, func.text, []);
+          return new FunctionNode(func, func.text.toUpperCase(), []);
         }
         const args = this.parseFunctionArgs();
         this.require(tokenTypesList.get('RPAR') as TokenType);
-        return new FunctionNode(func, func.text, args);
+        return new FunctionNode(func, func.text.toUpperCase(), args);
       }
       FormulaError.expectedFunctionArguments(this.pos);
     }

@@ -7,4 +7,11 @@ describe('', () => {
 
     expect(parser.runJs(js, undefined)).toBe(null);
   });
+
+  test('funcs can be written in different cases', () => {
+    const parser = new Parser('ConCaT(10,"str")');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js, undefined)).toBe('10str');
+  });
 });
