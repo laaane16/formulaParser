@@ -29,13 +29,10 @@ export type ValidDateFunctionsNamesWithSafe =
   | 'TODAY'
   | 'WEEKDAY'
   | 'WEEKNUM'
-  | 'YEAR'
-  | 'SET_TIMEZONE'
-  | 'SAFE_SET_TIMEZONE';
-//   | 'SET_LOCALE'
+  | 'YEAR';
 // | 'DATETIME_PARSE'
 
 export type ValidDateFunctionsNames = Exclude<
   ValidDateFunctionsNamesWithSafe,
-  'SAFE_DATEADD' | 'SAFE_DATETIME_DIFF' | 'SAFE_DATE' | 'SAFE_SET_TIMEZONE'
+  'SAFE_DATEADD' | 'SAFE_DATETIME_DIFF' | 'SAFE_DATE'
 >;

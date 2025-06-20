@@ -195,7 +195,4 @@ export const dateFunctionsToJsMap: Record<
   TODAY: () => {
     return `DateTime.now().startOf('day').toFormat(${DATE_FORMAT}).slice(0, -2)`;
   },
-
-  SET_TIMEZONE: ([date, shift]) => ``,
-  SAFE_SET_TIMEZONE: ([date, shift]) => ``,
 };
