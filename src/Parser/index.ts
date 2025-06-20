@@ -995,7 +995,7 @@ export default class Parser {
         return `${n.ifToken.text}(${traverse(n.test)}, ${traverse(n.consequent)}, ${traverse(n.alternate)})`;
       }
       if (n instanceof FunctionNode) {
-        return `${n.func.text}(${n.args.map((i) => traverse(i))})`;
+        return `${n.func.text.toUpperCase()}(${n.args.map((i) => traverse(i))})`;
       }
       if (n instanceof StatementsNode) {
         return n.codeStrings.map((i) => traverse(i));

@@ -292,7 +292,7 @@ export default class Parser {
 //   recordDbId: 12,
 // };
 
-// const expression = 'CONCAT(RECORD_ID(), CATALOG_ID())';
+// const expression = 'ConcAT(RECORD_ID(), CATALOG_ID())';
 
 // const parser = new Parser(expression, variables);
 
@@ -306,4 +306,5 @@ export default class Parser {
 
 // console.log(
 //   parser.castResultType(parser.runJs(jsFormula, values), 'js', 'text'),
+//   parser.mapIdentifiers({ from: 'name', to: 'id' }),
 // );
