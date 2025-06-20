@@ -1,8 +1,9 @@
+import { IFormatterFunc } from '../types';
 import { ValidNumberFunctionsNamesWithSafe } from './types';
 
 export const numberFunctionsToJsMap: Record<
   ValidNumberFunctionsNamesWithSafe,
-  (args: string[]) => string
+  IFormatterFunc
 > = {
   /**
    * @function ABS

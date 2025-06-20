@@ -1,9 +1,10 @@
 import { UNIT } from '../../../../constants/date';
+import { IFormatterFunc } from '../types';
 import { ValidDateFunctionsNamesWithSafe } from './types';
 
 export const dateFunctionsToSqlMap: Record<
   ValidDateFunctionsNamesWithSafe,
-  (args: string[]) => string
+  IFormatterFunc
 > = {
   /**
    * Returns the raw date expression.

@@ -5,3 +5,7 @@ export interface IVar {
   id?: string;
   [key: string]: unknown;
 }
+export interface BpiumValues {
+  catalogId: string;
+  recordDbId: number;
+}

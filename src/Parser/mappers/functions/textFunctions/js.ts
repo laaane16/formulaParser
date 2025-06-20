@@ -2,12 +2,13 @@
  *  * In this file we work with strings - NODE_STRING_TYPE as ""!!!
  */
 
+import { IFormatterFunc } from '../types';
 import { ValidTextFunctionsNamesWithSafe } from './types';
 
 export const textFunctionsToJsMap: Record<
   ValidTextFunctionsNamesWithSafe,
   // move this type in functions/types
-  (args: string[]) => string
+  IFormatterFunc
 > = {
   /**
    * @function CONCAT

@@ -1,4 +1,5 @@
 import { NodeTypesValues } from '../../../constants/nodeTypes';
+import { BpiumValues } from '../../../types';
 import { ValidDateFunctionsNames } from './dateFunctions/types';
 import { ValidNumberFunctionsNames } from './numberFunctions/types';
 import { ValidTextFunctionsNames } from './textFunctions/types';
@@ -14,7 +15,7 @@ export interface IArg {
   many?: boolean;
 }
 
-type IFormatterFunc = (args: string[]) => string;
+export type IFormatterFunc = (args: string[], bpium?: BpiumValues) => string;
 
 interface BaseFunction {
   args: IArg[];

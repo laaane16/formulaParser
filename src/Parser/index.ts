@@ -29,6 +29,8 @@ import {
   ValidBinOperatorsNames,
 } from './mappers/binOperators/types';
 
+import { BpiumValues } from '../types';
+
 import { FORMATS } from '../constants/formats';
 import {
   BOOLEAN_NODE_TYPE,
@@ -308,15 +310,25 @@ export default class Parser {
   // == PREPARE TO NEEDED FORMAT (JS | SQL) ==
 
   stringifyAst(
-    node: ExpressionNode,
-    format: (typeof FORMATS)[keyof typeof FORMATS],
-    safe: boolean,
-    values?: Record<string, unknown>,
+    {
+      node,
+      format,
+      safe,
+      values,
+      bpiumValues,
+    }: {
+      node: ExpressionNode;
+      format: (typeof FORMATS)[keyof typeof FORMATS];
+      safe: boolean;
+      values?: Record<string, unknown>;
+      bpiumValues?: BpiumValues;
+    },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     if (node instanceof StatementsNode) {
       return node.codeStrings.map(
-        (i) => `${this.stringifyAst(i, format, safe, values)}`,
+        (i) =>
+          `${this.stringifyAst({ node: i, format, safe, values, bpiumValues })}`,
       );
     }
     if (node instanceof NumberNode) {
@@ -366,14 +378,20 @@ export default class Parser {
       FormulaError.fieldNotFoundError(node.start, node.variable.text);
     }
     if (node instanceof ParenthesizedNode) {
-      return `(${this.stringifyAst(node.expression, format, safe, values)})`;
+      return `(${this.stringifyAst({ node: node.expression, format, safe, values, bpiumValues })})`;
     }
     if (node instanceof UnarOperationNode) {
       const operator =
         allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
       const [operatorType] = this.getReturnType(node);
 
-      const operand = this.stringifyAst(node.operand, format, safe, values);
+      const operand = this.stringifyAst({
+        node: node.operand,
+        format,
+        safe,
+        values,
+        bpiumValues,
+      });
       const preparedOperator = operator[`${format}Fn`](operand);
 
       const isPolymorphic = operator.types.length === 0;
@@ -400,8 +418,20 @@ export default class Parser {
         allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
       const [operatorType, index] = this.getReturnType(node);
 
-      const leftNode = this.stringifyAst(node.left, format, safe, values);
-      const rightNode = this.stringifyAst(node.right, format, safe, values);
+      const leftNode = this.stringifyAst({
+        node: node.left,
+        format,
+        safe,
+        values,
+        bpiumValues,
+      });
+      const rightNode = this.stringifyAst({
+        node: node.right,
+        format,
+        safe,
+        values,
+        bpiumValues,
+      });
 
       if (operatorType.has(UNKNOWN_NODE_TYPE) || index === undefined) {
         FormulaError.unexpectedDataType(node.operator.pos, node.operator.text);
@@ -426,14 +456,27 @@ export default class Parser {
       const [consequentType] = this.getReturnType(node.consequent);
       const [alternateType] = this.getReturnType(node.alternate);
 
-      const test = this.stringifyAst(node.test, format, safe, values);
-      const consequent = this.stringifyAst(
-        node.consequent,
+      const test = this.stringifyAst({
+        node: node.test,
         format,
         safe,
         values,
-      );
-      const alternate = this.stringifyAst(node.alternate, format, safe, values);
+        bpiumValues,
+      });
+      const consequent = this.stringifyAst({
+        node: node.consequent,
+        format,
+        safe,
+        values,
+        bpiumValues,
+      });
+      const alternate = this.stringifyAst({
+        node: node.alternate,
+        format,
+        safe,
+        values,
+        bpiumValues,
+      });
 
       if (consequentType.size !== 1 || alternateType.size !== 1) {
         FormulaError.invalidIfStatement(node.start);
@@ -475,7 +518,7 @@ export default class Parser {
         }
 
         const functionArgs = node.args.map((arg) =>
-          this.stringifyAst(arg, format, safe, values),
+          this.stringifyAst({ node: arg, format, safe, values, bpiumValues }),
         );
         const neededFunc = currentFunction[idx];
 
@@ -488,10 +531,10 @@ export default class Parser {
 
         if (isSafeFunction(neededFunc) && safe) {
           const safeFn = neededFunc[`${format}SafeFn`];
-          return safeFn(functionArgs);
+          return safeFn(functionArgs, bpiumValues);
         } else {
           const fn = neededFunc[`${format}Fn`];
-          return fn(functionArgs);
+          return fn(functionArgs, bpiumValues);
         }
       }
       FormulaError.invalidFunction(node.func.pos, node.name);

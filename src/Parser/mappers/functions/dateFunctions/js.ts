@@ -3,13 +3,14 @@ import {
   DATE_FORMATS_FORMULA,
   UNIT,
 } from '../../../../constants/date';
+import { IFormatterFunc } from '../types';
 import { ValidDateFunctionsNamesWithSafe } from './types';
 
 const DATE_FORMAT = '"yyyy-LL-dd HH:mm:ssZZZ"';
 
 export const dateFunctionsToJsMap: Record<
   ValidDateFunctionsNamesWithSafe,
-  (args: string[]) => string
+  IFormatterFunc
 > = {
   /**
    * Parses a date string and returns it in ISO format.

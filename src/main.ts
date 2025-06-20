@@ -21,7 +21,7 @@ import { removePrefixSuffix } from './lib/removePrefixSuffix';
 import { validateResultJs } from './lib/valiadateResultJs';
 
 import { IVar } from './types';
-
+import { BpiumValues } from './types';
 /**
  * The `Parser` class is responsible for converting a JavaScript-like expression into an SQL or JS expression.
  * It supports field mapping, AST parsing, variable extraction, and execution of parsed formulas.
@@ -167,20 +167,32 @@ export default class Parser {
    * @returns {string} The SQL representation of the formula.
    */
   public toSqlWithVariables(
-    safe: boolean = false,
-    values: Record<string, unknown> = {},
+    safe = false,
+    values = {},
+    bpiumValues?: BpiumValues,
   ): string {
     const [parser, node] = this.prepareParser();
-    return parser.stringifyAst(node, FORMATS.SQL, safe, values)[0]; // Currently, returns only the first SQL line
+    return parser.stringifyAst({
+      node,
+      format: FORMATS.SQL,
+      safe,
+      values,
+      bpiumValues,
+    })[0]; // Currently, returns only the first SQL line
   }
 
   /**
    * Converts the parsed expression into a JavaScript-evaluable string.
    * @returns {string} The JS representation of the formula.
    */
-  public toJs(safe: boolean = false): string {
+  public toJs(safe = false, bpiumValues?: BpiumValues): string {
     const [parser, node] = this.prepareParser();
-    return parser.stringifyAst(node, FORMATS.JS, safe)[0]; // Currently, returns only the first JS line
+    return parser.stringifyAst({
+      node,
+      format: FORMATS.JS,
+      safe,
+      bpiumValues,
+    })[0]; // Currently, returns only the first JS line
   }
 
   /**
@@ -275,18 +287,23 @@ export default class Parser {
 //   some: 5000,
 // };
 
-// const expression = 'DATE(2025, {1}, 1)';
+// const bpiumValues = {
+//   catalogId: 'teeest',
+//   recordDbId: 12,
+// };
+
+// const expression = 'CONCAT(RECORD_ID(), CATALOG_ID())';
 
 // const parser = new Parser(expression, variables);
 
-// const sqlQuery = parser.toSqlWithVariablesWithVariables(true, values);
+// const sqlQuery = parser.toSqlWithVariables(true, values, bpiumValues);
 // console.log('SQL:', sqlQuery, values); // Outputs the generated SQL query
 
-// const jsFormula = parser.toJs(true);
+// const jsFormula = parser.toJs(true, bpiumValues);
 // console.log('JS:', jsFormula); // Outputs the generated JS query
 
 // console.log('RUN JS:', parser.runJs(jsFormula, values));
 
 // console.log(
-//   parser.castResultType(parser.runJs(jsFormula, values), 'js', 'date'),
+//   parser.castResultType(parser.runJs(jsFormula, values), 'js', 'text'),
 // );
