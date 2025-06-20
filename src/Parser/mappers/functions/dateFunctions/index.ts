@@ -250,4 +250,21 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.YEAR,
       },
     ],
+    SET_TIMEZONE: [
+      {
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+          {
+            type: [NUMBER_NODE_TYPE],
+          },
+        ],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SET_TIMEZONE,
+        sqlFn: dateFunctionsToSqlMap.SET_TIMEZONE,
+        jsSafeFn: dateFunctionsToJsMap.SAFE_SET_TIMEZONE,
+        sqlSafeFn: dateFunctionsToSqlMap.SAFE_SET_TIMEZONE,
+      },
+    ],
   };

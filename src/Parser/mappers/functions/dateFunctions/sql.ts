@@ -145,4 +145,9 @@ export const dateFunctionsToSqlMap: Record<
 
   /** Returns the current date with timestamp. */
   TODAY: () => `CURRENT_DATE::TIMESTAMPTZ`,
+
+  SET_TIMEZONE: ([date, shift]) =>
+    `((${date}) AT TIME ZONE ('UTC' || ${shift}))`,
+  SAFE_SET_TIMEZONE: ([date, shift]) =>
+    `(CASE WHEN (${shift}) BETWEEN -14 AND 14 THEN ((${date}) AT TIME ZONE ('UTC' || ${shift})) ELSE NULL END)`,
 };
