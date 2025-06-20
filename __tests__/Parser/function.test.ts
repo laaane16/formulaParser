@@ -64,7 +64,7 @@ describe('function node to sql', () => {
     const code = `CONCAT(RANDOM(), CONCAT("", 1))`;
 
     const result = stringifyAstToSql(code);
-    expect(result).toBe("CONCAT(RANDOM(),CONCAT('',1))");
+    expect(result).toBe("CONCAT(RANDOM()::NUMERIC,CONCAT('',1))");
   });
 
   test(`function CONCAT can work with expression in args`, () => {
@@ -86,7 +86,7 @@ describe('function node to sql', () => {
 
     const result = stringifyAstToSql(code);
     expect(result).toBe(
-      "CONCAT((1 + 1 + 1 + RANDOM()),CONCAT('',1,2,'test'),(RANDOM() + RANDOM()))",
+      "CONCAT((1 + 1 + 1 + RANDOM()::NUMERIC),CONCAT('',1,2,'test'),(RANDOM()::NUMERIC + RANDOM()::NUMERIC))",
     );
   });
 
@@ -108,7 +108,7 @@ describe('function node to sql', () => {
     const code = 'RANDOM()';
     const result = stringifyAstToSql(code);
 
-    expect(result).toBe('RANDOM()');
+    expect(result).toBe('RANDOM()::NUMERIC');
   });
 
   test(`function CONCAT can work with IfStatementNode in args if it return one type`, () => {

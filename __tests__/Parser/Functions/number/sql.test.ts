@@ -87,7 +87,7 @@ describe('number funcs', () => {
 
   test('random', () => {
     const parser = new Parser('RANDOM()');
-    expect(parser.toSqlWithVariables()).toBe('RANDOM()');
+    expect(parser.toSqlWithVariables()).toBe('RANDOM()::NUMERIC');
   });
   /**
    * return random number; 0 <= number < 1

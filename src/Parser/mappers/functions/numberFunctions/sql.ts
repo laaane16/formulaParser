@@ -88,7 +88,7 @@ export const numberFunctionsToSqlMap: Record<
    * @returns {string} Sql format RANDOM expression.
    * @example RANDOM([]) => "RANDOM()"
    */
-  RANDOM: (): string => `RANDOM()`,
+  RANDOM: (): string => `RANDOM()::NUMERIC`,
 
   /**
    * @function SUM
