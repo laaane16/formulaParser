@@ -17,10 +17,9 @@ import {
 
 import { FormulaError } from './lib/exceptions';
 import { isNil } from './lib/isNil';
-import { removePrefixSuffix } from './lib/removePrefixSuffix';
 import { validateResultJs } from './lib/valiadateResultJs';
 
-import { IVar } from './types';
+import { IVar, Variables } from './types';
 import { BpiumValues } from './types';
 /**
  * The `Parser` class is responsible for converting a JavaScript-like expression into an SQL or JS expression.
@@ -30,7 +29,7 @@ export default class Parser {
   public expression: string;
   private lexer: Lexer;
   private root?: StatementsNode;
-  private variables: Record<string, IVar>;
+  private variables: Variables;
 
   /**
    * Creates a new `Parser` instance.
@@ -38,27 +37,14 @@ export default class Parser {
    */
   constructor(
     expression: string,
-    variables: Record<string, IVar> | IVar[] = {},
+    variables: Variables | IVar[] = {},
     varAttr?: string,
   ) {
     if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
-    if (Array.isArray(variables)) {
-      const attr = varAttr ?? defaultVarAttr;
-      this.variables = variables.reduce<Record<string, IVar>>(
-        (accumulator, current) => {
-          const objAttr = current[attr];
-          if (objAttr && typeof objAttr === 'string') {
-            accumulator[objAttr] = current;
-          }
-          return accumulator;
-        },
-        {},
-      );
-    } else {
-      this.variables = variables;
-    }
+    const preparedVariables = this._prepareVariables(variables, varAttr);
+    this.variables = preparedVariables;
   }
 
   /**
@@ -80,6 +66,38 @@ export default class Parser {
     }
 
     return [parser, node];
+  }
+
+  /**
+   * Set new variables
+   */
+  public setVariables(variables: Variables | IVar[] = {}, varAttr?: string) {
+    const preparedVariables = this._prepareVariables(variables, varAttr);
+    this.variables = preparedVariables;
+  }
+
+  /**
+   *
+   * @param variables
+   * @param varAttr
+   * @returns
+   */
+  private _prepareVariables(
+    variables: Variables | IVar[] = {},
+    varAttr?: string,
+  ) {
+    if (Array.isArray(variables)) {
+      const attr = varAttr ?? defaultVarAttr;
+      return variables.reduce<Record<string, IVar>>((accumulator, current) => {
+        const objAttr = current[attr];
+        if (objAttr && typeof objAttr === 'string') {
+          accumulator[objAttr] = current;
+        }
+        return accumulator;
+      }, {});
+    } else {
+      return variables;
+    }
   }
 
   /**

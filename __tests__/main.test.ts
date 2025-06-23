@@ -3,14 +3,17 @@ import { IVar } from '../src/types';
 
 const mockFields: Record<string, IVar> = {
   'Поле 1': {
+    name: 'Поле 1',
     id: '3',
     type: 'number',
   },
   '9': {
+    name: '9',
     id: '1',
     type: 'number',
   },
   FIELD123123: {
+    name: 'FIELD123123',
     id: '2',
     type: 'number',
   },
@@ -80,5 +83,33 @@ describe('Parser', () => {
   test('should throw error if expression has some code strings.', () => {
     const parser = new Parser('"test" 123');
     expect(() => parser.toJs()).toThrow(`Invalid syntax at the position 7`);
+  });
+
+  test('variables should be changed after setting', () => {
+    const parser = new Parser('{Поле 1}', mockFields);
+    const first = parser.mapIdentifiers({ from: 'name', to: 'id' });
+
+    parser.setVariables({
+      'Поле 1': {
+        name: 'Поле 1',
+        id: '4',
+        type: 'number',
+      },
+      '9': {
+        name: '9',
+        id: '1',
+        type: 'number',
+      },
+      FIELD123123: {
+        name: 'FIELD123123',
+        id: '2',
+        type: 'number',
+      },
+    });
+
+    const second = parser.mapIdentifiers({ from: 'name', to: 'id' });
+
+    expect(first).toBe('{3}');
+    expect(second).toBe('{4}');
   });
 });

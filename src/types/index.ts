@@ -9,3 +9,5 @@ export interface BpiumValues {
   catalogId: string;
   recordDbId: number;
 }
+
+export type Variables = Record<string, IVar>;
