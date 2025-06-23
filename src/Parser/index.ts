@@ -33,9 +33,18 @@ import { BpiumValues } from '../types';
 
 import { FORMATS } from '../constants/formats';
 import {
+  BIN_OPERATION_NODE_TYPE,
   BOOLEAN_NODE_TYPE,
+  FUNCTION_NODE_TYPE,
+  IF_STATEMENT_NODE_TYPE,
+  LITERAL_NODE_TYPE,
   NodeTypesValues,
+  NUMBER_NODE_TYPE,
+  PARENTHESIZED_NODE_TYPE,
+  STATEMENTS_NODE_TYPE,
+  UNAR_OPERATION_NODE_TYPE,
   UNKNOWN_NODE_TYPE,
+  VARIABLE_NODE_TYPE,
 } from '../constants/nodeTypes';
 import { IVar } from '../types';
 import { removePrefixSuffix } from '../lib/removePrefixSuffix';
@@ -1005,32 +1014,73 @@ export default class Parser {
     return traverse(node);
   }
 
+  _traverse<T extends ExpressionNode>(
+    n: ExpressionNode,
+    needed: NodeTypesValues,
+    fn: (node: T) => unknown,
+  ) {
+    let cur = null;
+
+    if (n instanceof LiteralNode) {
+      cur = LITERAL_NODE_TYPE;
+    }
+    if (n instanceof NumberNode) {
+      cur = NUMBER_NODE_TYPE;
+    }
+    if (n instanceof BooleanNode) {
+      cur = BOOLEAN_NODE_TYPE;
+    }
+    if (n instanceof VariableNode) {
+      cur = VARIABLE_NODE_TYPE;
+    }
+    if (n instanceof BinOperationNode) {
+      cur = BIN_OPERATION_NODE_TYPE;
+      this._traverse(n.left, needed, fn);
+      this._traverse(n.right, needed, fn);
+    } else if (n instanceof UnarOperationNode) {
+      cur = UNAR_OPERATION_NODE_TYPE;
+      this._traverse(n.operand, needed, fn);
+    } else if (n instanceof ParenthesizedNode) {
+      cur = PARENTHESIZED_NODE_TYPE;
+      this._traverse(n.expression, needed, fn);
+    } else if (n instanceof FunctionNode) {
+      cur = FUNCTION_NODE_TYPE;
+      n.args.forEach((arg) => this._traverse(arg, needed, fn));
+    } else if (n instanceof IfStatementNode) {
+      cur = IF_STATEMENT_NODE_TYPE;
+      if (n.consequent) this._traverse(n.consequent, needed, fn);
+      if (n.alternate) this._traverse(n.alternate, needed, fn);
+      if (n.test) this._traverse(n.test, needed, fn);
+    } else if (n instanceof StatementsNode) {
+      cur = STATEMENTS_NODE_TYPE;
+      n.codeStrings.forEach((arg) => this._traverse(arg, needed, fn));
+    }
+
+    if (cur === needed) {
+      fn(n as T);
+    }
+  }
+
   getVariables(node: ExpressionNode): Set<string> {
     const variables = new Set<string>();
-
-    const traverse = (n: ExpressionNode) => {
-      if (n instanceof VariableNode) {
-        variables.add(n.variable.text);
-      } else if (n instanceof BinOperationNode) {
-        traverse(n.left);
-        traverse(n.right);
-      } else if (n instanceof UnarOperationNode) {
-        traverse(n.operand);
-      } else if (n instanceof ParenthesizedNode) {
-        traverse(n.expression);
-      } else if (n instanceof FunctionNode) {
-        n.args.forEach(traverse);
-      } else if (n instanceof IfStatementNode) {
-        if (n.consequent) traverse(n.consequent);
-        if (n.alternate) traverse(n.alternate);
-        if (n.test) traverse(n.test);
-      } else if (n instanceof StatementsNode) {
-        n.codeStrings.forEach(traverse);
-      }
+    const fn = (node: VariableNode) => {
+      variables.add(removePrefixSuffix(node.variable.text));
     };
 
-    traverse(node);
+    this._traverse<VariableNode>(node, VARIABLE_NODE_TYPE, fn);
+
     return variables;
+  }
+
+  getFunctions(node: ExpressionNode): Set<string> {
+    const functions = new Set<string>();
+    const fn = (node: FunctionNode) => {
+      functions.add(node.name.toUpperCase());
+    };
+
+    this._traverse(node, FUNCTION_NODE_TYPE, fn);
+
+    return functions;
   }
 
   // == CACHE HELPERS ==

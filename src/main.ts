@@ -135,17 +135,20 @@ export default class Parser {
    */
   public getVariables(): string[] {
     const [parser, _] = this.prepareParser();
-    const variables: Set<string> = new Set();
+    const rawVariables = parser.getVariables(this.getAst());
 
-    this.walkAst((node) => {
-      const rawVariables = Array.from(parser.getVariables(node));
-      rawVariables.forEach((variable) => {
-        const cleanedVariable = removePrefixSuffix(variable);
-        variables.add(cleanedVariable);
-      });
-    });
+    return Array.from(rawVariables);
+  }
 
-    return Array.from(variables);
+  /**
+   * Extracts the list of unique functions used in the expression.
+   * @returns {Set<string>} An array of unique functions.
+   */
+  public getUsedFunctions(): Set<string> {
+    const [parser, _] = this.prepareParser();
+    const rawFunctions = parser.getFunctions(this.getAst());
+
+    return rawFunctions;
   }
 
   /**

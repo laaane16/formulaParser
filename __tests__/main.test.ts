@@ -24,58 +24,44 @@ const values: Record<string, unknown> = {
   FIELD123123: 150,
 };
 
-const mockFieldsWithFieldProgress = [
-  {
-    dbId: 1,
-    id: '1',
-    prevId: '1',
-    type: 'group',
-  },
-  {
-    dbId: 2,
-    id: '2',
-    prevId: '2',
-    type: 'number',
-  },
-  {
-    dbId: 3,
-    id: '3',
-    prevId: '3',
-    type: 'progress',
-  },
-];
-
 describe('Parser', () => {
   const expression = '{9} + {FIELD123123} + 1000';
 
-  it('should throw error if expression is nil', () => {
+  test('should throw error if expression is nil', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => new Parser(null as any)).toThrow(
       'Missing required parameters: expression',
     );
   });
 
-  it('should create AST and return it', () => {
+  test('should create AST and return it', () => {
     const parser = new Parser(expression, mockFields);
     const ast = parser.getAst();
     expect(ast).toBeDefined();
   });
 
-  it('should extract variables from expression', () => {
+  test('should extract variables from expression', () => {
     const parser = new Parser(expression, mockFields);
     const vars = parser.getVariables();
     expect(vars).toContain('9');
     expect(vars).toContain('FIELD123123');
   });
 
-  it('should map identifiers correctly', () => {
+  test('should return used functions from expression', () => {
+    const expression = 'CONCAT("test", 123, CONCAT(1)) + TO_STRING(123)';
+    const parser = new Parser(expression, mockFields);
+    const result = parser.getUsedFunctions();
+    expect(result).toEqual(new Set(['CONCAT', 'TO_STRING']));
+  });
+
+  test('should map identifiers correctly', () => {
     const expression = '{Поле 1} + {Поле 1} + 1000';
     const parser = new Parser(expression, mockFields);
     const result = parser.mapIdentifiers({ to: 'id' });
     expect(typeof result).toBe('string');
   });
 
-  it('should convert to SQL and JS', () => {
+  test('should convert to SQL and JS', () => {
     const expression = '{Поле 1} + {Поле 1} + 1000';
     const parser = new Parser(expression, mockFields);
     const sql = parser.toSqlWithVariables(false, values);
@@ -84,14 +70,14 @@ describe('Parser', () => {
     expect(typeof js).toBe('string');
   });
 
-  it('should evaluate JS expression with values', () => {
+  test('should evaluate JS expression with values', () => {
     const parser = new Parser(expression, mockFields);
     const js = parser.toJs();
     const result = parser.runJs(js, values);
     expect(typeof result).toBe('number');
   });
 
-  it('should throw error if expression has some code strings.', () => {
+  test('should throw error if expression has some code strings.', () => {
     const parser = new Parser('"test" 123');
     expect(() => parser.toJs()).toThrow(`Invalid syntax at the position 7`);
   });
