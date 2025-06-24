@@ -22,8 +22,8 @@ const fields = {
 const values = {
   1: 100,
   2: 500,
-  3: 'str',
-  4: '2024-01-01 11:00:00+03',
+  3: 'stringCol',
+  4: 'dateCol',
 };
 
 describe('variables to sql', () => {
@@ -34,13 +34,13 @@ describe('variables to sql', () => {
   test('text', () => {
     const parser = new Parser('{3}', fields);
     expect(parser.toSqlWithVariables(false, values)).toBe(
-      `COALESCE('str', '')`,
+      `COALESCE("stringCol", '')`,
     );
   });
   test('date', () => {
     const parser = new Parser('{4}', fields);
     expect(parser.toSqlWithVariables(false, values)).toBe(
-      `COALESCE('2024-01-01 11:00:00+03', NULL)`,
+      `COALESCE("dateCol", NULL)`,
     );
   });
 });

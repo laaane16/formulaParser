@@ -551,9 +551,11 @@ export default class Parser {
     FormulaError.syntaxError(node.start);
   }
 
+  // TODO: support inserting strings as values
   prepareVariableValue = (value: unknown) => {
+    // it is assumed that these will be columns from the database
     if (typeof value === 'string') {
-      return `'${value}'`;
+      return `"${value}"`;
     }
     return value;
   };
