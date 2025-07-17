@@ -65,19 +65,19 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
       },
     ],
     // temporary comment this func too
-    DATETIME_FORMAT: [
-      {
-        args: [
-          {
-            type: [DATE_NODE_TYPE],
-          },
-          { type: [LITERAL_NODE_TYPE] }, // format string
-        ],
-        returnType: [LITERAL_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.DATETIME_FORMAT,
-        sqlFn: dateFunctionsToSqlMap.DATETIME_FORMAT,
-      },
-    ],
+    // DATETIME_FORMAT: [
+    //   {
+    //     args: [
+    //       {
+    //         type: [DATE_NODE_TYPE],
+    //       },
+    //       { type: [LITERAL_NODE_TYPE] }, // format string
+    //     ],
+    //     returnType: [LITERAL_NODE_TYPE],
+    //     jsFn: dateFunctionsToJsMap.DATETIME_FORMAT,
+    //     sqlFn: dateFunctionsToSqlMap.DATETIME_FORMAT,
+    //   },
+    // ],
     // i don`t know how make this without exception
     // DATETIME_PARSE: [
     //   {

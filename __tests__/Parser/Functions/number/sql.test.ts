@@ -134,7 +134,7 @@ describe('number funcs', () => {
   test('safe to_number', () => {
     const parser = new Parser('TO_NUMBER("123")');
     expect(parser.toSqlWithVariables(true)).toBe(
-      `(CASE WHEN ('123')::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN ('123')::text::numeric ELSE NULL END)`,
+      `(CASE WHEN ('123')::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN ('123')::text::numeric WHEN ('123')::text ~ 'true' THEN 1 WHEN ('123')::text ~ 'false' THEN 0 ELSE NULL END)`,
     );
   });
   /**

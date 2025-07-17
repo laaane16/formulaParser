@@ -77,9 +77,9 @@ export const dateFunctionsToSqlMap: Record<
   //  * @param {[string, string]} args - Date and format pattern.
   //  * @returns {string} SQL string.
   //  */
-  DATETIME_FORMAT: ([date, format]) => {
-    return `TO_CHAR(${date}, ${format})`;
-  },
+  // DATETIME_FORMAT: ([date, format]) => {
+  //   return `TO_CHAR(${date}, ${format})`;
+  // },
 
   // /**
   //  * Parses a date string to a timestamp using format.

@@ -9,7 +9,7 @@ export const allFunctions: Record<ValidFunctionsNames, VariableFunction> = {
   ...textFunctions,
   ...numberFunctions,
   ...dateFunctions,
-  ...bpiumFunctions,
+  // ...bpiumFunctions,
 };
 
 Object.values(allFunctions).forEach((func) => {

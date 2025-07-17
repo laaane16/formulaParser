@@ -56,7 +56,14 @@ export const typesMapperSql: Record<string, string> = {
 type CastTypeHandler = (res: unknown) => unknown;
 
 export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
-  [NUMBER_NODE_TYPE]: (res: unknown) => (res === null ? null : Number(res)),
+  [NUMBER_NODE_TYPE]: (res: unknown) =>
+    res === null
+      ? null
+      : String(res) === 'true'
+        ? 1
+        : String(res) === 'false'
+          ? 0
+          : Number(res),
   [LITERAL_NODE_TYPE]: (res: unknown) => (res === null ? null : String(res)),
   [DATE_NODE_TYPE]: (res: unknown): DateTime =>
     DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
@@ -65,7 +72,7 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
 
 export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
   [NUMBER_NODE_TYPE]: (res) =>
-    `(CASE WHEN (${res})::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN (${res})::text::numeric ELSE NULL END)`,
+    `(CASE WHEN (${res})::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN (${res})::text::numeric WHEN (${res})::text ~ 'true' THEN 1 WHEN (${res})::text ~ 'false' THEN 0 ELSE NULL END)`,
   [LITERAL_NODE_TYPE]: (res) => `(${res})::text`,
   [DATE_NODE_TYPE]: (res) =>
     `(CASE WHEN (${res})::text ~ '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(Z|[+-]\\d{2})$' THEN (${res})::text::timestamptz ELSE NULL END)`,

@@ -1,7 +1,4 @@
-import {
-  LITERAL_NODE_TYPE,
-  NUMBER_NODE_TYPE,
-} from '../../../../constants/nodeTypes';
+import { NUMBER_NODE_TYPE } from '../../../../constants/nodeTypes';
 import { VariableFunction } from '../types';
 
 import { numberFunctionsToJsMap } from './js';
@@ -160,7 +157,7 @@ export const numberFunctions: Record<
   ],
   TO_NUMBER: [
     {
-      args: [{ type: [LITERAL_NODE_TYPE] }],
+      args: [{ type: [] }],
       returnType: [NUMBER_NODE_TYPE],
       jsFn: numberFunctionsToJsMap.TO_NUMBER,
       sqlFn: numberFunctionsToSqlMap.TO_NUMBER,

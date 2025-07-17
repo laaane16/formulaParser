@@ -83,22 +83,22 @@ export const dateFunctionsToJsMap: Record<
    * @param {[string, string]} args - Date string and format string.
    * @returns {string} JavaScript expression returning formatted string.
    */
-  DATETIME_FORMAT: ([date, format]) => {
-    const jsonFormulaFormats = JSON.stringify(DATE_FORMATS_FORMULA);
-    const jsonLuxonFormats = JSON.stringify(DATE_FORMATS_LUXON);
+  // DATETIME_FORMAT: ([date, format]) => {
+  //   const jsonFormulaFormats = JSON.stringify(DATE_FORMATS_FORMULA);
+  //   const jsonLuxonFormats = JSON.stringify(DATE_FORMATS_LUXON);
 
-    return `(function(){
-    let preparedFormat = "'" + (${format}).replaceAll(" ", "' '") + "'";
-    Object.entries(${jsonFormulaFormats}).forEach(
-      ([key, value]) => {
-        const matches = preparedFormat.match(new RegExp(\`'\${value}'\`, 'g'));
-        if (matches && matches.length > 0) {
-          preparedFormat = preparedFormat.replaceAll("'" + value + "'", ${jsonLuxonFormats}[key]);
-        }
-      }
-    );
-    return DateTime.fromFormat(${date}, ${DATE_FORMAT}).toFormat(preparedFormat)})()`;
-  },
+  //   return `(function(){
+  //   let preparedFormat = "'" + (${format}).replaceAll(" ", "' '") + "'";
+  //   Object.entries(${jsonFormulaFormats}).forEach(
+  //     ([key, value]) => {
+  //       const matches = preparedFormat.match(new RegExp(\`'\${value}'\`, 'g'));
+  //       if (matches && matches.length > 0) {
+  //         preparedFormat = preparedFormat.replaceAll("'" + value + "'", ${jsonLuxonFormats}[key]);
+  //       }
+  //     }
+  //   );
+  //   return DateTime.fromFormat(${date}, ${DATE_FORMAT}).toFormat(preparedFormat)})()`;
+  // },
 
   // /**
   //  * Parses a date string from a custom format.
