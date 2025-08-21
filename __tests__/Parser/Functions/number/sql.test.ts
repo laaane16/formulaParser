@@ -11,7 +11,9 @@ describe('number funcs', () => {
 
   test('ceil', () => {
     const parser = new Parser('CEIL(10.123)');
-    expect(parser.toSqlWithVariables()).toBe('CEIL(10.123)');
+    expect(parser.toSqlWithVariables()).toBe(
+      '(CEIL((10.123) * (10 ^ (0))) / (10 ^ (0)))',
+    );
   });
   /**
    * return 11 in psql
@@ -19,7 +21,9 @@ describe('number funcs', () => {
 
   test('floor', () => {
     const parser = new Parser('FLOOR(4.8)');
-    expect(parser.toSqlWithVariables()).toBe('FLOOR(4.8)');
+    expect(parser.toSqlWithVariables()).toBe(
+      '(FLOOR((4.8) * (10 ^ (0))) / (10 ^ (0)))',
+    );
   });
   /**
    * return 4 in psql
@@ -60,7 +64,9 @@ describe('number funcs', () => {
 
   test('round', () => {
     const parser = new Parser('ROUND(4.4)');
-    expect(parser.toSqlWithVariables()).toBe('ROUND(4.4)');
+    expect(parser.toSqlWithVariables()).toBe(
+      '(ROUND((4.4) * (10 ^ (0))) / (10 ^ (0)))',
+    );
   });
   /**
    * ROUND(4.4) -> 4
@@ -127,19 +133,19 @@ describe('number funcs', () => {
    * return 1 in psql
    */
 
-  test('to_number', () => {
-    const parser = new Parser('TO_NUMBER("123")');
+  test('tonumber', () => {
+    const parser = new Parser('TONUMBER("123")');
     expect(parser.toSqlWithVariables()).toBe("('123')::numeric");
   });
-  test('safe to_number', () => {
-    const parser = new Parser('TO_NUMBER("123")');
+  test('safe tonumber', () => {
+    const parser = new Parser('TONUMBER("123")');
     expect(parser.toSqlWithVariables(true)).toBe(
       `(CASE WHEN ('123')::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN ('123')::text::numeric WHEN ('123')::text ~ 'true' THEN 1 WHEN ('123')::text ~ 'false' THEN 0 ELSE NULL END)`,
     );
   });
   /**
-   * TO_NUMBER("123") -> 123
-   * TO_NUMBER("123asd") -> ERROR
-   * safe mod: TO_NUMBER("123asd") -> NULL
+   * TONUMBER("123") -> 123
+   * TONUMBER("123asd") -> ERROR
+   * safe mod: TONUMBER("123asd") -> NULL
    */
 });

@@ -16,14 +16,14 @@ describe('function node to sql', () => {
   });
 
   test('function TOSTRING can work with any types', () => {
-    const code = 'TO_STRING("test")';
+    const code = 'TOSTRING("test")';
     const result = stringifyAstToSql(code);
 
     expect(result).toBe(`('test')::text`);
   });
 
   test('function TOSTRING can work with any types', () => {
-    const code = 'TO_STRING(true)';
+    const code = 'TOSTRING(true)';
     const result = stringifyAstToSql(code);
 
     expect(result).toBe(`(true)::text`);
@@ -148,10 +148,10 @@ describe('function node errors', () => {
   });
 
   test('function TOSTRING can work with one arg', () => {
-    const code = 'TO_STRING("test", 1)';
+    const code = 'TOSTRING("test", 1)';
 
     expect(() => stringifyAstToSql(code)).toThrow(
-      'Unexpected type of data when TO_STRING on the position 0',
+      'Unexpected type of data when TOSTRING on the position 0',
     );
   });
 
@@ -216,6 +216,12 @@ describe('function node errors', () => {
 
     expect(() => stringifyAstToSql(code)).toThrow(
       'Unexpected type of data when RANDOM on the position 0',
+    );
+  });
+
+  test('function DATE can`t work with incorrect param in not required param', () => {
+    expect(() => stringifyAstToSql('DATE(2000,12,12 , 1, "")')).toThrow(
+      'Unexpected type of data when DATE on the position 0',
     );
   });
 });

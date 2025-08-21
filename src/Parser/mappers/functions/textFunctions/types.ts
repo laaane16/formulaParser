@@ -1,7 +1,7 @@
 export type ValidTextFunctionsNamesWithSafe =
   | 'CONCAT'
   | 'TRIM'
-  | 'SAFE_TRIM'
+  | 'SAFETRIM'
   | 'SEARCH'
   | 'REPLACE'
   | 'LOWER'
@@ -11,10 +11,11 @@ export type ValidTextFunctionsNamesWithSafe =
   | 'LEFT'
   | 'RIGHT'
   | 'LEN'
-  | 'JOIN'
-  | 'TO_STRING';
+  // | 'JOIN'
+  | 'TOSTRING'
+  | 'DATETOSTRING';
 
 export type ValidTextFunctionsNames = Exclude<
   ValidTextFunctionsNamesWithSafe,
-  'SAFE_TRIM'
+  'SAFETRIM' | 'DATETOSTRING'
 >;

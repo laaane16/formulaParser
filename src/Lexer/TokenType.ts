@@ -33,7 +33,7 @@ export const tokenTypesList: Map<string, TokenType> = new Map([
   ['FALSE', new TokenType('FALSE', 'false')], // FALSE psql
 
   // FUNCTIONS: ASD()
-  ['FUNCTION', new TokenType('FUNCTION', '[a-zA-Z]+(_[a-zA-Z]+)*')],
+  ['FUNCTION', new TokenType('FUNCTION', '[a-zA-Z\\d]+(_[a-zA-Z\\d]+)*')],
 
   // SYMBOLS
   ['SPACE', new TokenType('SPACE', '[ \\n\\t\\r]')],
@@ -53,11 +53,11 @@ export const tokenTypesList: Map<string, TokenType> = new Map([
   ['POWER', new TokenType('POWER', '\\^')], // ^ PSQL
 
   ['EQUAL', new TokenType('EQUAL', '==')], // = PSQL
-  ['NOT_EQUAL', new TokenType('NOT_EQUAL', '\\!=')], // != PSQL
+  ['NOTEQUAL', new TokenType('NOTEQUAL', '\\!=')], // != PSQL
   ['GREATER', new TokenType('GREATER', '(?!>=)>')], // > PSQL
-  ['GREATER_OR_EQUAL', new TokenType('GREATER_OR_EQUAL', '>=')], // >= PSQL
+  ['GREATEROREQUAL', new TokenType('GREATEROREQUAL', '>=')], // >= PSQL
   ['LESS', new TokenType('LESS', '(?!<=)<')], // < PSQL
-  ['LESS_OR_EQUAL', new TokenType('LESS_OR_EQUAL', '<=')], // <= PSQL
+  ['LESSOREQUAL', new TokenType('LESSOREQUAL', '<=')], // <= PSQL
   ['AND', new TokenType('AND', '&&')], // AND PSQL
   ['OR', new TokenType('OR', '\\|\\|')], // OR PSQL
   ['CONCATENATION', new TokenType('CONCATENATION', '&')],
@@ -72,11 +72,11 @@ export const tokenTypesBinOperations: TokenType[] = [
   tokenTypesList.get('REMAINDER') as TokenType,
   tokenTypesList.get('POWER') as TokenType,
   tokenTypesList.get('EQUAL') as TokenType,
-  tokenTypesList.get('NOT_EQUAL') as TokenType,
+  tokenTypesList.get('NOTEQUAL') as TokenType,
   tokenTypesList.get('GREATER') as TokenType,
-  tokenTypesList.get('GREATER_OR_EQUAL') as TokenType,
+  tokenTypesList.get('GREATEROREQUAL') as TokenType,
   tokenTypesList.get('LESS') as TokenType,
-  tokenTypesList.get('LESS_OR_EQUAL') as TokenType,
+  tokenTypesList.get('LESSOREQUAL') as TokenType,
   tokenTypesList.get('AND') as TokenType,
   tokenTypesList.get('OR') as TokenType,
   tokenTypesList.get('CONCATENATION') as TokenType,

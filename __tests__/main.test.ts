@@ -51,10 +51,10 @@ describe('Parser', () => {
   });
 
   test('should return used functions from expression', () => {
-    const expression = 'CONCAT("test", 123, CONCAT(1)) + TO_STRING(123)';
+    const expression = 'CONCAT("test", 123, CONCAT(1)) + TOSTRING(123)';
     const parser = new Parser(expression, mockFields);
     const result = parser.getUsedFunctions();
-    expect(result).toEqual(new Set(['CONCAT', 'TO_STRING']));
+    expect(result).toEqual(new Set(['CONCAT', 'TOSTRING']));
   });
 
   test('should map identifiers correctly', () => {

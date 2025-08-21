@@ -8,9 +8,9 @@ export const ifStatementMap: Record<string, IFunc> = {
     type?: string,
   ) => {
     if (!type) {
-      return `((${consequent}) !== null && (${alternate}) !== null ? (function(){if (${test}){return ${consequent}}else{return ${alternate}}})(): null)`;
+      return `(function(){let test = (${test});let consequent = (${consequent}); let alternate = (${alternate});if (consequent !== null && test !== null && alternate !== null){if (test){return consequent}else{return alternate}}return null})()`;
     }
-    return `((${consequent}) !== null && (${alternate}) !== null ? ${type}((function(){if (${test}){return ${consequent}}else{return ${alternate}}})()): null)`;
+    return `(function(){let test = (${test});let consequent = (${consequent}); let alternate = (${alternate});if (consequent !== null && test !== null && alternate !== null){if (test){return ${type}(consequent)}else{return ${type}(alternate)}}return null})()`;
   },
   sqlFn: (
     test: string,

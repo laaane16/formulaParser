@@ -4,7 +4,7 @@ describe('textFunctionsToJsMap', () => {
   test('CONCAT', () => {
     const result = textFunctionsToJsMap.CONCAT(['"Hello"', '" "', '"World"']);
     expect(result).toBe(
-      '["Hello"," ","World"].filter(v => v).reduce((accum, i) => accum + String(i))',
+      '["Hello"," ","World"].filter(v => v).reduce((accum, i) => accum + String(i), "")',
     );
   });
 
@@ -106,13 +106,13 @@ describe('textFunctionsToJsMap', () => {
     expect(result).toBe('("hello").length');
   });
 
-  test('JOIN', () => {
-    const result = textFunctionsToJsMap.JOIN(['","', '1', '"1"']);
-    expect(result).toBe('[1,"1"].filter(v => v).join(",")');
-  });
+  // test('JOIN', () => {
+  //   const result = textFunctionsToJsMap.JOIN(['","', '1', '"1"']);
+  //   expect(result).toBe('[1,"1"].filter(v => v).join(",")');
+  // });
 
-  test('TO_STRING', () => {
-    const result = textFunctionsToJsMap.TO_STRING(['1']);
+  test('TOSTRING', () => {
+    const result = textFunctionsToJsMap.TOSTRING(['1']);
     expect(result).toBe('String(1)');
   });
 });

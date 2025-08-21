@@ -52,11 +52,11 @@ describe('Lexer', () => {
       'REMAINDER',
       'POWER',
       'EQUAL',
-      'NOT_EQUAL',
+      'NOTEQUAL',
       'GREATER',
-      'GREATER_OR_EQUAL',
+      'GREATEROREQUAL',
       'LESS',
-      'LESS_OR_EQUAL',
+      'LESSOREQUAL',
     ]);
   });
 

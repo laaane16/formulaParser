@@ -5,6 +5,6 @@ export const bpiumFunctionsToJsMap: Record<
   ValidBpiumFunctionsNamesWithSafe,
   IFormatterFunc
 > = {
-  RECORD_ID: (_, bpium) => `${bpium?.recordDbId ?? null}`,
-  CATALOG_ID: (_, bpium) => `'${bpium?.catalogId ?? null}'`,
+  RECORDID: (_, bpium) => `${bpium?.recordDbId ?? null}`,
+  CATALOGID: (_, bpium) => `'${bpium?.catalogId ?? null}'`,
 };

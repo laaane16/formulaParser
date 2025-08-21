@@ -40,7 +40,8 @@ export default class Parser {
     variables: Variables | IVar[] = {},
     varAttr?: string,
   ) {
-    if (isNil(expression)) FormulaError.requiredParamsError(['expression']);
+    if (isNil(expression) || expression.length === 0)
+      FormulaError.requiredParamsError(['expression']);
     this.expression = expression;
     this.lexer = new Lexer(expression);
     const preparedVariables = this._prepareVariables(variables, varAttr);
@@ -293,7 +294,7 @@ export default class Parser {
 //     dbId: 2,
 //     prevId: '3',
 //     name: 'Поле 1',
-//     type: 'number',
+//     type: 'date',
 //   },
 //   some: {
 //     name: 'Поле 2',
@@ -304,7 +305,7 @@ export default class Parser {
 // };
 
 // const values: Record<string, unknown> = {
-//   1: 100,
+//   1: '2012-12-12 00:00:00+03',
 //   some: 5000,
 // };
 
@@ -313,19 +314,18 @@ export default class Parser {
 //   recordDbId: 12,
 // };
 
-// const expression = 'ConcAT(RECORD_ID(), CATALOG_ID())';
+// const expression = 'DATE(2012,12,12)';
 
 // const parser = new Parser(expression, variables);
 
 // const sqlQuery = parser.toSqlWithVariables(true, values, bpiumValues);
-// console.log('SQL:', sqlQuery, values); // Outputs the generated SQL query
+// console.log('SQL:', sqlQuery); // Outputs the generated SQL query
 
 // const jsFormula = parser.toJs(true, bpiumValues);
-// console.log('JS:', jsFormula); // Outputs the generated JS query
+// // console.log('JS:', jsFormula); // Outputs the generated JS query
 
 // console.log('RUN JS:', parser.runJs(jsFormula, values));
 
 // console.log(
 //   parser.castResultType(parser.runJs(jsFormula, values), 'js', 'text'),
-//   parser.mapIdentifiers({ from: 'name', to: 'id' }),
 // );

@@ -128,30 +128,30 @@ describe('execute text funcs', () => {
    * return in psql 3
    */
 
-  test('join with nums and strs', () => {
-    const parser = new Parser('JOIN(",", "213", "test", 213)');
-    expect(parser.toSqlWithVariables()).toBe(
-      "CONCAT_WS(',', '213','test',213)",
-    );
-  });
-  test('join with nums and strs and null', () => {
-    const parser = new Parser('JOIN(",", "213", "test", 213, 1 / 0)');
-    expect(parser.toSqlWithVariables(true)).toBe(
-      "CONCAT_WS(',', '213','test',213,(CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END))",
-    );
-  });
-  /**
-   * JOIN(',', 'str', 2) -> 'str,2'
-   * JOIN(',', 'str', 2, 1/0) -> 'str,2'
-   */
+  // test('join with nums and strs', () => {
+  //   const parser = new Parser('JOIN(",", "213", "test", 213)');
+  //   expect(parser.toSqlWithVariables()).toBe(
+  //     "CONCAT_WS(',', '213','test',213)",
+  //   );
+  // });
+  // test('join with nums and strs and null', () => {
+  //   const parser = new Parser('JOIN(",", "213", "test", 213, 1 / 0)');
+  //   expect(parser.toSqlWithVariables(true)).toBe(
+  //     "CONCAT_WS(',', '213','test',213,(CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END))",
+  //   );
+  // });
+  // /**
+  //  * JOIN(',', 'str', 2) -> 'str,2'
+  //  * JOIN(',', 'str', 2, 1/0) -> 'str,2'
+  //  */
 
   test('to string', () => {
-    const parser = new Parser('TO_STRING(1)');
+    const parser = new Parser('TOSTRING(1)');
     expect(parser.toSqlWithVariables()).toBe('(1)::text');
   });
   /**
-   * TO_STRING(2) -> '2'
-   * TO_STRING(1 / 0) -> NULL
-   * TO_STRING('') -> ''
+   * TOSTRING(2) -> '2'
+   * TOSTRING(1 / 0) -> NULL
+   * TOSTRING('') -> ''
    */
 });

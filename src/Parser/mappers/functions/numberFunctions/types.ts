@@ -4,20 +4,33 @@ export type ValidNumberFunctionsNamesWithSafe =
   | 'FLOOR'
   | 'EXP'
   | 'MOD'
-  | 'SAFE_MOD'
+  | 'SAFEMOD'
   | 'POWER'
   | 'ROUND'
   | 'SQRT'
-  | 'SAFE_SQRT'
+  | 'SAFESQRT'
   | 'RANDOM'
   | 'SUM'
   | 'AVERAGE'
   | 'MIN'
   | 'MAX'
-  | 'TO_NUMBER'
-  | 'SAFE_TO_NUMBER';
+  | 'TONUMBER'
+  | 'SAFETONUMBER'
+  | 'SIN'
+  | 'COS'
+  | 'TAN'
+  | 'COT'
+  | 'ACOS'
+  | 'ASIN'
+  | 'ATAN'
+  | 'ACOT'
+  | 'PI'
+  | 'LN'
+  | 'LOG'
+  | 'LOG10'
+  | 'FIXED';
 
 export type ValidNumberFunctionsNames = Exclude<
   ValidNumberFunctionsNamesWithSafe,
-  'SAFE_SQRT' | 'SAFE_TO_NUMBER' | 'SAFE_MOD'
+  'SAFESQRT' | 'SAFETONUMBER' | 'SAFEMOD'
 >;

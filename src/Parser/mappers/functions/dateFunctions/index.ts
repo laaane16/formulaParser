@@ -24,12 +24,24 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
           {
             type: [NUMBER_NODE_TYPE],
           },
+          {
+            type: [NUMBER_NODE_TYPE],
+            required: false,
+          },
+          {
+            type: [NUMBER_NODE_TYPE],
+            required: false,
+          },
+          {
+            type: [NUMBER_NODE_TYPE],
+            required: false,
+          },
         ],
         returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATE,
         sqlFn: dateFunctionsToSqlMap.DATE,
-        jsSafeFn: dateFunctionsToJsMap.SAFE_DATE,
-        sqlSafeFn: dateFunctionsToSqlMap.SAFE_DATE,
+        jsSafeFn: dateFunctionsToJsMap.SAFEDATE,
+        sqlSafeFn: dateFunctionsToSqlMap.SAFEDATE,
       },
     ],
     DATEADD: [
@@ -44,11 +56,27 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATEADD,
         sqlFn: dateFunctionsToSqlMap.DATEADD,
-        jsSafeFn: dateFunctionsToJsMap.SAFE_DATEADD,
-        sqlSafeFn: dateFunctionsToSqlMap.SAFE_DATEADD,
+        jsSafeFn: dateFunctionsToJsMap.SAFEDATEADD,
+        sqlSafeFn: dateFunctionsToSqlMap.SAFEDATEADD,
       },
     ],
-    DATETIME_DIFF: [
+    DATESUB: [
+      {
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          }, // date
+          { type: [NUMBER_NODE_TYPE] }, // amount
+          { type: [LITERAL_NODE_TYPE] }, // unit (e.g., "days", "months")
+        ],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.DATEADD,
+        sqlFn: dateFunctionsToSqlMap.DATEADD,
+        jsSafeFn: dateFunctionsToJsMap.SAFEDATEADD,
+        sqlSafeFn: dateFunctionsToSqlMap.SAFEDATEADD,
+      },
+    ],
+    DATEDIFF: [
       {
         args: [
           {
@@ -58,14 +86,14 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
           { type: [LITERAL_NODE_TYPE] }, // unit
         ],
         returnType: [NUMBER_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.DATETIME_DIFF,
-        sqlFn: dateFunctionsToSqlMap.DATETIME_DIFF,
-        jsSafeFn: dateFunctionsToJsMap.SAFE_DATETIME_DIFF,
-        sqlSafeFn: dateFunctionsToSqlMap.SAFE_DATETIME_DIFF,
+        jsFn: dateFunctionsToJsMap.DATEDIFF,
+        sqlFn: dateFunctionsToSqlMap.DATEDIFF,
+        jsSafeFn: dateFunctionsToJsMap.SAFEDATEDIFF,
+        sqlSafeFn: dateFunctionsToSqlMap.SAFEDATEDIFF,
       },
     ],
     // temporary comment this func too
-    // DATETIME_FORMAT: [
+    // DATEFORMAT: [
     //   {
     //     args: [
     //       {
@@ -74,12 +102,12 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     //       { type: [LITERAL_NODE_TYPE] }, // format string
     //     ],
     //     returnType: [LITERAL_NODE_TYPE],
-    //     jsFn: dateFunctionsToJsMap.DATETIME_FORMAT,
-    //     sqlFn: dateFunctionsToSqlMap.DATETIME_FORMAT,
+    //     jsFn: dateFunctionsToJsMap.DATEFORMAT,
+    //     sqlFn: dateFunctionsToSqlMap.DATEFORMAT,
     //   },
     // ],
     // i don`t know how make this without exception
-    // DATETIME_PARSE: [
+    // DATEPARSE: [
     //   {
     //     args: [
     //       // in airtable arg locale last
@@ -89,10 +117,47 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
     //       { type: [LITERAL_NODE_TYPE] }, // format
     //     ],
     //     returnType: [DATE_NODE_TYPE],
-    //     jsFn: dateFunctionsToJsMap.DATETIME_PARSE,
-    //     sqlFn: dateFunctionsToSqlMap.DATETIME_PARSE,
+    //     jsFn: dateFunctionsToJsMap.DATEPARSE,
+    //     sqlFn: dateFunctionsToSqlMap.DATE_PARSE,
     //   },
     // ],
+
+    YEAR: [
+      {
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+        ],
+        returnType: [NUMBER_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.YEAR,
+        sqlFn: dateFunctionsToSqlMap.YEAR,
+      },
+    ],
+    QUARTER: [
+      {
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+        ],
+        returnType: [NUMBER_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.YEAR,
+        sqlFn: dateFunctionsToSqlMap.YEAR,
+      },
+    ],
+    MONTH: [
+      {
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+        ],
+        returnType: [NUMBER_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.MONTH,
+        sqlFn: dateFunctionsToSqlMap.MONTH,
+      },
+    ],
     DAY: [
       {
         args: [
@@ -117,51 +182,6 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.HOUR,
       },
     ],
-    IS_AFTER: [
-      {
-        args: [
-          {
-            type: [DATE_NODE_TYPE],
-          },
-          {
-            type: [DATE_NODE_TYPE],
-          },
-        ],
-        returnType: [BOOLEAN_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.IS_AFTER,
-        sqlFn: dateFunctionsToSqlMap.IS_AFTER,
-      },
-    ],
-    IS_BEFORE: [
-      {
-        args: [
-          {
-            type: [DATE_NODE_TYPE],
-          },
-          {
-            type: [DATE_NODE_TYPE],
-          },
-        ],
-        returnType: [BOOLEAN_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.IS_BEFORE,
-        sqlFn: dateFunctionsToSqlMap.IS_BEFORE,
-      },
-    ],
-    IS_SAME: [
-      {
-        args: [
-          {
-            type: [DATE_NODE_TYPE],
-          },
-          {
-            type: [DATE_NODE_TYPE],
-          },
-        ],
-        returnType: [BOOLEAN_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.IS_SAME,
-        sqlFn: dateFunctionsToSqlMap.IS_SAME,
-      },
-    ],
     MINUTE: [
       {
         args: [
@@ -172,18 +192,6 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         returnType: [NUMBER_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.MINUTE,
         sqlFn: dateFunctionsToSqlMap.MINUTE,
-      },
-    ],
-    MONTH: [
-      {
-        args: [
-          {
-            type: [DATE_NODE_TYPE],
-          },
-        ],
-        returnType: [NUMBER_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.MONTH,
-        sqlFn: dateFunctionsToSqlMap.MONTH,
       },
     ],
     // NOW: [
@@ -206,14 +214,14 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.SECOND,
       },
     ],
-    TODAY: [
-      {
-        args: [],
-        returnType: [DATE_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.TODAY,
-        sqlFn: dateFunctionsToSqlMap.TODAY,
-      },
-    ],
+    // TODAY: [
+    //   {
+    //     args: [],
+    //     returnType: [DATE_NODE_TYPE],
+    //     jsFn: dateFunctionsToJsMap.TODAY,
+    //     sqlFn: dateFunctionsToSqlMap.TODAY,
+    //   },
+    // ],
     WEEKDAY: [
       {
         args: [
@@ -238,16 +246,105 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.WEEKNUM,
       },
     ],
-    YEAR: [
+    SETYEAR: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [NUMBER_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETYEAR,
+        sqlFn: dateFunctionsToSqlMap.SETYEAR,
+      },
+    ],
+    SETQUARTER: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [NUMBER_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETQUARTER,
+        sqlFn: dateFunctionsToSqlMap.SETQUARTER,
+      },
+    ],
+    SETMONTH: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [NUMBER_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETMONTH,
+        sqlFn: dateFunctionsToSqlMap.SETMONTH,
+      },
+    ],
+    SETDAY: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [NUMBER_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETDAY,
+        sqlFn: dateFunctionsToSqlMap.SETDAY,
+      },
+    ],
+    SETWEEKNUM: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [NUMBER_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETWEEKNUM,
+        sqlFn: dateFunctionsToSqlMap.SETWEEKNUM,
+      },
+    ],
+    SETWEEKDAY: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [NUMBER_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETWEEKDAY,
+        sqlFn: dateFunctionsToSqlMap.SETWEEKDAY,
+      },
+    ],
+    SETTIME: [
       {
         args: [
-          {
-            type: [DATE_NODE_TYPE],
-          },
+          { type: [DATE_NODE_TYPE] },
+          { type: [NUMBER_NODE_TYPE] },
+          { type: [NUMBER_NODE_TYPE] },
+          { type: [NUMBER_NODE_TYPE] },
         ],
-        returnType: [NUMBER_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.YEAR,
-        sqlFn: dateFunctionsToSqlMap.YEAR,
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETTIME,
+        sqlFn: dateFunctionsToSqlMap.SETTIME,
+      },
+    ],
+    SETHOUR: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [NUMBER_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETHOUR,
+        sqlFn: dateFunctionsToSqlMap.SETHOUR,
+      },
+    ],
+    SETMINUTE: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [NUMBER_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETMINUTE,
+        sqlFn: dateFunctionsToSqlMap.SETMINUTE,
+      },
+    ],
+    SETSECOND: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [NUMBER_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.SETSECOND,
+        sqlFn: dateFunctionsToSqlMap.SETSECOND,
+      },
+    ],
+    DATESTARTOF: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [LITERAL_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.DATESTARTOF,
+        sqlFn: dateFunctionsToSqlMap.DATESTARTOF,
+      },
+    ],
+    DATEENDOF: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }, { type: [LITERAL_NODE_TYPE] }],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.DATEENDOF,
+        sqlFn: dateFunctionsToSqlMap.DATEENDOF,
       },
     ],
   };

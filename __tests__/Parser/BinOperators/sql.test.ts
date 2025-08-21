@@ -144,7 +144,7 @@ describe('Binary operators to sql', () => {
   // POWER
   test('power', () => {
     const parser = new Parser('10 ^ 3');
-    expect(parser.toSqlWithVariables(true)).toBe('(10 ^ 3)');
+    expect(parser.toSqlWithVariables(true)).toBe('10 ^ 3');
   });
   /**
    * In psql results are:

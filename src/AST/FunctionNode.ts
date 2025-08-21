@@ -12,13 +12,8 @@ export default class FunctionNode extends ExpressionNode {
     const startFuncExpression = pos;
 
     const endFuncExpression =
-      pos +
-      // function name length
-      text.length +
-      // last argument end position
-      (args[args.length - 1]?.end || 0) +
-      // two brackets
-      2;
+      // if func hasn`t args we should sum start pos, func name length and two brackets, else last args length includes this length and one bracket
+      args[args.length - 1]?.end + 2 || pos + text.length + 1;
     super(FUNCTION_NODE_TYPE, startFuncExpression, endFuncExpression);
     this.func = func;
     this.name = name;

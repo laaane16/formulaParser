@@ -23,7 +23,8 @@ export const numberFunctionsToJsMap: Record<
    * @example
    * CEIL(['4.2']) // => 'Math.ceil(4.2)'
    */
-  CEIL: ([num]: string[]): string => `Math.ceil(${num})`,
+  CEIL: ([num, dig]: string[]): string =>
+    `(Math.ceil((${num}) * (10 ** (${dig ?? 0}))) / (10 ** (${dig ?? 0})))`,
 
   /**
    * @function FLOOR
@@ -33,7 +34,19 @@ export const numberFunctionsToJsMap: Record<
    * @example
    * FLOOR(['4.8']) // => 'Math.floor(4.8)'
    */
-  FLOOR: ([num]: string[]): string => `Math.floor(${num})`,
+  FLOOR: ([num, dig]: string[]): string =>
+    `(Math.floor((${num}) * (10 ** (${dig ?? 0}))) / (10 ** (${dig ?? 0})))`,
+
+  /**
+   * @function ROUND
+   * @description Rounds a number to the nearest integer.
+   * @param {string[]} args - [0] - The number.
+   * @returns {string} Js format ROUND expression.
+   * @example
+   * ROUND(['4.6']) // => 'Math.round(4.6)'
+   */
+  ROUND: ([num, dig]: string[]): string =>
+    `(Math.round((${num}) * (10 ** (${dig ?? 0}))) / (10 ** (${dig ?? 0})))`,
 
   /**
    * @function EXP
@@ -54,7 +67,7 @@ export const numberFunctionsToJsMap: Record<
    * MOD(['10', '3']) // => '(10 % 3)'
    */
   MOD: ([a, b]: string[]): string => `(${a} % ${b})`,
-  SAFE_MOD: ([a, b]: string[]): string =>
+  SAFEMOD: ([a, b]: string[]): string =>
     `(function(){if ((${b}) === 0) return null; return ${a} % ${b}})()`,
 
   /**
@@ -69,16 +82,6 @@ export const numberFunctionsToJsMap: Record<
     `Math.pow(${base}, ${exponent})`,
 
   /**
-   * @function ROUND
-   * @description Rounds a number to the nearest integer.
-   * @param {string[]} args - [0] - The number.
-   * @returns {string} Js format ROUND expression.
-   * @example
-   * ROUND(['4.6']) // => 'Math.round(4.6)'
-   */
-  ROUND: ([num]: string[]): string => `Math.round(${num})`,
-
-  /**
    * @function SQRT
    * @description Returns the square root of a number.
    * @param {string[]} args - [0] - The number.
@@ -87,7 +90,7 @@ export const numberFunctionsToJsMap: Record<
    * SQRT(['9']) // => 'Math.sqrt(9)'
    */
   SQRT: ([num]: string[]): string => `Math.sqrt(${num})`,
-  SAFE_SQRT: ([num]: string[]): string =>
+  SAFESQRT: ([num]: string[]): string =>
     `(function(){if ((${num}) < 0) return null; return Math.sqrt(${num})})()`,
 
   /**
@@ -142,14 +145,38 @@ export const numberFunctionsToJsMap: Record<
   MIN: (args: string[]): string => `Math.min(${args})`,
 
   /**
-   * @function TO_NUMBER
+   * @function TONUMBER
    * @description Returns num if it`s possible
    * @param {string[]} args - Numeric cast
    * @returns {string} Sql format numeric cas expression.
    * @example
-   * TO_NUMBER(["'1'"]) // => "'1'::numeric"
+   * TONUMBER(["'1'"]) // => "Number('1')"
    */
-  TO_NUMBER: (args: string[]): string => `Number(${args})`,
-  SAFE_TO_NUMBER: (args: string[]): string =>
+  TONUMBER: (args: string[]): string => `Number(${args})`,
+  SAFETONUMBER: (args: string[]): string =>
     `(function(){ if (Number.isNaN(Number(${args}))) {if (String(${args}) === 'true') return 1;if (String(${args}) === 'false') return 0; return null}; return Number(${args})})()`,
+
+  SIN: ([x]) => `Number(Math.sin(${x}).toFixed(15).replace(/\\.?0+$/, ''))`,
+  COS: ([x]) => `Number(Math.cos(${x}).toFixed(15).replace(/\\.?0+$/, ''))`,
+  TAN: ([x]) => `Number(Math.tan(${x}).toFixed(15).replace(/\\.?0+$/, ''))`,
+  COT: ([x]) =>
+    `Number((1 / Math.tan(${x})).toFixed(15).replace(/\\.?0+$/, ''))`,
+  ASIN: ([x]) =>
+    `(function (){if ((${x}) >= - 1 && (${x}) <= 1) return Number(Math.asin(${x}).toFixed(15).replace(/\\.?0+$/, '')); return null})()`,
+  ACOS: ([x]) =>
+    `(function (){if ((${x}) >= - 1 && (${x}) <= 1) return Number(Math.acos(${x}).toFixed(15).replace(/\\.?0+$/, '')); return null})()`,
+  ATAN: ([x]) => `Number(Math.atan(${x}).toFixed(15).replace(/\\.?0+$/, ''))`,
+  ACOT: ([x]) =>
+    `Number((Math.PI / 2 - Math.atan(${x})).toFixed(15).replace(/\\.?0+$/, ''))`,
+  PI: () => `Number(Math.PI.toFixed(14))`,
+  LN: ([a]) =>
+    `((${a}) > 0 ? Number(Math.log(${a}).toFixed(14).replace(/\\.?0+$/, '')): null)`,
+  LOG: ([a, b]) =>
+    `(((${a}) > 0 && (${a}) !== 1 && (${b}) > 0)  ? Number(Math.log(${b}) / Math.log(${a}).toFixed(14).replace(/\\.?0+$/, '')): null)`,
+  LOG10: ([a]) =>
+    `((${a}) > 0 ? Number(Math.log10(${a}).toFixed(14).replace(/\\.?0+$/, '')): null)`,
+  FIXED: ([num, decimals]) =>
+    decimals
+      ? `(function (){const [i, d] = (${num}).toFixed(${decimals}).split('.'); return i.replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ') + (d ? ('.' + String(d)) : '')})()`
+      : `(function (){const [i, d] = String(${num}).split('.'); return i.replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ') + (d ? ('.' + String(d)) : '')})()`,
 };

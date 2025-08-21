@@ -29,8 +29,6 @@ import {
   ValidBinOperatorsNames,
 } from './mappers/binOperators/types';
 
-import { BpiumValues } from '../types';
-
 import { FORMATS } from '../constants/formats';
 import {
   BIN_OPERATION_NODE_TYPE,
@@ -46,7 +44,14 @@ import {
   UNKNOWN_NODE_TYPE,
   VARIABLE_NODE_TYPE,
 } from '../constants/nodeTypes';
-import { IVar } from '../types';
+import {
+  GetReturnTypeArgs,
+  INodeReturnType,
+  IVar,
+  NodeStringifierMap,
+  NodeTypesGettersMap,
+  StringifyArgs,
+} from '../types';
 import { removePrefixSuffix } from '../lib/removePrefixSuffix';
 import { FORMULA_TEMPLATES } from '../constants/templates';
 import {
@@ -59,17 +64,44 @@ import { operatorPrecedence } from '../constants/operatorPrecedence';
 import { defaultValues } from '../constants/defaultValues';
 import { FormulaError } from '../lib/exceptions';
 
-type INodeReturnType = [Set<string>, number?];
-
 export default class Parser {
   tokens: Token[];
   pos: number = 0;
   variables: Record<string, IVar> = {};
   returnTypesCache: Record<string, INodeReturnType> = {};
+  possibleStringifiers: NodeStringifierMap;
+  possibleTypesGetters: NodeTypesGettersMap;
 
   constructor(tokens: Token[], variables: Record<string, IVar>) {
     this.tokens = tokens;
     this.variables = variables;
+
+    const possibleStringifiers: NodeStringifierMap = [
+      [StatementsNode, this.stringifyStatementsNode.bind(this)],
+      [NumberNode, this.stringifyNumberNode.bind(this)],
+      [LiteralNode, this.stringifyLiteralNode.bind(this)],
+      [BooleanNode, this.stringifyBooleanNode.bind(this)],
+      [VariableNode, this.stringifyVariableNode.bind(this)],
+      [ParenthesizedNode, this.stringifyParenthesizedNode.bind(this)],
+      [UnarOperationNode, this.stringifyUnarOperationNode.bind(this)],
+      [BinOperationNode, this.stringifyBinOperationNode.bind(this)],
+      [IfStatementNode, this.stringifyIfStatementNode.bind(this)],
+      [FunctionNode, this.stringifyFunctionNode.bind(this)],
+    ];
+    this.possibleStringifiers = possibleStringifiers;
+
+    const possibleTypesGetters: NodeTypesGettersMap = [
+      [NumberNode, this.getPrimitiveReturnType.bind(this)],
+      [LiteralNode, this.getPrimitiveReturnType.bind(this)],
+      [BooleanNode, this.getPrimitiveReturnType.bind(this)],
+      [VariableNode, this.getVariableReturnType.bind(this)],
+      [ParenthesizedNode, this.getParenthesizedReturnType.bind(this)],
+      [UnarOperationNode, this.getUnarReturnType.bind(this)],
+      [BinOperationNode, this.getBinReturnType.bind(this)],
+      [IfStatementNode, this.getIfReturnType.bind(this)],
+      [FunctionNode, this.getFunctionReturnType.bind(this)],
+    ];
+    this.possibleTypesGetters = possibleTypesGetters;
   }
 
   // == PARSING EXPRESSION ==
@@ -319,236 +351,306 @@ export default class Parser {
   // == PREPARE TO NEEDED FORMAT (JS | SQL) ==
 
   stringifyAst(
-    {
-      node,
+    { node, format, safe, values, bpiumValues }: StringifyArgs,
+    // FIXME: any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): any {
+    for (const [NodeType, stringify] of this.possibleStringifiers) {
+      if (node instanceof NodeType) {
+        return stringify({
+          // FIXME: any type
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          node: node as any,
+          format,
+          safe,
+          values,
+          bpiumValues,
+        });
+      }
+    }
+
+    FormulaError.syntaxError(node.start);
+  }
+
+  private stringifyStatementsNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: StatementsNode }) {
+    return node.codeStrings.map(
+      (i) =>
+        `${this.stringifyAst({ node: i, format, safe, values, bpiumValues })}`,
+    );
+  }
+
+  private stringifyNumberNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: NumberNode }) {
+    return node.number.text;
+  }
+
+  private stringifyLiteralNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: LiteralNode }) {
+    // replace brackets around format stringify
+    if (format === FORMATS.SQL) {
+      return `'${node.literal.text.slice(1, -1)}'`;
+    }
+    return `${node.literal.text}`;
+  }
+
+  private stringifyBooleanNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: BooleanNode }) {
+    return node.keyword.text;
+  }
+
+  private stringifyVariableNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: VariableNode }) {
+    const globalVarKey = removePrefixSuffix(node.variable.text);
+
+    if (this.variables[globalVarKey]) {
+      const sendedVar = this.variables[globalVarKey];
+      let variableType = sendedVar.type;
+      variableType =
+        typesMapper[variableType as keyof typeof typesMapper] || variableType;
+
+      const defaultValue = defaultValues[format][variableType];
+      const alternateValue = "''";
+
+      if (format === FORMATS.JS) {
+        const preparedVar = `$$VARIABLES['${globalVarKey}']`;
+
+        return `(${preparedVar} === null ? ${defaultValue ?? alternateValue}: ${preparedVar})`;
+      } else {
+        if (!values) {
+          FormulaError.requiredParamsError(['values']);
+        }
+
+        const value = values[globalVarKey];
+        if (value === undefined) {
+          FormulaError.missingVarsInValues([globalVarKey]);
+        }
+        const preparedValue = this.prepareVariableValue(value);
+
+        return `COALESCE(${preparedValue}, ${defaultValue ?? alternateValue})`;
+      }
+    }
+
+    FormulaError.fieldNotFoundError(node.start, node.variable.text);
+  }
+
+  private stringifyParenthesizedNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: ParenthesizedNode }) {
+    return `(${this.stringifyAst({ node: node.expression, format, safe, values, bpiumValues })})`;
+  }
+
+  private stringifyUnarOperationNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: UnarOperationNode }) {
+    const operator =
+      allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
+    const [operatorType] = this.getReturnType(node);
+
+    const operand = this.stringifyAst({
+      node: node.operand,
       format,
       safe,
       values,
       bpiumValues,
-    }: {
-      node: ExpressionNode;
-      format: (typeof FORMATS)[keyof typeof FORMATS];
-      safe: boolean;
-      values?: Record<string, unknown>;
-      bpiumValues?: BpiumValues;
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): any {
-    if (node instanceof StatementsNode) {
-      return node.codeStrings.map(
-        (i) =>
-          `${this.stringifyAst({ node: i, format, safe, values, bpiumValues })}`,
+    });
+    const preparedOperator = operator[`${format}Fn`](operand);
+
+    const isPolymorphic = operator.types.length === 0;
+    if (isPolymorphic) {
+      return preparedOperator;
+    }
+
+    let isOperandValid = false;
+
+    operatorType.forEach((i) => {
+      if (operator.types.find((j) => j === i)) {
+        isOperandValid = true;
+      }
+    });
+
+    if (isOperandValid) {
+      return preparedOperator;
+    }
+
+    FormulaError.unexpectedDataType(node.operand.start, node.operator.text);
+  }
+
+  private stringifyBinOperationNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: BinOperationNode }) {
+    const operator =
+      allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
+    const [operatorType, index] = this.getReturnType(node);
+
+    const leftNode = this.stringifyAst({
+      node: node.left,
+      format,
+      safe,
+      values,
+      bpiumValues,
+    });
+    const rightNode = this.stringifyAst({
+      node: node.right,
+      format,
+      safe,
+      values,
+      bpiumValues,
+    });
+
+    if (operatorType.has(UNKNOWN_NODE_TYPE) || index === undefined) {
+      FormulaError.unexpectedDataType(node.operator.pos, node.operator.text);
+    }
+
+    const neededOperator = operator[index];
+
+    if (isSafeOperator(neededOperator) && safe) {
+      const safeFn = neededOperator[`${format}SafeFn`];
+      return safeFn(leftNode, rightNode);
+    } else {
+      const fn = neededOperator[`${format}Fn`];
+      return fn(leftNode, rightNode);
+    }
+  }
+
+  private stringifyIfStatementNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: IfStatementNode }) {
+    const [testType] = this.getReturnType(node.test);
+    if (testType.size !== 1 || !testType.has(BOOLEAN_NODE_TYPE)) {
+      FormulaError.invalidIfCondition(node.start);
+    }
+
+    const [consequentType] = this.getReturnType(node.consequent);
+    const [alternateType] = this.getReturnType(node.alternate);
+
+    const test = this.stringifyAst({
+      node: node.test,
+      format,
+      safe,
+      values,
+      bpiumValues,
+    });
+    const consequent = this.stringifyAst({
+      node: node.consequent,
+      format,
+      safe,
+      values,
+      bpiumValues,
+    });
+    const alternate = this.stringifyAst({
+      node: node.alternate,
+      format,
+      safe,
+      values,
+      bpiumValues,
+    });
+    if (consequentType.size !== 1 || alternateType.size !== 1) {
+      FormulaError.invalidIfStatement(node.start);
+    }
+
+    const preparedConsequentType = Array.from(consequentType)[0];
+    const preparedAlternateType = Array.from(alternateType)[0];
+    const formatHandler = ifStatementMap[`${format}Fn`];
+
+    // this hack work because only in one case we expect if is not in the return type cache,
+    // this is when in formula is only if (example: IF(1 > 2, 1, 2)), in this case we expect it to be cast correctly above
+    const hasTypeInCache = this.getCachedReturnType(node.start, node.end);
+    if (!hasTypeInCache) {
+      return formatHandler(test, consequent, alternate);
+    }
+
+    const type = ifTypesMapper[preparedAlternateType + preparedConsequentType];
+    if (!type) {
+      FormulaError.invalidIfStatement(node.start);
+    }
+
+    let resultType;
+    if (format === FORMATS.JS) {
+      resultType = typesMapperJs[type];
+    } else {
+      resultType = typesMapperSql[type];
+    }
+    return formatHandler(test, consequent, alternate, resultType);
+  }
+
+  private stringifyFunctionNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: FunctionNode }) {
+    // may use as, because next stroke check valid func
+    const currentFunction = allFunctions[node.name as ValidFunctionsNames];
+    if (currentFunction) {
+      const [nodeReturnType, idx] = this.getReturnType(node);
+
+      if (nodeReturnType.has(UNKNOWN_NODE_TYPE) || idx === undefined) {
+        FormulaError.unexpectedDataType(node.func.pos, node.name);
+      }
+
+      const functionArgs: string[] = node.args.map((arg) =>
+        this.stringifyAst({ node: arg, format, safe, values, bpiumValues }),
       );
-    }
-    if (node instanceof NumberNode) {
-      return node.number.text;
-    }
-    if (node instanceof LiteralNode) {
-      // replace brackets around format stringify
-      if (format === FORMATS.SQL) {
-        return `'${node.literal.text.slice(1, -1)}'`;
-      }
-      return `${node.literal.text}`;
-    }
-    if (node instanceof BooleanNode) {
-      return node.keyword.text;
-    }
-    if (node instanceof VariableNode) {
-      const globalVarKey = removePrefixSuffix(node.variable.text);
-
-      if (this.variables[globalVarKey]) {
-        const sendedVar = this.variables[globalVarKey];
-        let variableType = sendedVar.type;
-        variableType =
-          typesMapper[variableType as keyof typeof typesMapper] || variableType;
-
-        const defaultValue = defaultValues[format][variableType];
-        const alternateValue = "''";
-
-        if (format === FORMATS.JS) {
-          const preparedVar = `$$VARIABLES['${globalVarKey}']`;
-
-          return `(${preparedVar} === null ? ${defaultValue ?? alternateValue}: ${preparedVar})`;
-        } else {
-          if (!values) {
-            FormulaError.requiredParamsError(['values']);
-          }
-
-          const value = values[globalVarKey];
-          if (value === undefined) {
-            FormulaError.missingVarsInValues([globalVarKey]);
-          }
-          const preparedValue = this.prepareVariableValue(value);
-
-          return `COALESCE(${preparedValue}, ${defaultValue ?? alternateValue})`;
-        }
+      const neededFunc = currentFunction[idx];
+      const requiredArgsCount = neededFunc.args.filter(
+        (i) => i.required === true || i.required === undefined,
+      );
+      if (requiredArgsCount.length > node.args.length) {
+        FormulaError.invalidArgumentsCount(node.start, node.name);
       }
 
-      FormulaError.fieldNotFoundError(node.start, node.variable.text);
-    }
-    if (node instanceof ParenthesizedNode) {
-      return `(${this.stringifyAst({ node: node.expression, format, safe, values, bpiumValues })})`;
-    }
-    if (node instanceof UnarOperationNode) {
-      const operator =
-        allUnarOperators[node.operator.token.name as ValidUnarOperatorsNames];
-      const [operatorType] = this.getReturnType(node);
-
-      const operand = this.stringifyAst({
-        node: node.operand,
-        format,
-        safe,
-        values,
-        bpiumValues,
-      });
-      const preparedOperator = operator[`${format}Fn`](operand);
-
-      const isPolymorphic = operator.types.length === 0;
-      if (isPolymorphic) {
-        return preparedOperator;
-      }
-
-      let isOperandValid = false;
-
-      operatorType.forEach((i) => {
-        if (operator.types.find((j) => j === i)) {
-          isOperandValid = true;
-        }
-      });
-
-      if (isOperandValid) {
-        return preparedOperator;
-      }
-
-      FormulaError.unexpectedDataType(node.operand.start, node.operator.text);
-    }
-    if (node instanceof BinOperationNode) {
-      const operator =
-        allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
-      const [operatorType, index] = this.getReturnType(node);
-
-      const leftNode = this.stringifyAst({
-        node: node.left,
-        format,
-        safe,
-        values,
-        bpiumValues,
-      });
-      const rightNode = this.stringifyAst({
-        node: node.right,
-        format,
-        safe,
-        values,
-        bpiumValues,
-      });
-
-      if (operatorType.has(UNKNOWN_NODE_TYPE) || index === undefined) {
-        FormulaError.unexpectedDataType(node.operator.pos, node.operator.text);
-      }
-
-      const neededOperator = operator[index];
-
-      if (isSafeOperator(neededOperator) && safe) {
-        const safeFn = neededOperator[`${format}SafeFn`];
-        return safeFn(leftNode, rightNode);
+      if (isSafeFunction(neededFunc) && safe) {
+        const safeFn = neededFunc[`${format}SafeFn`];
+        return safeFn(functionArgs, bpiumValues);
       } else {
-        const fn = neededOperator[`${format}Fn`];
-        return fn(leftNode, rightNode);
+        const fn = neededFunc[`${format}Fn`];
+        return fn(functionArgs, bpiumValues);
       }
     }
-    if (node instanceof IfStatementNode) {
-      const [testType] = this.getReturnType(node.test);
-      if (testType.size !== 1 || !testType.has(BOOLEAN_NODE_TYPE)) {
-        FormulaError.invalidIfCondition(node.start);
-      }
-
-      const [consequentType] = this.getReturnType(node.consequent);
-      const [alternateType] = this.getReturnType(node.alternate);
-
-      const test = this.stringifyAst({
-        node: node.test,
-        format,
-        safe,
-        values,
-        bpiumValues,
-      });
-      const consequent = this.stringifyAst({
-        node: node.consequent,
-        format,
-        safe,
-        values,
-        bpiumValues,
-      });
-      const alternate = this.stringifyAst({
-        node: node.alternate,
-        format,
-        safe,
-        values,
-        bpiumValues,
-      });
-
-      if (consequentType.size !== 1 || alternateType.size !== 1) {
-        FormulaError.invalidIfStatement(node.start);
-      }
-
-      const preparedConsequentType = Array.from(consequentType)[0];
-      const preparedAlternateType = Array.from(alternateType)[0];
-      const formatHandler = ifStatementMap[`${format}Fn`];
-
-      // this hack work because only in one case we expect if is not in the return type cache,
-      // this is when in formula is only if (example: IF(1 > 2, 1, 2)), in this case we expect it to be cast correctly above
-      const hasTypeInCache = this.getCachedReturnType(node.start, node.end);
-      if (!hasTypeInCache) {
-        return formatHandler(test, consequent, alternate);
-      }
-
-      const type =
-        ifTypesMapper[preparedAlternateType + preparedConsequentType];
-      if (!type) {
-        FormulaError.invalidIfStatement(node.start);
-      }
-
-      let resultType;
-      if (format === FORMATS.JS) {
-        resultType = typesMapperJs[type];
-      } else {
-        resultType = typesMapperSql[type];
-      }
-      return formatHandler(test, consequent, alternate, resultType);
-    }
-    if (node instanceof FunctionNode) {
-      // may use as, because next stroke check valid func
-      const currentFunction = allFunctions[node.name as ValidFunctionsNames];
-      if (currentFunction) {
-        const [nodeReturnType, idx] = this.getReturnType(node);
-
-        if (nodeReturnType.has(UNKNOWN_NODE_TYPE) || idx === undefined) {
-          FormulaError.unexpectedDataType(node.func.pos, node.name);
-        }
-
-        const functionArgs = node.args.map((arg) =>
-          this.stringifyAst({ node: arg, format, safe, values, bpiumValues }),
-        );
-        const neededFunc = currentFunction[idx];
-
-        const requiredArgsCount = neededFunc.args.filter(
-          (i) => i.required === true || i.required === undefined,
-        );
-        if (requiredArgsCount.length > node.args.length) {
-          FormulaError.invalidArgumentsCount(node.start, node.name);
-        }
-
-        if (isSafeFunction(neededFunc) && safe) {
-          const safeFn = neededFunc[`${format}SafeFn`];
-          return safeFn(functionArgs, bpiumValues);
-        } else {
-          const fn = neededFunc[`${format}Fn`];
-          return fn(functionArgs, bpiumValues);
-        }
-      }
-      FormulaError.invalidFunction(node.func.pos, node.name);
-    }
-    FormulaError.syntaxError(node.start);
+    FormulaError.invalidFunction(node.func.pos, node.name);
   }
 
   // TODO: support inserting strings as values
@@ -574,257 +676,246 @@ export default class Parser {
     if (typeFromCache) {
       return typeFromCache;
     }
+    for (const [NodeType, getter] of this.possibleTypesGetters) {
+      if (node instanceof NodeType) {
+        return getter({
+          // FIXME: any type
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          node: node as any,
+          ctx,
+          position,
+        });
+      }
+    }
+
+    const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
+    this.setReturnTypeInCache(res, node.start, node.end);
+    return res;
+  }
+
+  private getPrimitiveReturnType({
+    node,
+    ctx,
+    position,
+  }: GetReturnTypeArgs<
+    LiteralNode | BooleanNode | NumberNode
+  >): INodeReturnType {
+    const result = this.prepareReturnType(node.type);
+    return result;
+  }
+
+  private getVariableReturnType({
+    node,
+    ctx,
+    position,
+  }: GetReturnTypeArgs<VariableNode>): INodeReturnType {
+    const globalVarKey = removePrefixSuffix(node.variable.text);
+    // some variables we need to prevent for some knowing types, like progress, stars and etc.
+    let variableType = this.variables[globalVarKey]?.type;
+    variableType =
+      typesMapper[variableType as keyof typeof typesMapper] || variableType;
+
+    if (variableType) {
+      return this.prepareReturnType(variableType);
+    }
+    return this.prepareReturnType(UNKNOWN_NODE_TYPE);
+  }
+
+  private getParenthesizedReturnType({
+    node,
+    ctx,
+    position,
+  }: GetReturnTypeArgs<ParenthesizedNode>): INodeReturnType {
+    const res = this.getReturnType(node.expression);
+    this.setReturnTypeInCache(res, node.start, node.end);
+    return res;
+  }
+
+  private getUnarReturnType({
+    node,
+    ctx,
+    position,
+  }: GetReturnTypeArgs<UnarOperationNode>): INodeReturnType {
+    const res = this.getReturnType(node.operand, node);
+    this.setReturnTypeInCache(res, node.start, node.end);
+    return res;
+  }
+
+  private getBinReturnType({
+    node,
+    ctx,
+    position,
+  }: GetReturnTypeArgs<BinOperationNode>): INodeReturnType {
+    const operator =
+      allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
+
+    if (!operator) {
+      const res = this.prepareReturnType(UNKNOWN_NODE_TYPE);
+      this.setReturnTypeInCache(res, node.start, node.end);
+      return res;
+    }
+
+    const [leftNodeType] = this.getReturnType(node.left, node);
+    const [rightNodeType] = this.getReturnType(node.right, node);
+
     if (
-      node instanceof NumberNode ||
-      node instanceof LiteralNode ||
-      node instanceof BooleanNode
+      leftNodeType.has(UNKNOWN_NODE_TYPE) ||
+      rightNodeType.has(UNKNOWN_NODE_TYPE)
     ) {
-      const result = this.prepareReturnType(node.type);
-      return result;
-    }
-    if (node instanceof VariableNode) {
-      const globalVarKey = removePrefixSuffix(node.variable.text);
-      // some variables we need to prevent for some knowing types, like progress, stars and etc.
-      let variableType = this.variables[globalVarKey]?.type;
-      variableType =
-        typesMapper[variableType as keyof typeof typesMapper] || variableType;
-
-      if (variableType) {
-        return this.prepareReturnType(variableType);
-      }
-      return this.prepareReturnType(UNKNOWN_NODE_TYPE);
-    }
-    if (node instanceof ParenthesizedNode) {
-      const res = this.getReturnType(node.expression);
+      const res = this.prepareReturnType(UNKNOWN_NODE_TYPE);
       this.setReturnTypeInCache(res, node.start, node.end);
       return res;
     }
-    if (node instanceof UnarOperationNode) {
-      const res = this.getReturnType(node.operand, node);
-      this.setReturnTypeInCache(res, node.start, node.end);
-      return res;
-    }
-    // For binary operator and funcs always returns [Set(...), idx]
-    if (node instanceof BinOperationNode) {
-      const operator =
-        allBinOperators[node.operator.token.name as ValidBinOperatorsNames];
 
-      if (!operator) {
-        const res = this.prepareReturnType(UNKNOWN_NODE_TYPE);
+    for (let i = 0; i < operator.length; i++) {
+      const returnTypeVariant = operator[i].returnType;
+      const neededTypeVariant = operator[i].operandType;
+
+      // operandtype = null means that operands may be any types but this types should be equality
+      const isPolymorphic = neededTypeVariant === null;
+      const isLeftMonomorphic = leftNodeType.size === 1;
+      const isRightMonomorphic = rightNodeType.size === 1;
+
+      if (isPolymorphic && isLeftMonomorphic && isRightMonomorphic) {
+        const res = this.prepareReturnType(returnTypeVariant, i);
         this.setReturnTypeInCache(res, node.start, node.end);
         return res;
       }
+      if (!isPolymorphic && isLeftMonomorphic && isRightMonomorphic) {
+        const isNeededTypeArray = Array.isArray(neededTypeVariant);
 
-      const [leftNodeType] = this.getReturnType(node.left, node);
-      const [rightNodeType] = this.getReturnType(node.right, node);
-
-      if (
-        leftNodeType.has(UNKNOWN_NODE_TYPE) ||
-        rightNodeType.has(UNKNOWN_NODE_TYPE)
-      ) {
-        const res = this.prepareReturnType(UNKNOWN_NODE_TYPE);
-        this.setReturnTypeInCache(res, node.start, node.end);
-        return res;
-      }
-
-      for (let i = 0; i < operator.length; i++) {
-        const returnTypeVariant = operator[i].returnType;
-        const neededTypeVariant = operator[i].operandType;
-
-        // operandtype = null means that operands may be any types but this types should be equality
-        const isPolymorphic = neededTypeVariant === null;
-        const isLeftMonomorphic = leftNodeType.size === 1;
-        const isRightMonomorphic = rightNodeType.size === 1;
-
-        if (isPolymorphic && isLeftMonomorphic && isRightMonomorphic) {
+        if (
+          !isNeededTypeArray &&
+          leftNodeType.has(neededTypeVariant) &&
+          rightNodeType.has(neededTypeVariant)
+        ) {
           const res = this.prepareReturnType(returnTypeVariant, i);
           this.setReturnTypeInCache(res, node.start, node.end);
           return res;
         }
-        if (!isPolymorphic && isLeftMonomorphic && isRightMonomorphic) {
-          const isNeededTypeArray = Array.isArray(neededTypeVariant);
-
-          if (
-            !isNeededTypeArray &&
-            leftNodeType.has(neededTypeVariant) &&
-            rightNodeType.has(neededTypeVariant)
-          ) {
+        if (isNeededTypeArray) {
+          let coincidence = 0;
+          neededTypeVariant.forEach((curType) => {
+            if (leftNodeType.has(curType)) {
+              coincidence++;
+            }
+            if (rightNodeType.has(curType)) {
+              coincidence++;
+            }
+          });
+          if (coincidence === 2) {
             const res = this.prepareReturnType(returnTypeVariant, i);
             this.setReturnTypeInCache(res, node.start, node.end);
             return res;
           }
-          if (isNeededTypeArray) {
-            let coincidence = 0;
-            neededTypeVariant.forEach((curType) => {
-              if (leftNodeType.has(curType)) {
-                coincidence++;
-              }
-              if (rightNodeType.has(curType)) {
-                coincidence++;
-              }
-            });
-            if (coincidence === 2) {
-              const res = this.prepareReturnType(returnTypeVariant, i);
-              this.setReturnTypeInCache(res, node.start, node.end);
-              return res;
-            }
+        }
+      }
+    }
+    const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
+    this.setReturnTypeInCache(res, node.start, node.end);
+    return res;
+  }
+
+  private getIfReturnType({
+    node,
+    ctx,
+    position,
+  }: GetReturnTypeArgs<IfStatementNode>): INodeReturnType {
+    const [consequentType, idx] = this.getReturnType(
+      node.consequent,
+      node,
+      'consequent',
+    );
+    const [alternateType] = this.getReturnType(
+      node.alternate,
+      node,
+      'alternate',
+    );
+
+    const isConsequentPolymorphic = consequentType.size === 1;
+    const isAlternatePolymorphic = alternateType.size === 1;
+
+    const preparedConsequentType = Array.from(consequentType)[0];
+    const preparedAlternateType = Array.from(alternateType)[0];
+
+    if (
+      isConsequentPolymorphic &&
+      isAlternatePolymorphic &&
+      preparedConsequentType !== preparedAlternateType
+    ) {
+      if (ctx instanceof UnarOperationNode) {
+        const operator =
+          allUnarOperators[ctx.operator.token.name as ValidUnarOperatorsNames];
+        const neededTypes = operator.types;
+
+        const key = preparedConsequentType + preparedAlternateType;
+        if (key in ifTypesMapper) {
+          const type = ifTypesMapper[key];
+          if (type && neededTypes.includes(type as NodeTypesValues)) {
+            const res = this.prepareReturnType(type);
+            this.setReturnTypeInCache(res, node.start, node.end);
+            return res;
           }
         }
       }
-      const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
-      this.setReturnTypeInCache(res, node.start, node.end);
-      return res;
-    }
-    if (node instanceof IfStatementNode) {
-      const [consequentType, idx] = this.getReturnType(
-        node.consequent,
-        node,
-        'consequent',
-      );
-      const [alternateType] = this.getReturnType(
-        node.alternate,
-        node,
-        'alternate',
-      );
+      if (ctx instanceof IfStatementNode) {
+        let oneArgType;
+        if (position === 'alternate') {
+          [oneArgType] = this.getReturnType(ctx.consequent, node, 'consequent');
+        } else {
+          [oneArgType] = this.getReturnType(ctx.alternate, node, 'alternate');
+        }
 
-      const isConsequentPolymorphic = consequentType.size === 1;
-      const isAlternatePolymorphic = alternateType.size === 1;
+        const isArgPolymorphic = oneArgType.size === 1;
 
-      const preparedConsequentType = Array.from(consequentType)[0];
-      const preparedAlternateType = Array.from(alternateType)[0];
+        if (isArgPolymorphic) {
+          const preparedArgType = Array.from(oneArgType)[0];
 
-      if (
-        isConsequentPolymorphic &&
-        isAlternatePolymorphic &&
-        preparedConsequentType !== preparedAlternateType
-      ) {
-        if (ctx instanceof UnarOperationNode) {
-          const operator =
-            allUnarOperators[
-              ctx.operator.token.name as ValidUnarOperatorsNames
-            ];
-          const neededTypes = operator.types;
-
-          const key = preparedConsequentType + preparedAlternateType;
+          const key =
+            preparedArgType +
+            ifTypesMapper[preparedConsequentType + preparedAlternateType];
           if (key in ifTypesMapper) {
             const type = ifTypesMapper[key];
-            if (type && neededTypes.includes(type as NodeTypesValues)) {
+            if (type) {
               const res = this.prepareReturnType(type);
               this.setReturnTypeInCache(res, node.start, node.end);
               return res;
             }
           }
         }
-        if (ctx instanceof IfStatementNode) {
-          let oneArgType;
-          if (position === 'alternate') {
-            [oneArgType] = this.getReturnType(
-              ctx.consequent,
-              node,
-              'consequent',
-            );
-          } else {
-            [oneArgType] = this.getReturnType(ctx.alternate, node, 'alternate');
+      }
+      if (ctx instanceof BinOperationNode) {
+        const parent =
+          allBinOperators[ctx.operator.token.name as ValidBinOperatorsNames];
+        for (const parentVariant of parent) {
+          const parentVariantTypes = parentVariant.operandType;
+          const isVariantPolymorphic = parentVariantTypes === null;
+
+          if (isVariantPolymorphic) {
+            break;
           }
 
-          const isArgPolymorphic = oneArgType.size === 1;
+          const isVariantTypesArray = Array.isArray(parentVariantTypes);
+          if (isVariantTypesArray) {
+            let coincidence = 0;
+            let possibleConsequentType = '';
+            let possibleAlternateType = '';
+            for (let i = 0; i < parentVariantTypes.length; i++) {
+              const currentVariantType = parentVariantTypes[i];
 
-          if (isArgPolymorphic) {
-            const preparedArgType = Array.from(oneArgType)[0];
-
-            const key =
-              preparedArgType +
-              ifTypesMapper[preparedConsequentType + preparedAlternateType];
-            if (key in ifTypesMapper) {
-              const type = ifTypesMapper[key];
-              if (type) {
-                const res = this.prepareReturnType(type);
-                this.setReturnTypeInCache(res, node.start, node.end);
-                return res;
+              if (consequentType.has(currentVariantType)) {
+                coincidence++;
+                possibleConsequentType = currentVariantType;
               }
-            }
-          }
-        }
-        if (ctx instanceof BinOperationNode) {
-          const parent =
-            allBinOperators[ctx.operator.token.name as ValidBinOperatorsNames];
-          for (const parentVariant of parent) {
-            const parentVariantTypes = parentVariant.operandType;
-            const isVariantPolymorphic = parentVariantTypes === null;
-
-            if (isVariantPolymorphic) {
-              break;
-            }
-
-            const isVariantTypesArray = Array.isArray(parentVariantTypes);
-            if (isVariantTypesArray) {
-              let coincidence = 0;
-              let possibleConsequentType = '';
-              let possibleAlternateType = '';
-              for (let i = 0; i < parentVariantTypes.length; i++) {
-                const currentVariantType = parentVariantTypes[i];
-
-                if (consequentType.has(currentVariantType)) {
-                  coincidence++;
-                  possibleConsequentType = currentVariantType;
-                }
-                if (alternateType.has(currentVariantType)) {
-                  coincidence++;
-                  possibleAlternateType = currentVariantType;
-                }
-                if (coincidence >= 1) {
-                  const key = possibleConsequentType + possibleAlternateType;
-                  if (key in ifTypesMapper) {
-                    const type = ifTypesMapper[key];
-                    if (type) {
-                      const res = this.prepareReturnType(type);
-                      this.setReturnTypeInCache(res, node.start, node.end);
-                      return res;
-                    }
-                  }
-                }
+              if (alternateType.has(currentVariantType)) {
+                coincidence++;
+                possibleAlternateType = currentVariantType;
               }
-            }
-          }
-        }
-        if (ctx instanceof FunctionNode) {
-          const parent = allFunctions[ctx.func.text as ValidFunctionsNames];
-
-          for (const parentVariant of parent) {
-            const idx = Number(position);
-            if (Number.isNaN(idx)) {
-              if (process.env.NODE_ENV === 'development') {
-                throw new Error('Position should be number!!!');
-              }
-              break;
-            }
-            const arg = parentVariant.args[idx];
-            const argType = arg.type;
-            const canArgBeLast = parentVariant.args.length - 1 <= idx;
-
-            if (argType) {
-              const key = preparedConsequentType + preparedAlternateType;
-              if (key in ifTypesMapper) {
-                const type = ifTypesMapper[key];
-                if (type) {
-                  if (argType.includes(type as NodeTypesValues)) {
-                    const res = this.prepareReturnType(type);
-                    this.setReturnTypeInCache(res, node.start, node.end);
-                    return res;
-                  }
-                }
-              }
-            }
-            if (arg.many && canArgBeLast) {
-              const key = preparedConsequentType + preparedAlternateType;
-              if (key in ifTypesMapper) {
-                const type = ifTypesMapper[key];
-                if (type) {
-                  const includesLastArgNeededType = parentVariant.args[
-                    parentVariant.args.length - 1
-                  ].type.includes(type as NodeTypesValues);
-
-                  if (includesLastArgNeededType) {
+              if (coincidence >= 1) {
+                const key = possibleConsequentType + possibleAlternateType;
+                if (key in ifTypesMapper) {
+                  const type = ifTypesMapper[key];
+                  if (type) {
                     const res = this.prepareReturnType(type);
                     this.setReturnTypeInCache(res, node.start, node.end);
                     return res;
@@ -835,113 +926,163 @@ export default class Parser {
           }
         }
       }
+      if (ctx instanceof FunctionNode) {
+        const parent = allFunctions[ctx.func.text as ValidFunctionsNames];
 
-      alternateType.forEach((i) => consequentType.add(i));
-      this.setReturnTypeInCache([consequentType, idx], node.start, node.end);
-      return [consequentType, idx];
+        for (const parentVariant of parent) {
+          const idx = Number(position);
+          if (Number.isNaN(idx)) {
+            if (process.env.NODE_ENV === 'development') {
+              throw new Error('Position should be number!!!');
+            }
+            break;
+          }
+          const arg = parentVariant.args[idx];
+          const argType = arg.type;
+          const canArgBeLast = parentVariant.args.length - 1 <= idx;
+
+          if (argType) {
+            const key = preparedConsequentType + preparedAlternateType;
+            if (key in ifTypesMapper) {
+              const type = ifTypesMapper[key];
+              if (type) {
+                if (argType.includes(type as NodeTypesValues)) {
+                  const res = this.prepareReturnType(type);
+                  this.setReturnTypeInCache(res, node.start, node.end);
+                  return res;
+                }
+              }
+            }
+          }
+          if (arg.many && canArgBeLast) {
+            const key = preparedConsequentType + preparedAlternateType;
+            if (key in ifTypesMapper) {
+              const type = ifTypesMapper[key];
+              if (type) {
+                const includesLastArgNeededType = parentVariant.args[
+                  parentVariant.args.length - 1
+                ].type.includes(type as NodeTypesValues);
+
+                if (includesLastArgNeededType) {
+                  const res = this.prepareReturnType(type);
+                  this.setReturnTypeInCache(res, node.start, node.end);
+                  return res;
+                }
+              }
+            }
+          }
+        }
+      }
     }
-    if (node instanceof FunctionNode) {
-      const currentFunction = allFunctions[node.name as ValidFunctionsNames];
 
-      if (!currentFunction) {
+    alternateType.forEach((i) => consequentType.add(i));
+    this.setReturnTypeInCache([consequentType, idx], node.start, node.end);
+    return [consequentType, idx];
+  }
+
+  private getFunctionReturnType({
+    node,
+    ctx,
+    position,
+  }: GetReturnTypeArgs<FunctionNode>): INodeReturnType {
+    const currentFunction = allFunctions[node.name as ValidFunctionsNames];
+
+    if (!currentFunction) {
+      const res = this.prepareReturnType(UNKNOWN_NODE_TYPE);
+      this.setReturnTypeInCache(res, node.start, node.end);
+      return res;
+    }
+
+    // empty args array means func does not accept any arguments
+    if (node.args.length === 0 && currentFunction[0].args.length === 0) {
+      const res: INodeReturnType = [new Set(currentFunction[0].returnType), 0];
+      this.setReturnTypeInCache(res, node.start, node.end);
+      return res;
+    }
+
+    // get all types for node args
+    const nodeArgs: [Set<string>, number?][] = [];
+    for (let i = 0; i < node.args.length; i++) {
+      const argType = this.getReturnType(node.args[i], node, String(i));
+      if (!argType[0].has(UNKNOWN_NODE_TYPE)) {
+        nodeArgs.push(argType);
+      } else {
         const res = this.prepareReturnType(UNKNOWN_NODE_TYPE);
         this.setReturnTypeInCache(res, node.start, node.end);
         return res;
       }
+    }
 
-      // empty args array means func does not accept any arguments
-      if (node.args.length === 0 && currentFunction[0].args.length === 0) {
-        const res: INodeReturnType = [
-          new Set(currentFunction[0].returnType),
-          0,
-        ];
-        this.setReturnTypeInCache(res, node.start, node.end);
-        return res;
+    // compare the data types of the node and possible implementations of this function
+    for (let i = 0; i < currentFunction.length; i++) {
+      let coincidences = 0;
+      const functionVariant = currentFunction[i];
+      const functionVariantReturnType = functionVariant.returnType;
+      const functionVariantArgs = functionVariant.args;
+      const lastArgType =
+        functionVariantArgs[functionVariantArgs.length - 1]?.type;
+      const isLastArgMany =
+        functionVariantArgs[functionVariantArgs.length - 1]?.many || false;
+
+      if (nodeArgs.length === 0 && functionVariantArgs.length !== 0) {
+        break;
       }
-
-      // get all types for node args
-      const nodeArgs: [Set<string>, number?][] = [];
-      for (let i = 0; i < node.args.length; i++) {
-        const argType = this.getReturnType(node.args[i], node, String(i));
-        if (!argType[0].has(UNKNOWN_NODE_TYPE)) {
-          nodeArgs.push(argType);
+      // in a loop we go through all the arguments of the node
+      for (let j = 0; j < nodeArgs.length; j++) {
+        const canArgBeLast = functionVariantArgs.length - 1 <= j;
+        const nodeArgType = nodeArgs[j][0];
+        let argVariantsCoincidence = 0;
+        // may be undefined in case with arg which can be many
+        const functionVariantCurrentArg = functionVariantArgs[j];
+        if (functionVariantCurrentArg) {
+          functionVariantCurrentArg.type.forEach((possibleArgType) => {
+            if (nodeArgType.has(possibleArgType)) {
+              argVariantsCoincidence++;
+            }
+          });
+          if (
+            argVariantsCoincidence <= functionVariantCurrentArg.type.length &&
+            ((argVariantsCoincidence !== 0 &&
+              argVariantsCoincidence === nodeArgType.size) ||
+              (argVariantsCoincidence === 0 &&
+                functionVariantCurrentArg.type.length === 0))
+          ) {
+            coincidences++;
+          }
         } else {
-          const res = this.prepareReturnType(UNKNOWN_NODE_TYPE);
-          this.setReturnTypeInCache(res, node.start, node.end);
-          return res;
-        }
-      }
-
-      // compare the data types of the node and possible implementations of this function
-      for (let i = 0; i < currentFunction.length; i++) {
-        let coincidences = 0;
-        const functionVariant = currentFunction[i];
-        const functionVariantReturnType = functionVariant.returnType;
-        const functionVariantArgs = functionVariant.args;
-        const lastArgType =
-          functionVariantArgs[functionVariantArgs.length - 1]?.type;
-        const isLastArgMany =
-          functionVariantArgs[functionVariantArgs.length - 1]?.many || false;
-
-        if (nodeArgs.length === 0 && functionVariantArgs.length !== 0) {
-          break;
-        }
-        // in a loop we go through all the arguments of the node
-        for (let j = 0; j < nodeArgs.length; j++) {
-          const canArgBeLast = functionVariantArgs.length - 1 <= j;
-          const nodeArgType = nodeArgs[j][0];
-          let argVariantsCoincidence = 0;
-          // may be undefined in case with arg which can be many
-          const functionVariantCurrentArg = functionVariantArgs[j];
-          if (functionVariantCurrentArg) {
-            functionVariantCurrentArg.type.forEach((possibleArgType) => {
-              if (nodeArgType.has(possibleArgType)) {
+          if (lastArgType) {
+            lastArgType.forEach((possibleArgType) => {
+              if (
+                nodeArgType.has(possibleArgType) &&
+                canArgBeLast &&
+                lastArgType &&
+                isLastArgMany
+              ) {
                 argVariantsCoincidence++;
               }
             });
             if (
-              argVariantsCoincidence <= functionVariantCurrentArg.type.length &&
+              argVariantsCoincidence <= lastArgType.length &&
               ((argVariantsCoincidence !== 0 &&
                 argVariantsCoincidence === nodeArgType.size) ||
                 (argVariantsCoincidence === 0 &&
-                  functionVariantCurrentArg.type.length === 0))
+                  lastArgType.length === 0 &&
+                  canArgBeLast &&
+                  lastArgType &&
+                  isLastArgMany))
             ) {
               coincidences++;
             }
-          } else {
-            if (lastArgType) {
-              lastArgType.forEach((possibleArgType) => {
-                if (
-                  nodeArgType.has(possibleArgType) &&
-                  canArgBeLast &&
-                  lastArgType &&
-                  isLastArgMany
-                ) {
-                  argVariantsCoincidence++;
-                }
-              });
-              if (
-                argVariantsCoincidence <= lastArgType.length &&
-                ((argVariantsCoincidence !== 0 &&
-                  argVariantsCoincidence === nodeArgType.size) ||
-                  (argVariantsCoincidence === 0 &&
-                    lastArgType.length === 0 &&
-                    canArgBeLast &&
-                    lastArgType &&
-                    isLastArgMany))
-              ) {
-                coincidences++;
-              }
-            }
           }
         }
-        if (coincidences === nodeArgs.length) {
-          const res: INodeReturnType = [new Set(functionVariantReturnType), i];
-          this.setReturnTypeInCache(res, node.start, node.end);
-          return res;
-        }
+      }
+      if (coincidences === nodeArgs.length) {
+        const res: INodeReturnType = [new Set(functionVariantReturnType), i];
+        this.setReturnTypeInCache(res, node.start, node.end);
+        return res;
       }
     }
+
     const res: INodeReturnType = [new Set([UNKNOWN_NODE_TYPE])];
     this.setReturnTypeInCache(res, node.start, node.end);
     return res;

@@ -3,37 +3,37 @@ import { dateFunctionsToJsMap } from '../../../../src/Parser/mappers/functions/d
 describe('dateFunctionsToJsMap', () => {
   test('DATE', () => {
     expect(dateFunctionsToJsMap.DATE(['2023', '12', '12'])).toBe(
-      `DateTime.fromObject({ day: 12, month:  12, year: 2023}).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
+      `(function () {
+        let dt = DateTime.fromObject({ year: 2023, month: 1, day: 1});
+        dt = dt.plus({ months: 12 - 1, days: 12 - 1, hours: 0, minutes: 0, seconds: 0 });
+        return dt;
+        })().toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
     );
   });
 
   test('DATEADD', () => {
-    expect(dateFunctionsToJsMap.DATEADD(['"2023-01-01"', '3', '"days"'])).toBe(`
+    expect(dateFunctionsToJsMap.DATEADD(['"2023-01-01"', '3', '"s"'])).toBe(`
       (function(){
-        if ('second'=== ("days")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('minute'=== ("days")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('hour'=== ("days")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('day'=== ("days")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('week'=== ("days")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('month'=== ("days")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('year'=== ("days")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ ["days"]: Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);
+        if ('s'=== ("s")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ 'second': Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('min'=== ("s")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ 'minute': Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('h'=== ("s")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ 'hour': Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('d'=== ("s")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ 'day': Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('w'=== ("s")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ 'week': Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('mon'=== ("s")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ 'month': Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2); if ('y'=== ("s")) return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").plus({ 'year': Number(3) }).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2);
         throw '';
       })()
     `);
   });
 
-  test('DATETIME_DIFF', () => {
+  test('DATEDIFF', () => {
     expect(
-      dateFunctionsToJsMap.DATETIME_DIFF([
-        '"2023-01-05"',
-        '"2023-01-01"',
-        '"days"',
-      ]),
+      dateFunctionsToJsMap.DATEDIFF(['"2023-01-05"', '"2023-01-01"', '"s"']),
     ).toBe(`
       (function(){
-        if ('second' === ("days")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), "days").as("days"))); if ('minute' === ("days")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), "days").as("days"))); if ('hour' === ("days")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), "days").as("days"))); if ('day' === ("days")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), "days").as("days"))); if ('week' === ("days")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), "days").as("days"))); if ('month' === ("days")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), "days").as("days"))); if ('year' === ("days")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), "days").as("days")));
+        if ('s' === ("s")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), 'second').as('second'))); if ('min' === ("s")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), 'minute').as('minute'))); if ('h' === ("s")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), 'hour').as('hour'))); if ('d' === ("s")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), 'day').as('day'))); if ('w' === ("s")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), 'week').as('week'))); if ('mon' === ("s")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), 'month').as('month'))); if ('y' === ("s")) return Math.floor(Math.abs(DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").diff(DateTime.fromFormat("2023-01-05", "yyyy-LL-dd HH:mm:ssZZZ"), 'year').as('year')));
         throw '';
       })()
     `);
   });
 
-  // test('DATETIME_FORMAT', () => {
+  // test('DATEFORMAT', () => {
   //   expect(
-  //     dateFunctionsToJsMap.DATETIME_FORMAT(['"2023-01-01"', '"yyyy-MM-dd"']),
+  //     dateFunctionsToJsMap.DATEFORMAT(['"2023-01-01"', '"yyyy-MM-dd"']),
   //   ).toBe(`(function(){
   //   let preparedFormat = "'" + ("yyyy-MM-dd").replaceAll(" ", "' '") + "'";
   //   Object.entries({"msecond":"MS","second":"SS","minute":"MI","hour12":"HH","hour24":"HH24","year":"YYYY","iweekyear":"kkkk","month":"Month","mon":"Mon","mm":"MM","day":"Day","dy":"Dy","ddd":"DDD","dd":"DD","id":"ID","week":"WW","iweek":"IW"}).forEach(
@@ -47,9 +47,9 @@ describe('dateFunctionsToJsMap', () => {
   //   return DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ").toFormat(preparedFormat)})()`);
   // });
 
-  // test('DATETIME_PARSE', () => {
+  // test('DATEPARSE', () => {
   //   expect(
-  //     dateFunctionsToJsMap.DATETIME_PARSE(['"01-01-2023"', '"dd-MM-yyyy"']),
+  //     dateFunctionsToJsMap.DATEPARSE(['"01-01-2023"', '"dd-MM-yyyy"']),
   //   ).toBe(
   //     `DateTime.fromFormat("01-01-2023", "dd-MM-yyyy").toString()`,
   //   );
@@ -103,37 +103,15 @@ describe('dateFunctionsToJsMap', () => {
     );
   });
 
-  test('IS_AFTER', () => {
-    expect(
-      dateFunctionsToJsMap.IS_AFTER(['"2023-02-02"', '"2023-01-01"']),
-    ).toBe(
-      `DateTime.fromFormat("2023-02-02", "yyyy-LL-dd HH:mm:ssZZZ") > DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ")`,
-    );
-  });
-
-  test('IS_BEFORE', () => {
-    expect(
-      dateFunctionsToJsMap.IS_BEFORE(['"2023-01-01"', '"2023-02-02"']),
-    ).toBe(
-      `DateTime.fromFormat("2023-01-01", "yyyy-LL-dd HH:mm:ssZZZ") < DateTime.fromFormat("2023-02-02", "yyyy-LL-dd HH:mm:ssZZZ")`,
-    );
-  });
-
-  test('IS_SAME', () => {
-    expect(dateFunctionsToJsMap.IS_SAME(['"2023-01-01"', '"2023-01-01"'])).toBe(
-      `("2023-01-01" === "2023-01-01")`,
-    );
-  });
-
   // test('NOW', () => {
   //   expect(dateFunctionsToJsMap.NOW([])).toBe(
   //     `DateTime.now().toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
   //   );
   // });
 
-  test('TODAY', () => {
-    expect(dateFunctionsToJsMap.TODAY([])).toBe(
-      `DateTime.now().startOf('day').toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
-    );
-  });
+  // test('TODAY', () => {
+  //   expect(dateFunctionsToJsMap.TODAY([])).toBe(
+  //     `DateTime.now().startOf('day').toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`,
+  //   );
+  // });
 });

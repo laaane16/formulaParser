@@ -39,7 +39,7 @@ export const textFunctionsToSqlMap: Record<
         ELSE CAST(1 / 0 AS TEXT)
       END)
     `,
-  SAFE_TRIM: ([position, chars, str]: string[]): string => {
+  SAFETRIM: ([position, chars, str]: string[]): string => {
     return `
       (CASE (${position})
         WHEN 'leading' THEN TRIM(LEADING (${chars}) FROM (${str}))
@@ -161,16 +161,16 @@ export const textFunctionsToSqlMap: Record<
    */
   LEN: (args: string[]): string => `LENGTH(${args})`,
 
-  /**
-   * @function JOIN
-   * @param {string[]} args -
-   *  [0] - separator
-   *  [1, ...] - values
-   * @returns {string} Sql format LENGTH expression.
-   * @example
-   * JOIN(['","', '"1"', '1']) // => 'CONCAT_WS(',', '1', 1)'
-   */
-  JOIN: ([sep, ...vals]) => `CONCAT_WS(${sep}, ${vals})`,
+  // /**
+  //  * @function JOIN
+  //  * @param {string[]} args -
+  //  *  [0] - separator
+  //  *  [1, ...] - values
+  //  * @returns {string} Sql format LENGTH expression.
+  //  * @example
+  //  * JOIN(['","', '"1"', '1']) // => 'CONCAT_WS(',', '1', 1)'
+  //  */
+  // JOIN: ([sep, ...vals]) => `CONCAT_WS(${sep}, ${vals})`,
 
   /**
    * @function TOSTRING
@@ -179,5 +179,7 @@ export const textFunctionsToSqlMap: Record<
    * @example
    * TOSTRING([1]) // => '1::text'
    */
-  TO_STRING: ([val]) => `(${val})::text`,
+  TOSTRING: ([val]) => `(${val})::text`,
+  DATETOSTRING: ([val]) =>
+    `TO_CHAR(${val}, 'YYYY-MM-DD"T"HH24:MI:SS.MSTZH:TZM')`,
 };

@@ -1,4 +1,4 @@
-import { UNIT } from '../../../../constants/date';
+import { PSQL_EQUALITY_LUXON, UNIT } from '../../../../constants/date';
 import { IFormatterFunc } from '../types';
 import { ValidDateFunctionsNamesWithSafe } from './types';
 
@@ -11,11 +11,16 @@ export const dateFunctionsToSqlMap: Record<
    * @param {[string]} date - Date SQL expression.
    * @returns {string} SQL string.
    */
-  DATE: ([year, month, day]) => {
-    return `MAKE_DATE(${year}, ${month}, ${day})::TIMESTAMPTZ`;
+  DATE: ([year, month, day, hour, minute, second]) => {
+    return `MAKE_TIMESTAMP(${year}, ${month}, ${day}, ${hour ?? 0}, ${minute ?? 0}, ${second ?? 0})::TIMESTAMPTZ`;
   },
-  SAFE_DATE: ([year, month, day]) => {
-    return `(CASE WHEN (${year}) >= 0 AND ((${month}) BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE(${year}, ${month}, 1) + INTERVAL '1 month' - INTERVAL '1 day') >= (${day}) AND (${day}) >= 0 THEN MAKE_DATE(${year}, ${month}, ${day}) ELSE NULL END)::TIMESTAMPTZ`;
+  SAFEDATE: ([year, month, day, hour, minute, second]) => {
+    return `(MAKE_DATE(${year}, 1, 1)
+        + ((${month}) - 1) * interval '1 month'
+        + ((${day}) - 1) * interval '1 day'
+        + (${hour ?? 0}) * interval '1 hour'
+        + (${minute ?? 0}) * interval '1 minute'
+        + (${second ?? 0}) * interval '1 second')::TIMESTAMPTZ`;
   },
 
   /**
@@ -24,23 +29,53 @@ export const dateFunctionsToSqlMap: Record<
    * @returns {string} SQL string.
    */
   DATEADD: ([date, amount, unit]) => {
-    const getCaseBlock = (val: string) => {
-      return `WHEN '${val}' THEN ((${date}) + ((${amount}) || ' ${val}')::INTERVAL)`;
+    const getCaseBlock = (key: string, val: string) => {
+      return `WHEN '${key}' THEN ((${date}) + ((${amount}) || ' ${val}')::INTERVAL)`;
     };
     return `
       (CASE (${unit})
-        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+        ${Object.entries(UNIT)
+          .map(([key, val]) => getCaseBlock(key, val))
+          .join(' ')}
         ELSE (1 / 0)::text::date
       END)
     `;
   },
-  SAFE_DATEADD: ([date, amount, unit]) => {
-    const getCaseBlock = (val: string) => {
-      return `WHEN '${val}' THEN ((${date}) + ((${amount}) || ' ${val}')::INTERVAL)`;
+  SAFEDATEADD: ([date, amount, unit]) => {
+    const getCaseBlock = (key: string, val: string) => {
+      return `WHEN '${key}' THEN ((${date}) + ((${amount}) || ' ${val}')::INTERVAL)`;
     };
     return `
       (CASE (${unit})
-        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+        ${Object.entries(UNIT)
+          .map(([key, val]) => getCaseBlock(key, val))
+          .join(' ')}
+        ELSE NULL
+      END)
+    `;
+  },
+  DATESUB: ([date, amount, unit]) => {
+    const getCaseBlock = (key: string, val: string) => {
+      return `WHEN '${key}' THEN ((${date}) - ((${amount}) || ' ${val}')::INTERVAL)`;
+    };
+    return `
+      (CASE (${unit})
+        ${Object.entries(UNIT)
+          .map(([key, val]) => getCaseBlock(key, val))
+          .join(' ')}
+        ELSE (1 / 0)::text::date
+      END)
+    `;
+  },
+  SAFEDATESUB: ([date, amount, unit]) => {
+    const getCaseBlock = (key: string, val: string) => {
+      return `WHEN '${key}' THEN ((${date}) - ((${amount}) || ' ${val}')::INTERVAL)`;
+    };
+    return `
+      (CASE (${unit})
+        ${Object.entries(UNIT)
+          .map(([key, val]) => getCaseBlock(key, val))
+          .join(' ')}
         ELSE NULL
       END)
     `;
@@ -50,24 +85,28 @@ export const dateFunctionsToSqlMap: Record<
    * @param {[string, string, string]} args - End date, start date, and unit.
    * @returns {string} SQL string.
    */
-  DATETIME_DIFF: ([end, start, unit]) => {
-    const getCaseBlock = (val: string) => {
-      return `WHEN '${val}' THEN EXTRACT(${val} FROM ((${end}) - (${start})))`;
+  DATEDIFF: ([end, start, unit]) => {
+    const getCaseBlock = (key: string, val: string) => {
+      return `WHEN '${key}' THEN EXTRACT(${val} FROM ((${end}) - (${start})))`;
     };
     return `
       (CASE (${unit})
-        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+        ${Object.entries(UNIT)
+          .map(([key, val]) => getCaseBlock(key, val))
+          .join(' ')}
         ELSE 1 / 0
       END)
     `;
   },
-  SAFE_DATETIME_DIFF: ([end, start, unit]) => {
-    const getCaseBlock = (val: string) => {
-      return `WHEN '${val}' THEN EXTRACT(${val} FROM ((${end}) - (${start})))`;
+  SAFEDATEDIFF: ([end, start, unit]) => {
+    const getCaseBlock = (key: string, val: string) => {
+      return `WHEN '${key}' THEN EXTRACT(${val} FROM ((${end}) - (${start})))`;
     };
     return `
       (CASE (${unit})
-        ${UNIT.map((i) => getCaseBlock(i)).join(' ')}
+        ${Object.entries(UNIT)
+          .map(([key, val]) => getCaseBlock(key, val))
+          .join(' ')}
         ELSE NULL
       END)
     `;
@@ -77,8 +116,13 @@ export const dateFunctionsToSqlMap: Record<
   //  * @param {[string, string]} args - Date and format pattern.
   //  * @returns {string} SQL string.
   //  */
-  // DATETIME_FORMAT: ([date, format]) => {
-  //   return `TO_CHAR(${date}, ${format})`;
+  // DATEFORMAT: ([date, format]) => {
+  //   return `TO_CHAR(${date}, REGEXP_REPLACE(${format}, '\\m(${PSQL_EQUALITY_LUXON.sort(
+  //     (a, b) => b.length - a.length,
+  //   ).reduce((acc: string, i: string, idx: number) => {
+  //     if (idx === 0) return i;
+  //     return acc + '|' + i;
+  //   }, '')})\\M','"\\1"','g'))`;
   // },
 
   // /**
@@ -86,7 +130,7 @@ export const dateFunctionsToSqlMap: Record<
   //  * @param {[string, string]} args - String and format.
   //  * @returns {string} SQL Date.
   //  */
-  // DATETIME_PARSE: ([str, format]) => {
+  // DATEPARSE: ([str, format]) => {
   //   const getCaseBlock = (frmt: string) =>
   //     `WHEN '${frmt}' THEN TO_TIMESTAMPTZ(${str}, ${format})`;
 
@@ -95,27 +139,6 @@ export const dateFunctionsToSqlMap: Record<
   //     .join(' ')} ELSE NULL END)`;
   // },
 
-  /**
-   * Checks if first date is after second.
-   * @param {[string, string]} args - Two date expressions.
-   * @returns {string} SQL boolean.
-   */
-  IS_AFTER: ([d1, d2]) => `(${d1} > ${d2})`,
-
-  /**
-   * Checks if first date is before second.
-   * @param {[string, string]} args - Two date expressions.
-   * @returns {string} SQL boolean.
-   */
-  IS_BEFORE: ([d1, d2]) => `(${d1} < ${d2})`,
-
-  /**
-   * Checks if two dates are equal.
-   * @param {[string, string]} args - Two date expressions.
-   * @returns {string} SQL boolean.
-   */
-  IS_SAME: ([d1, d2]) => `(${d1} = ${d2})`,
-
   /** Extracts the year from a date. */
   YEAR: ([date]) => `EXTRACT(YEAR FROM ${date})`,
 
@@ -123,7 +146,8 @@ export const dateFunctionsToSqlMap: Record<
   MONTH: ([date]) => `EXTRACT(MONTH FROM ${date})`,
 
   /** Extracts the day of the week (1=Saturday..7=Sunday). */
-  WEEKDAY: ([date]) => `(EXTRACT(DOW FROM ${date}) + 1)`,
+  WEEKDAY: ([date]) =>
+    `(CASE WHEN EXTRACT(DOW FROM ${date}) = 0 THEN 7 ELSE EXTRACT(DOW FROM ${date}) END)`,
 
   /** Extracts the ISO week number. */
   WEEKNUM: ([date]) => `EXTRACT(WEEK FROM ${date})`,
@@ -140,9 +164,59 @@ export const dateFunctionsToSqlMap: Record<
   /** Extracts the second from a date. */
   SECOND: ([date]) => `EXTRACT(SECOND FROM ${date})`,
 
+  QUARTER: ([date]) => `EXTRACT(QUARTER FROM ${date})`,
+
   /** Returns current timestamp. */
   // NOW: () => `NOW()`,
 
   /** Returns the current date with timestamp. */
-  TODAY: () => `CURRENT_DATE::TIMESTAMPTZ`,
+  // TODAY: () => `CURRENT_DATE::TIMESTAMPTZ`,
+
+  SETYEAR: ([date, year]) =>
+    `(${date} + MAKE_INTERVAL(YEARS := (${year})::INT - EXTRACT(YEAR FROM (${date}))::INT))`,
+  SETQUARTER: ([date, quarter]) =>
+    `(${date} + MAKE_INTERVAL(MONTHS := (((${quarter}) - 1) * 3 + 1)::INT - EXTRACT(MONTH FROM (${date}))::INT))`,
+  SETMONTH: ([date, month]) =>
+    `(${date} + MAKE_INTERVAL(MONTHS := (${month})::INT - EXTRACT(MONTH FROM (${date}))::INT))`,
+  SETDAY: ([date, day]) =>
+    `(${date} + MAKE_INTERVAL(DAYS := (${day})::INT - EXTRACT(DAY FROM (${date}))::INT))`,
+  SETWEEKNUM: ([date, weeknum]) =>
+    `(${date} + MAKE_INTERVAL(WEEKS := (${weeknum})::INT - EXTRACT(WEEK FROM (${date}))::INT))`,
+  SETWEEKDAY: ([date, weekday]) =>
+    `(${date} + MAKE_INTERVAL(DAYS := (${weekday})::INT - (CASE WHEN EXTRACT(DOW FROM ${date}) = 0 THEN 7 ELSE EXTRACT(DOW FROM ${date}) END)::INT))`,
+  SETTIME: ([date, hour, min, sec]) =>
+    `(${date} + MAKE_INTERVAL(HOURS := ((${hour})::INT - EXTRACT(HOUR FROM (${date}))::INT), MINS := ((${min})::INT - EXTRACT(MINUTE FROM (${date}))::INT), SECS := ((${sec})::INT - FLOOR(EXTRACT(SECOND FROM (${date}))))))`,
+  SETHOUR: ([date, hour]) =>
+    `(${date} + MAKE_INTERVAL(HOURS := (${hour})::INT - EXTRACT(HOUR FROM (${date}))::INT))`,
+  SETMINUTE: ([date, minute]) =>
+    `(${date} + MAKE_INTERVAL(MINS := (${minute})::INT - EXTRACT(MINUTE FROM (${date}))::INT))`,
+  SETSECOND: ([date, second]) =>
+    `(${date} + MAKE_INTERVAL(SECS := (${second})::INT - FLOOR(EXTRACT(SECOND FROM (${date})))))`,
+
+  DATESTARTOF: ([date, unit]) => {
+    const getCaseBlock = (key: string, val: string) => {
+      return `WHEN '${key}' THEN DATE_TRUNC('${val}', ${date})`;
+    };
+    return `
+      (CASE (${unit})
+        ${Object.entries(UNIT)
+          .map(([key, val]) => getCaseBlock(key, val))
+          .join(' ')}
+        ELSE NULL
+      END)
+    `;
+  },
+  DATEENDOF: ([date, unit]) => {
+    const getCaseBlock = (key: string, val: string) => {
+      return `WHEN '${key}' THEN (DATE_TRUNC('${val}', ${date}) + INTERVAL '1 ${val}' - INTERVAL '1 second')`;
+    };
+    return `
+      (CASE (${unit})
+        ${Object.entries(UNIT)
+          .map(([key, val]) => getCaseBlock(key, val))
+          .join(' ')}
+        ELSE NULL
+      END)
+    `;
+  },
 };

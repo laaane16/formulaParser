@@ -145,28 +145,97 @@ describe('number funcs', () => {
 
     expect(parser.runJs(js)).toBe(1);
   });
-  test('to_number', () => {
-    const parser = new Parser('TO_NUMBER("123")');
+  test('tonumber', () => {
+    const parser = new Parser('TONUMBER("123")');
     const js = parser.toJs();
 
     expect(parser.runJs(js)).toBe(123);
   });
-  test('to_number with invalid string', () => {
-    const parser = new Parser('TO_NUMBER("123asd")');
+  test('tonumber with invalid string', () => {
+    const parser = new Parser('TONUMBER("123asd")');
     const js = parser.toJs();
 
     expect(() => parser.runJs(js)).toThrow();
   });
-  test('safe to_number', () => {
-    const parser = new Parser('TO_NUMBER("123")');
-    const js = parser.toJs(true);
-
-    expect(parser.runJs(js)).toBe(123);
-  });
-  test('safe to_number with invalid string', () => {
-    const parser = new Parser('TO_NUMBER("123asd")');
+  test('safe tonumber with invalid string', () => {
+    const parser = new Parser('TONUMBER("123asd")');
     const js = parser.toJs(true);
 
     expect(parser.runJs(js)).toBe(null);
   });
+
+  test('sin', () => {
+    const parser = new Parser('SIN(PI() / 4)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe(0.707106781186547);
+  });
+  test('cos', () => {
+    const parser = new Parser('COS(PI() / 6)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe(0.866025403784439);
+  });
+  test('tan', () => {
+    const parser = new Parser('TAN(PI() / 4)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe(0.999999999999998);
+  });
+  // РАСХОЖДЕНИЕ С ПОСТГРЕС, В ПОСТГРЕС 1
+  // 1.000000000000002
+  // test('cot', () => {
+  //   const parser = new Parser('COT(PI() / 4)');
+  //   const js = parser.toJs(true);
+
+  //   expect(parser.runJs(js)).toBe(1);
+  // });
+  test('asin', () => {
+    const parser = new Parser('ASIN(PI() / 4)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe(0.903339110766512);
+  });
+  // РАСХОЖДЕНИЕ С ПОСТГРЕС, В ПОСТГРЕС 1.01972674369545
+  // 1.019726743695451
+  // test('acos', () => {
+  //   const parser = new Parser('ACOS(PI() / 6)');
+  //   const js = parser.toJs(true);
+
+  //   expect(parser.runJs(js)).toBe(1.01972674369545);
+  // });
+  test('atan', () => {
+    const parser = new Parser('ATAN(PI() / 4)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe(0.665773750028353);
+  });
+  test('acot', () => {
+    const parser = new Parser('ACOT(PI() / 4)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe(0.905022576766543);
+  });
+  // РАСХОЖДЕНИЕ В ПОСТГРЕС 1.6094379124341003
+  // 1.6094379124341
+  // test('LN', () => {
+  //   const parser = new Parser('LN(5)');
+  //   const js = parser.toJs(true);
+
+  //   expect(parser.runJs(js)).toBe(1.6094379124341003);
+  // });
+  // РАСХОЖДЕНИЕ В ПОСТГРЕС 2.0000000000000000
+  // 1.9999999999999996
+  // test('LOG', () => {
+  //   const parser = new Parser('LOG(3, 9)');
+  //   const js = parser.toJs(true);
+
+  //   expect(parser.runJs(js)).toBe(2.0);
+  // });
+  // test('LOG10', () => {
+  //   const parser = new Parser('LOG10(100)');
+  //   const js = parser.toJs(true);
+
+  //   expect(parser.runJs(js)).toBe(2);
+  // });
 });

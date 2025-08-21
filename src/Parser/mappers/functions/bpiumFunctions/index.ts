@@ -12,20 +12,20 @@ export const bpiumFunctions: Record<
   ValidBpiumFunctionsNames,
   VariableFunction
 > = {
-  RECORD_ID: [
+  RECORDID: [
     {
       args: [],
       returnType: [NUMBER_NODE_TYPE],
-      jsFn: bpiumFunctionsToJsMap.RECORD_ID,
-      sqlFn: bpiumFunctionstoSqlMap.RECORD_ID,
+      jsFn: bpiumFunctionsToJsMap.RECORDID,
+      sqlFn: bpiumFunctionstoSqlMap.RECORDID,
     },
   ],
-  CATALOG_ID: [
+  CATALOGID: [
     {
       args: [],
       returnType: [LITERAL_NODE_TYPE],
-      jsFn: bpiumFunctionsToJsMap.CATALOG_ID,
-      sqlFn: bpiumFunctionstoSqlMap.CATALOG_ID,
+      jsFn: bpiumFunctionsToJsMap.CATALOGID,
+      sqlFn: bpiumFunctionstoSqlMap.CATALOGID,
     },
   ],
 };

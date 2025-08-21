@@ -1,4 +1,5 @@
 import {
+  DATE_NODE_TYPE,
   LITERAL_NODE_TYPE,
   NUMBER_NODE_TYPE,
 } from '../../../../constants/nodeTypes';
@@ -24,23 +25,23 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         specialWorkWithNull: true,
       },
     ],
-    JOIN: [
-      {
-        args: [
-          {
-            type: [LITERAL_NODE_TYPE],
-          },
-          {
-            type: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
-            many: true,
-          },
-        ],
-        returnType: [LITERAL_NODE_TYPE],
-        jsFn: textFunctionsToJsMap.JOIN,
-        sqlFn: textFunctionsToSqlMap.JOIN,
-        specialWorkWithNull: true,
-      },
-    ],
+    // JOIN: [
+    //   {
+    //     args: [
+    //       {
+    //         type: [LITERAL_NODE_TYPE],
+    //       },
+    //       {
+    //         type: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
+    //         many: true,
+    //       },
+    //     ],
+    //     returnType: [LITERAL_NODE_TYPE],
+    //     jsFn: textFunctionsToJsMap.JOIN,
+    //     sqlFn: textFunctionsToSqlMap.JOIN,
+    //     specialWorkWithNull: true,
+    //   },
+    // ],
     TRIM: [
       {
         args: [
@@ -58,8 +59,8 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         jsFn: textFunctionsToJsMap.TRIM,
         // trim(both 'xyz' from 'yxTomxx')
         sqlFn: textFunctionsToSqlMap.TRIM,
-        jsSafeFn: textFunctionsToJsMap.SAFE_TRIM,
-        sqlSafeFn: textFunctionsToSqlMap.SAFE_TRIM,
+        jsSafeFn: textFunctionsToJsMap.SAFETRIM,
+        sqlSafeFn: textFunctionsToSqlMap.SAFETRIM,
       },
     ],
     SEARCH: [
@@ -196,7 +197,13 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         sqlFn: textFunctionsToSqlMap.LEN,
       },
     ],
-    TO_STRING: [
+    TOSTRING: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }],
+        returnType: [LITERAL_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.DATETOSTRING,
+        sqlFn: textFunctionsToSqlMap.DATETOSTRING,
+      },
       {
         args: [
           {
@@ -204,8 +211,8 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
           },
         ],
         returnType: [LITERAL_NODE_TYPE],
-        jsFn: textFunctionsToJsMap.TO_STRING,
-        sqlFn: textFunctionsToSqlMap.TO_STRING,
+        jsFn: textFunctionsToJsMap.TOSTRING,
+        sqlFn: textFunctionsToSqlMap.TOSTRING,
       },
     ],
   };

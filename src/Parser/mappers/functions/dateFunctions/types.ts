@@ -1,38 +1,51 @@
-// CREATED_TIME()
-// LAST_MODIFIED
-//   | 'SET_LOCALE'
-//   | 'SET_TIMEZONE'
+// CREATEDTIME()
+// LASTMODIFIED
+//   | 'SETLOCALE'
+//   | 'SETTIMEZONE'
 //   | 'TIMESTR'
-//   | 'TO_NOW'
-//   | 'FROM_NOW'
+//   | 'TONOW'
+//   | 'FROMNOW'
 //   | 'DATESTR'
 //   | 'WORKDAY'
-//   | 'WORKDAY_DIFF'
+//   | 'WORKDAYDIFF'
 
 export type ValidDateFunctionsNamesWithSafe =
   | 'DATE'
-  | 'SAFE_DATE'
+  | 'SAFEDATE'
   | 'DATEADD'
-  | 'SAFE_DATEADD'
-  | 'SAFE_DATETIME_DIFF'
-  | 'DATETIME_DIFF'
-  // | 'DATETIME_FORMAT'
+  | 'DATESUB'
+  | 'SAFEDATESUB'
+  | 'SAFEDATEADD'
+  | 'SAFEDATEDIFF'
+  | 'DATEDIFF'
+  // | 'DATEFORMAT'
   | 'DAY'
   | 'HOUR'
-  | 'IS_AFTER'
-  | 'IS_BEFORE'
-  | 'IS_SAME'
   | 'MINUTE'
   | 'MONTH'
   // | 'NOW'
   | 'SECOND'
-  | 'TODAY'
+  // | 'TODAY'
   | 'WEEKDAY'
   | 'WEEKNUM'
-  | 'YEAR';
-// | 'DATETIME_PARSE'
+  | 'YEAR'
+  | 'QUARTER'
+  | 'SETYEAR'
+  | 'SETQUARTER'
+  | 'SETMONTH'
+  | 'SETDAY'
+  | 'SETWEEKNUM'
+  | 'SETWEEKDAY'
+  | 'SETTIME'
+  | 'SETHOUR'
+  | 'SETMINUTE'
+  | 'SETSECOND'
+  | 'DATESTARTOF'
+  | 'DATEENDOF';
+// | 'TIMESTAMP';
+// | 'DATEPARSE'
 
 export type ValidDateFunctionsNames = Exclude<
   ValidDateFunctionsNamesWithSafe,
-  'SAFE_DATEADD' | 'SAFE_DATETIME_DIFF' | 'SAFE_DATE'
+  'SAFEDATEADD' | 'SAFEDATESUB' | 'SAFEDATEDIFF' | 'SAFEDATE'
 >;

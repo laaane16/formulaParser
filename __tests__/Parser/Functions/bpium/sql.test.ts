@@ -7,12 +7,12 @@
 
 describe('sql bpium funcs', () => {
   test('', () => {});
-  //   test('RECORD_ID', () => {
-  //     const parser = new Parser('RECORD_ID()');
+  //   test('RECORDID', () => {
+  //     const parser = new Parser('RECORDID()');
   //     expect(parser.toSqlWithVariables(false, {}, bpiumValues)).toBe('"dbId"');
   //   });
-  //   test('CATALOG_ID', () => {
-  //     const parser = new Parser('CATALOG_ID()');
+  //   test('CATALOGID', () => {
+  //     const parser = new Parser('CATALOGID()');
   //     expect(parser.toSqlWithVariables(false, {}, bpiumValues)).toBe(
   //       "'$processes'",
   //     );

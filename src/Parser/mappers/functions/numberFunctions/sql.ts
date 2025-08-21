@@ -21,7 +21,8 @@ export const numberFunctionsToSqlMap: Record<
    * @returns {string} Sql format CEIL expression.
    * @example CEIL(['4.2']) => "CEIL(4.2)"
    */
-  CEIL: ([num]: string[]): string => `CEIL(${num})`,
+  CEIL: ([num, dig]: string[]): string =>
+    `(CEIL((${num}) * (10 ^ (${dig ?? 0}))) / (10 ^ (${dig ?? 0})))`,
 
   /**
    * @function FLOOR
@@ -30,7 +31,18 @@ export const numberFunctionsToSqlMap: Record<
    * @returns {string} Sql format FLOOR expression.
    * @example FLOOR(['4.8']) => "FLOOR(4.8)"
    */
-  FLOOR: ([num]: string[]): string => `FLOOR(${num})`,
+  FLOOR: ([num, dig]: string[]): string =>
+    `(FLOOR((${num}) * (10 ^ (${dig ?? 0}))) / (10 ^ (${dig ?? 0})))`,
+
+  /**
+   * @function ROUND
+   * @description Rounds a number to the nearest integer.
+   * @param {string[]} args - [0] - The number.
+   * @returns {string} Sql format ROUND expression.
+   * @example ROUND(['4.6']) => "ROUND(4.6)"
+   */
+  ROUND: ([num, dig]: string[]): string =>
+    `(ROUND((${num}) * (10 ^ (${dig ?? 0}))) / (10 ^ (${dig ?? 0})))`,
 
   /**
    * @function EXP
@@ -49,7 +61,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example MOD(['10', '3']) => "MOD(10, 3)"
    */
   MOD: ([a, b]: string[]): string => `MOD(${a}, ${b})`,
-  SAFE_MOD: ([a, b]: string[]): string =>
+  SAFEMOD: ([a, b]: string[]): string =>
     `(CASE WHEN (${b}) != 0 THEN MOD(${a}, ${b}) ELSE NULL END)`,
 
   /**
@@ -62,15 +74,6 @@ export const numberFunctionsToSqlMap: Record<
   POWER: ([base, exponent]: string[]): string => `POWER(${base}, ${exponent})`,
 
   /**
-   * @function ROUND
-   * @description Rounds a number to the nearest integer.
-   * @param {string[]} args - [0] - The number.
-   * @returns {string} Sql format ROUND expression.
-   * @example ROUND(['4.6']) => "ROUND(4.6)"
-   */
-  ROUND: ([num]: string[]): string => `ROUND(${num})`,
-
-  /**
    * @function SQRT
    * @description Returns the square root of a number.
    * @param {string[]} args - [0] - The number.
@@ -78,7 +81,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example SQRT(['9']) => "SQRT(9)"
    */
   SQRT: ([num]: string[]): string => `SQRT(${num})`,
-  SAFE_SQRT: ([num]: string[]): string =>
+  SAFESQRT: ([num]: string[]): string =>
     `(CASE WHEN ${num} >= 0 THEN SQRT(${num}) ELSE NULL END)`,
 
   /**
@@ -132,14 +135,34 @@ export const numberFunctionsToSqlMap: Record<
   MIN: (args: string[]): string => `LEAST(${args})`,
 
   /**
-   * @function TO_NUMBER
+   * @function TONUMBER
    * @description Returns num if it`s possible
    * @param {string[]} args - Numeric cast
    * @returns {string} Sql format numeric cas expression.
    * @example
-   * TO_NUMBER(["'1'"]) // => "'1'::numeric"
+   * TONUMBER(["'1'"]) // => "'1'::numeric"
    */
-  TO_NUMBER: (args: string[]): string => `(${args})::numeric`,
-  SAFE_TO_NUMBER: (args: string[]): string =>
+  TONUMBER: (args: string[]): string => `(${args})::numeric`,
+  SAFETONUMBER: (args: string[]): string =>
     `(CASE WHEN (${args})::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN (${args})::text::numeric WHEN (${args})::text ~ 'true' THEN 1 WHEN (${args})::text ~ 'false' THEN 0 ELSE NULL END)`,
+  SIN: ([x]) => `SIN(${x})::NUMERIC`,
+  COS: ([x]) => `COS(${x})::NUMERIC`,
+  TAN: ([x]) => `TAN(${x})::NUMERIC`,
+  COT: ([x]) => `COT(${x})::NUMERIC`,
+  ASIN: ([x]) =>
+    `(CASE WHEN (${x}) >= - 1 AND (${x}) <= 1 THEN ASIN(${x})::NUMERIC ELSE NULL END)`,
+  ACOS: ([x]) =>
+    `(CASE WHEN (${x}) >= - 1 AND (${x}) <= 1 THEN ACOS(${x})::NUMERIC ELSE NULL END)`,
+  ATAN: ([x]) => `ATAN(${x})::NUMERIC`,
+  ACOT: ([x]) => `(PI() / 2 - ATAN(${x}))::NUMERIC`,
+  PI: () => `PI()::NUMERIC`,
+  LN: ([a]) => `(CASE WHEN (${a}) > 0 THEN LN(${a})::NUMERIC ELSE NULL END)`,
+  LOG: ([a, b]) =>
+    `(CASE WHEN (${a}) > 0 AND (${b}) > 0 AND (${a}) != 1 THEN LOG(${a}, ${b})::NUMERIC ELSE NULL END)`,
+  LOG10: ([a]) =>
+    `(CASE WHEN (${a}) > 0 THEN LOG(${a})::NUMERIC ELSE NULL END)`,
+  FIXED: ([num, decimals]) =>
+    decimals
+      ? `((REGEXP_REPLACE(SPLIT_PART(ROUND(${num}, ${decimals})::TEXT, '.', 1), '(\\d)(?=(\\d{3})+(?!\\d))', '\\1 ', 'g') || COALESCE(NULLIF('.' || SPLIT_PART(ROUND(${num}, ${decimals})::TEXT, '.', 2), '.'), '')))`
+      : `((REGEXP_REPLACE(SPLIT_PART((${num})::TEXT, '.', 1), '(\\d)(?=(\\d{3})+(?!\\d))', '\\1 ', 'g') || COALESCE(NULLIF('.' || SPLIT_PART((${num})::TEXT, '.', 2), '.'), '')))`,
 };

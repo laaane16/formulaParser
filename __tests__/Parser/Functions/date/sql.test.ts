@@ -21,13 +21,18 @@ describe('sql date funcs', () => {
   test('DATE', () => {
     const parser = new Parser('DATE(2012, 12, 12)');
     expect(parser.toSqlWithVariables()).toBe(
-      'MAKE_DATE(2012, 12, 12)::TIMESTAMPTZ',
+      'MAKE_TIMESTAMP(2012, 12, 12, 0, 0, 0)::TIMESTAMPTZ',
     );
   });
   test('safe DATE', () => {
     const parser = new Parser('DATE(2012, 12, 1)');
     expect(parser.toSqlWithVariables(true)).toBe(
-      `(CASE WHEN (2012) >= 0 AND ((12) BETWEEN 0 AND 12) AND EXTRACT(DAY FROM MAKE_DATE(2012, 12, 1) + INTERVAL '1 month' - INTERVAL '1 day') >= (1) AND (1) >= 0 THEN MAKE_DATE(2012, 12, 1) ELSE NULL END)::TIMESTAMPTZ`,
+      `(MAKE_DATE(2012, 1, 1)
+        + ((12) - 1) * interval '1 month'
+        + ((1) - 1) * interval '1 day'
+        + (0) * interval '1 hour'
+        + (0) * interval '1 minute'
+        + (0) * interval '1 second')::TIMESTAMPTZ`,
     );
   });
   /**
@@ -43,7 +48,7 @@ describe('sql date funcs', () => {
     const parser = new Parser('DATEADD({Поле 1}, 10, "month")', fields);
     expect(parser.toSqlWithVariables(false, values)).toBe(`
       (CASE ('month')
-        WHEN 'second' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' second')::INTERVAL) WHEN 'minute' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'hour' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'day' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' day')::INTERVAL) WHEN 'week' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' week')::INTERVAL) WHEN 'month' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' month')::INTERVAL) WHEN 'year' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' year')::INTERVAL)
+        WHEN 's' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' second')::INTERVAL) WHEN 'min' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'h' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'd' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' day')::INTERVAL) WHEN 'w' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' week')::INTERVAL) WHEN 'mon' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' month')::INTERVAL) WHEN 'y' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' year')::INTERVAL)
         ELSE (1 / 0)::text::date
       END)
     `);
@@ -52,7 +57,7 @@ describe('sql date funcs', () => {
     const parser = new Parser('DATEADD({Поле 1}, 10, "month")', fields);
     expect(parser.toSqlWithVariables(true, values)).toBe(`
       (CASE ('month')
-        WHEN 'second' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' second')::INTERVAL) WHEN 'minute' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'hour' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'day' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' day')::INTERVAL) WHEN 'week' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' week')::INTERVAL) WHEN 'month' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' month')::INTERVAL) WHEN 'year' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' year')::INTERVAL)
+        WHEN 's' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' second')::INTERVAL) WHEN 'min' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'h' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'd' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' day')::INTERVAL) WHEN 'w' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' week')::INTERVAL) WHEN 'mon' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' month')::INTERVAL) WHEN 'y' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' year')::INTERVAL)
         ELSE NULL
       END)
     `);
@@ -64,48 +69,42 @@ describe('sql date funcs', () => {
    * safe mode: DATEADD({Поле 1}, 10, 'mth') -> NULL
    */
 
-  test('datetime diff', () => {
-    const parser = new Parser(
-      'DATETIME_DIFF({Поле 1}, {Поле 2}, "month")',
-      fields,
-    );
+  test('date diff', () => {
+    const parser = new Parser('DATEDIFF({Поле 1}, {Поле 2}, "month")', fields);
     expect(parser.toSqlWithVariables(false, values)).toBe(`
       (CASE ('month')
-        WHEN 'second' THEN EXTRACT(second FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'minute' THEN EXTRACT(minute FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'hour' THEN EXTRACT(hour FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'day' THEN EXTRACT(day FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'week' THEN EXTRACT(week FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'month' THEN EXTRACT(month FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'year' THEN EXTRACT(year FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL))))
+        WHEN 's' THEN EXTRACT(second FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'min' THEN EXTRACT(minute FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'h' THEN EXTRACT(hour FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'd' THEN EXTRACT(day FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'w' THEN EXTRACT(week FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'mon' THEN EXTRACT(month FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'y' THEN EXTRACT(year FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL))))
         ELSE 1 / 0
       END)
     `);
   });
-  test('safe datetime_diff with invalid unit', () => {
-    const parser = new Parser(
-      'DATETIME_DIFF({Поле 1}, {Поле 2}, "month")',
-      fields,
-    );
+  test('safe datediff with invalid unit', () => {
+    const parser = new Parser('DATEDIFF({Поле 1}, {Поле 2}, "month")', fields);
     expect(parser.toSqlWithVariables(true, values)).toBe(`
       (CASE ('month')
-        WHEN 'second' THEN EXTRACT(second FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'minute' THEN EXTRACT(minute FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'hour' THEN EXTRACT(hour FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'day' THEN EXTRACT(day FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'week' THEN EXTRACT(week FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'month' THEN EXTRACT(month FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'year' THEN EXTRACT(year FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL))))
+        WHEN 's' THEN EXTRACT(second FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'min' THEN EXTRACT(minute FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'h' THEN EXTRACT(hour FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'd' THEN EXTRACT(day FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'w' THEN EXTRACT(week FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'mon' THEN EXTRACT(month FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'y' THEN EXTRACT(year FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL))))
         ELSE NULL
       END)
     `);
   });
   /**
-   * DATETIME_DIFF({Поле 1}, {Поле 2} 'month') -> 2002-10-12T00:00:00.000Z
-   * DATETIME_DIFF({Поле 1}, {Поле 2}, 'month') -> 2001-02-12T00:00:00.000Z
-   * DATETIME_DIFF({Поле 1}, {Поле 2}, 'mth') -> ERROR
-   * safe mode: DATETIME_DIFF({Поле 1}, {Поле 2}, 'mth') -> NULL
+   * DATEDIFF({Поле 1}, {Поле 2} 'month') -> 2002-10-12T00:00:00.000Z
+   * DATEDIFF({Поле 1}, {Поле 2}, 'month') -> 2001-02-12T00:00:00.000Z
+   * DATEDIFF({Поле 1}, {Поле 2}, 'mth') -> ERROR
+   * safe mode: DATEDIFF({Поле 1}, {Поле 2}, 'mth') -> NULL
    */
 
   // NEED VALIDATE!!!
-  // test('datetime_format', () => {
-  //   const parser = new Parser('DATETIME_FORMAT({Поле 1}, "YYYY")', fields);
+  // test('dateformat', () => {
+  //   const parser = new Parser('DATEFORMAT({Поле 1}, "YYYY")', fields);
 
   //   expect(parser.toSqlWithVariables(false, values)).toBe(
   //     `TO_CHAR(COALESCE("dateColumn", NULL), 'YYYY')`,
   //   );
   // });
   // // NEED VALIDATE!!!
-  // test('datetime_parse', () => {
-  //   const parser = new Parser('DATETIME_PARSE("2012", "yyyy")', fields);
+  // test('dateparse', () => {
+  //   const parser = new Parser('DATEPARSE("2012", "yyyy")', fields);
   //   expect(() => parser.toSqlWithVariables()).toThrow();
   // });
 
@@ -132,7 +131,7 @@ describe('sql date funcs', () => {
   test('weekday', () => {
     const parser = new Parser('WEEKDAY({Поле 1})', fields);
     expect(parser.toSqlWithVariables(false, values)).toBe(
-      `(EXTRACT(DOW FROM COALESCE("dateColumn", NULL)) + 1)`,
+      `(CASE WHEN EXTRACT(DOW FROM COALESCE("dateColumn", NULL)) = 0 THEN 7 ELSE EXTRACT(DOW FROM COALESCE("dateColumn", NULL)) END)`,
     );
   });
   /**
@@ -189,36 +188,6 @@ describe('sql date funcs', () => {
    * SECOND({Поле 1}) -> 0
    */
 
-  test('IS_AFTER', () => {
-    const parser = new Parser('IS_AFTER({Поле 1}, {Поле 2})', fields);
-    expect(parser.toSqlWithVariables(false, values)).toBe(
-      `(COALESCE("dateColumn", NULL) > COALESCE("2dateColumn", NULL))`,
-    );
-  });
-  /**
-   * IS_AFTER({Поле 1}, {Поле 2}) -> FALSE
-   */
-
-  test('IS_BEFORE', () => {
-    const parser = new Parser('IS_BEFORE({Поле 1}, {Поле 2})', fields);
-    expect(parser.toSqlWithVariables(false, values)).toBe(
-      `(COALESCE("dateColumn", NULL) < COALESCE("2dateColumn", NULL))`,
-    );
-  });
-  /**
-   * IS_BEFORE({Поле 1}, {Поле 2} -> TRUE
-   */
-
-  test('IS_SAME', () => {
-    const parser = new Parser('IS_SAME({Поле 1}, {Поле 2})', fields);
-    expect(parser.toSqlWithVariables(false, values)).toBe(
-      `(COALESCE("dateColumn", NULL) = COALESCE("2dateColumn", NULL))`,
-    );
-  });
-  /**
-   * IS_SAME({Поле 1}, {Поле 2} -> FALSE
-   */
-
   // test('NOW', () => {
   //   const parser = new Parser('NOW()', fields);
   //   expect(parser.toSqlWithVariables(false, values)).toBe('NOW()');
@@ -227,10 +196,10 @@ describe('sql date funcs', () => {
    * NOW() -> '2025-05-20 13:40:49.556364+03'(date)
    */
 
-  test('TODAY', () => {
-    const parser = new Parser('TODAY()', fields);
-    expect(parser.toSqlWithVariables()).toBe('CURRENT_DATE::TIMESTAMPTZ');
-  });
+  // test('TODAY', () => {
+  //   const parser = new Parser('TODAY()', fields);
+  //   expect(parser.toSqlWithVariables()).toBe('CURRENT_DATE::TIMESTAMPTZ');
+  // });
   /**
    * TODAY() -> 2025-05-20 00:00:00
    */

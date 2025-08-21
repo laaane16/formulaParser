@@ -1,13 +1,13 @@
+import FunctionNode from '../../../AST/FunctionNode';
 import { NodeTypesValues } from '../../../constants/nodeTypes';
 import { BpiumValues } from '../../../types';
+import { ValidBpiumFunctionsNames } from './bpiumFunctions/types';
 import { ValidDateFunctionsNames } from './dateFunctions/types';
+import { ValidLogicFunctionsNames } from './logicFunctions/types';
 import { ValidNumberFunctionsNames } from './numberFunctions/types';
 import { ValidTextFunctionsNames } from './textFunctions/types';
 
 export interface IArg {
-  // name: string, I don't think it's necessary
-  // default: boolean, need to think
-  // type: NodeTypesValues[] | NodeTypesValues;
   type: NodeTypesValues[];
 
   // only for last params
@@ -34,7 +34,9 @@ export type IFunction = SafeFunction | BaseFunction;
 export type ValidFunctionsNames =
   | ValidTextFunctionsNames
   | ValidNumberFunctionsNames
-  | ValidDateFunctionsNames;
+  | ValidDateFunctionsNames
+  | ValidLogicFunctionsNames;
+// | ValidBpiumFunctionsNames
 
 export type VariableFunction = IFunction[];
 

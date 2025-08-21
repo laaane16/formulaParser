@@ -2,6 +2,7 @@
  *  * In this file we work with strings - NODE_STRING_TYPE as ""!!!
  */
 
+import { DATE_FORMAT } from '../../../../constants/date';
 import { IFormatterFunc } from '../types';
 import { ValidTextFunctionsNamesWithSafe } from './types';
 
@@ -19,7 +20,7 @@ export const textFunctionsToJsMap: Record<
    * CONCAT(['"Hello"', '" "', '"World"']) // => '("Hello" + " " + "World")'
    */
   CONCAT: (args: string[]): string =>
-    `[${args}].filter(v => v).reduce((accum, i) => accum + String(i))`,
+    `[${args}].filter(v => v).reduce((accum, i) => accum + String(i), "")`,
 
   /**
    * @function TRIM
@@ -44,7 +45,7 @@ export const textFunctionsToJsMap: Record<
       throw '';
     })()`;
   },
-  SAFE_TRIM([position, chars, str]: string[]) {
+  SAFETRIM([position, chars, str]: string[]) {
     return `(function(){
       const pattern = (${chars}).replace(/[.*+?^$}{()|[\\]]/g, '\\\\$&');
       if ((${position}) === 'leading') {
@@ -171,16 +172,16 @@ export const textFunctionsToJsMap: Record<
    */
   LEN: ([str]: string[]): string => `(${str}).length`,
 
-  /**
-   * @function JOIN
-   * @param {string[]} args -
-   *  [0] - separator
-   *  [1, ...] - values
-   * @returns {string} Js format JOIN expression.
-   * @example
-   * JOIN(['","', '"1"', '1']) // => '["1", 1].join(",")'
-   */
-  JOIN: ([sep, ...vals]) => `[${vals}].filter(v => v).join(${sep})`,
+  // /**
+  //  * @function JOIN
+  //  * @param {string[]} args -
+  //  *  [0] - separator
+  //  *  [1, ...] - values
+  //  * @returns {string} Js format JOIN expression.
+  //  * @example
+  //  * JOIN(['","', '"1"', '1']) // => '["1", 1].join(",")'
+  //  */
+  // JOIN: ([sep, ...vals]) => `[${vals}].filter(v => v).join(${sep})`,
 
   /**
    * @function TOSTRING
@@ -189,5 +190,7 @@ export const textFunctionsToJsMap: Record<
    * @example
    * TOSTRING([1]) // => 'String(1)'
    */
-  TO_STRING: ([val]) => `String(${val})`,
+  TOSTRING: ([val]) => `String(${val})`,
+  DATETOSTRING: ([val]) =>
+    `DateTime.fromFormat(${val}, ${DATE_FORMAT}).toISO()`,
 };

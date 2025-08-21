@@ -4,7 +4,7 @@ describe('toJs', () => {
   test('simple test', () => {
     const res = ifStatementMap.jsFn('2 > 1', '"test1"', '"test2"', 'String');
     expect(res).toBe(
-      '(("test1") !== null && ("test2") !== null ? String((function(){if (2 > 1){return "test1"}else{return "test2"}})()): null)',
+      '(function(){let test = (2 > 1);let consequent = ("test1"); let alternate = ("test2");if (consequent !== null && test !== null && alternate !== null){if (test){return String(consequent)}else{return String(alternate)}}return null})()',
     );
   });
 });
