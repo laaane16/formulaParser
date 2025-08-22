@@ -1,4 +1,8 @@
-import { PSQL_EQUALITY_LUXON, UNIT } from '../../../../constants/date';
+import {
+  PSQL_EQUALITY_LUXON,
+  DATE_FORMATS_FORMULA,
+  UNIT,
+} from '../../../../constants/date';
 import { IFormatterFunc } from '../types';
 import { ValidDateFunctionsNamesWithSafe } from './types';
 
@@ -125,19 +129,16 @@ export const dateFunctionsToSqlMap: Record<
   //   }, '')})\\M','"\\1"','g'))`;
   // },
 
-  // /**
-  //  * Parses a date string to a timestamp using format.
-  //  * @param {[string, string]} args - String and format.
-  //  * @returns {string} SQL Date.
-  //  */
-  // DATEPARSE: ([str, format]) => {
-  //   const getCaseBlock = (frmt: string) =>
-  //     `WHEN '${frmt}' THEN TO_TIMESTAMPTZ(${str}, ${format})`;
-
-  //   return `CASE ${format} ${Object.values(DATE_FORMATS_FORMULA)
-  //     .map((i) => getCaseBlock(format))
-  //     .join(' ')} ELSE NULL END)`;
-  // },
+  /**
+   * Parses a date string to a timestamp using format.
+   * @param {[string, string]} args - String and format.
+   * @returns {string} SQL Date.
+   */
+  // FIXME: Через функцию в sql
+  // TODO: добавить санитайз
+  DATEPARSE: ([str, format]) => {
+    return `BPIUMDATEPARSE(${str}, ${format})`;
+  },
 
   /** Extracts the year from a date. */
   YEAR: ([date]) => `EXTRACT(YEAR FROM ${date})`,
