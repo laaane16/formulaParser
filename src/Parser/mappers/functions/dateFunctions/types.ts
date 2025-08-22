@@ -29,6 +29,8 @@ export type ValidDateFunctionsNamesWithSafe =
   | 'WEEKDAY'
   | 'WEEKNUM'
   | 'YEAR'
+  | 'DATEPARSE'
+  | 'YEAR'
   | 'QUARTER'
   | 'SETYEAR'
   | 'SETQUARTER'

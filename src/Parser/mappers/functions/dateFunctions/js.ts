@@ -1,10 +1,8 @@
-import {
-  UNIT,
-  DATE_FORMAT,
-  LUXON_EQUALITY_PSQL,
-} from '../../../../constants/date';
+import { UNIT, DATE_FORMAT } from '../../../../constants/date';
 import { IFormatterFunc } from '../types';
 import { ValidDateFunctionsNamesWithSafe } from './types';
+
+// const DATE_FORMAT = '"yyyy-LL-dd HH:mm:ssZZZ"';
 
 export const dateFunctionsToJsMap: Record<
   ValidDateFunctionsNamesWithSafe,
@@ -150,14 +148,57 @@ export const dateFunctionsToJsMap: Record<
   //   return DateTime.fromFormat(${date}, ${DATE_FORMAT}).toFormat(luxonFormat) })()`;
   // },
 
-  // /**
-  //  * Parses a date string from a custom format.
-  //  * @param {[string, string]} args - Date string and format string.
-  //  * @returns {string} JavaScript expression returning ISO string.
-  //  */
-  // DATEPARSE: ([str, format]) => {
-  //   return `DateTime.fromFormat(${str}, ${format}).toString()`;
-  // },
+  /**
+   * Parses a date string from a custom format.
+   * @param {[string, string]} args - Date string and format string.
+   * @returns {string} JavaScript expression returning ISO string.
+   */
+  DATEPARSE: ([str, format]) => {
+    // Создаем строку с функцией санитайзера без TypeScript синтаксиса
+    const sanitizer = `function sanitizeDateFormat(fmt) {
+        // Сначала преобразуем PostgreSQL форматы в Luxon (ЕСЛИ ВВОД ТАКОЙ!)
+        let result = fmt;
+        
+        // PostgreSQL -> Luxon маппинг
+        const psqlToLuxon = {
+            'YYYY': 'yyyy',
+            'YY': 'yy', 
+            'MM': 'LL',
+            'DD': 'dd',
+            'HH24': 'HH',
+            'HH12': 'hh',
+            'HH': 'hh',
+            'MI': 'mm',
+            'SS': 'ss',
+            'MS': 'SSS',
+            'Month': 'LLLL',
+            'Mon': 'LLL',
+            'Day': 'cccc',
+            'Dy': 'ccc',
+            'DDD': 'ooo',
+            'AM': 'a',
+            'PM': 'a',
+            'TZ': 'ZZZ'
+        };
+        
+        // Mappers из sql-first в js
+        for (const [psql, luxon] of Object.entries(psqlToLuxon)) {
+            result = result.replace(new RegExp(psql, 'g'), luxon);
+        }
+        
+        // Перетираем ввод с тем что по типу формата sql в JS
+        return result
+            .replace(/%Y/g, 'yyyy')
+            .replace(/%m/g, 'LL')
+            .replace(/%d/g, 'dd')
+            .replace(/%H/g, 'HH')
+            .replace(/%M/g, 'mm')
+            .replace(/%S/g, 'ss');
+    }`;
+
+    // return `DateTime.fromFormat(${str}, (${sanitizer})(${format})).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`;
+    return `DateTime.fromFormat(${str}, (${sanitizer})(${format}), { zone: "utc" }).toISO()`;
+  },
 
   /** Gets the year from a date. */
   YEAR: ([date]) => {
@@ -233,7 +274,7 @@ export const dateFunctionsToJsMap: Record<
   SETWEEKDAY: ([date, weekday]) =>
     `DateTime.fromFormat(${date}, ${DATE_FORMAT}).set({weekday: ${weekday}}).toFormat(${DATE_FORMAT}).slice(0, -2)`,
   SETTIME: ([date, hour, min, sec]) =>
-    `DateTime.fromFormat(${date}, ${DATE_FORMAT}).set({hour: ${hour}, minute: ${min}, second: ${sec}}).toFormat(${DATE_FORMAT}).slice(0, -2)`,
+    `DateTime.fromFormat(${date}, ${DATE_FORMAT}).set({hour: ${hour}, minute: ${min}, second: ${sec}}).toFormat(${DATE_FORMAT}).slice(0, -2)`, //
   SETHOUR: ([date, hour]) =>
     `DateTime.fromFormat(${date}, ${DATE_FORMAT}).set({hour: ${hour}}).toFormat(${DATE_FORMAT}).slice(0, -2)`,
   SETMINUTE: ([date, min]) =>

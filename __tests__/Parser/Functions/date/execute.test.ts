@@ -109,19 +109,19 @@ describe('execute date funcs', () => {
 
   //   expect(() => parser.runJs(js, values)).toThrow();
   // });
-  // test('dateparse', () => {
-  //   const parser = new Parser('DATEPARSE("2012", "yyyy")', fields);
-  //   const js = parser.toJs();
+  test('DATEPARSE', () => {
+    const parser = new Parser('DATEPARSE("2012", "yyyy")', fields);
+    const js = parser.toJs();
 
-  //   expect(parser.runJs(js, values)).toBe('2012-01-01T00:00:00.000Z');
-  // });
-  // // NEED VALIDATION FOR FORMAT IN SAFE MODE
-  // test('invalid format in dateparse', () => {
-  //   const parser = new Parser('DATEPARSE("2012", "YYYY")', fields);
-  //   const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe('2012-01-01T00:00:00.000Z');
+  });
+  // NEED VALIDATION FOR FORMAT IN SAFE MODE
+  test('invalid format in datetime_parse', () => {
+    const parser = new Parser('DATEPARSE("2012", "YYYY")', fields);
+    const js = parser.toJs();
 
-  //   expect(parser.runJs(js, values)).toBe('2012-01-01T00:00:00.000Z');
-  // });
+    expect(parser.runJs(js, values)).toBe('2012-01-01T00:00:00.000Z');
+  });
   test('YEAR', () => {
     const parser = new Parser('YEAR({Поле 1})', fields);
     const js = parser.toJs();

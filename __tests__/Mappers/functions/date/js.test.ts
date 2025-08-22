@@ -50,9 +50,7 @@ describe('dateFunctionsToJsMap', () => {
   // test('DATEPARSE', () => {
   //   expect(
   //     dateFunctionsToJsMap.DATEPARSE(['"01-01-2023"', '"dd-MM-yyyy"']),
-  //   ).toBe(
-  //     `DateTime.fromFormat("01-01-2023", "dd-MM-yyyy").toString()`,
-  //   );
+  //   ).toBe(`DateTime.fromFormat("01-01-2023", "dd-MM-yyyy").toString()`);
   // });
 
   test('DAY', () => {

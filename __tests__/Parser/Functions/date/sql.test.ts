@@ -103,10 +103,11 @@ describe('sql date funcs', () => {
   //   );
   // });
   // // NEED VALIDATE!!!
-  // test('dateparse', () => {
-  //   const parser = new Parser('DATEPARSE("2012", "yyyy")', fields);
-  //   expect(() => parser.toSqlWithVariables()).toThrow();
-  // });
+  test('datetime_parse', () => {
+    // TODO: не уверен что не должно вызывать ошибок, точно ли на уровне sql должно перехватываться?
+    const parser = new Parser('DATEPARSE("2012", "yyyy")', fields);
+    expect(() => parser.toSqlWithVariables()).not.toThrow();
+  });
 
   test('YEAR', () => {
     const parser = new Parser('YEAR({Поле 1})', fields);
