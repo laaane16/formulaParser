@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import { Parser } from '../../../../src';
 
 describe('execute date funcs', () => {
@@ -96,6 +95,104 @@ describe('execute date funcs', () => {
 
     expect(parser.runJs(js, values)).toBe(null);
   });
+
+  test('safe datediff in mins', () => {
+    const parser = new Parser(
+      'DATEDIFF(DATE(2002,1,1), DATE(2004, 2,6,6,13), "min")',
+      fields,
+    );
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js, values)).toBe(1103413);
+  });
+
+  test('safe datestartof month', () => {
+    const parser = new Parser(
+      'DAY(DATESTARTOF(DATE(2025,12,12), "mon"))',
+      fields,
+    );
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js, values)).toBe(1);
+  });
+
+  test('safe dateendof month', () => {
+    const parser = new Parser(
+      'DAY(DATEENDOF(DATE(2025,12,12), "mon"))',
+      fields,
+    );
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js, values)).toBe(31);
+  });
+  test('setday', () => {
+    const parser = new Parser('DAY(SETDAY(DATE(2012,12,12), 15))', fields);
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(15);
+  });
+  test('SETMONTH', () => {
+    const parser = new Parser('MONTH(SETMONTH(DATE(2012,12,12), 15))', fields);
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(3);
+  });
+  test('SETYEAR', () => {
+    const parser = new Parser('YEAR(SETYEAR(DATE(2012,12,12), 2003))', fields);
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(2003);
+  });
+  test('SETQUARTER', () => {
+    const parser = new Parser(
+      'QUARTER(SETQUARTER(DATE(2012,12,12), 2))',
+      fields,
+    );
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(2);
+  });
+  test('SETWEEKNUM', () => {
+    const parser = new Parser(
+      'WEEKNUM(SETWEEKNUM(DATE(2012,12,12), 5))',
+      fields,
+    );
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(5);
+  });
+  test('SETWEEKDAY', () => {
+    const parser = new Parser(
+      'WEEKDAY(SETWEEKDAY(DATE(2012,12,12), 6))',
+      fields,
+    );
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(6);
+  });
+  test('SETTIME', () => {
+    const parser = new Parser(
+      'MINUTE(SETTIME(DATE(2012,12,12), 12,12,12))',
+      fields,
+    );
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(12);
+  });
+  test('SETHOUR', () => {
+    const parser = new Parser('HOUR(SETHOUR(DATE(2012,12,12), 3))', fields);
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(3);
+  });
+  test('SETMINUTE', () => {
+    const parser = new Parser('MINUTE(SETMINUTE(DATE(2012,12,12), 3))', fields);
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(3);
+  });
+  test('SETSECOND', () => {
+    const parser = new Parser('SECOND(SETSECOND(DATE(2012,12,12), 3))', fields);
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(3);
+  });
+  test('TIMESTAMP', () => {
+    const parser = new Parser('TIMESTAMP(DATE(2012,12,12))', fields);
+    const js = parser.toJs();
+    expect(parser.runJs(js, values)).toBe(1355256000);
+  });
+
   // test('dateformat', () => {
   //   const parser = new Parser('DATEFORMAT({Поле 1}, "YYYY")', fields);
   //   const js = parser.toJs(true);

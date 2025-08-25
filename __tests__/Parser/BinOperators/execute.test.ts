@@ -221,7 +221,7 @@ describe('Binary operators execute', () => {
     const parser = new Parser('3 ^ -3', variables);
     const jsFormula = parser.toJs();
 
-    expect(parser.runJs(jsFormula, values)).toBe(1 / 27);
+    expect(parser.runJs(jsFormula, values)).toBe(Number((1 / 27).toFixed(10)));
   });
 
   // EQUAL
@@ -254,6 +254,11 @@ describe('Binary operators execute', () => {
     const jsFormula = parser.toJs(true);
     expect(parser.runJs(jsFormula, undefined)).toBe(null);
   });
+  test('equal correct with dates', () => {
+    const parser = new Parser('DATE(2002,12,12) == DATE(2002,12,12)');
+    const jsFormula = parser.toJs(true);
+    expect(parser.runJs(jsFormula, undefined)).toBe(true);
+  });
 
   // NOT EQUAL
   test('not equal correct with nums', () => {
@@ -280,31 +285,41 @@ describe('Binary operators execute', () => {
 
     expect(parser.runJs(jsFormula)).toBe(false);
   });
+  test('equal correct with dates', () => {
+    const parser = new Parser('DATE(2002,12,12) != DATE(2002,12,12)');
+    const jsFormula = parser.toJs(true);
+    expect(parser.runJs(jsFormula, undefined)).toBe(false);
+  });
 
   // GREATER
-  test('equal correct with nums', () => {
+  test('greater correct with nums', () => {
     const parser = new Parser('10 > 10');
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula)).toBe(false);
   });
-  test('equal correct with strs', () => {
+  test('greater correct with strs', () => {
     const parser = new Parser('"asd" > "10"');
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula)).toBe(true);
   });
-  test('equal correct with num and str', () => {
+  test('greater correct with num and str', () => {
     const parser = new Parser('"asd" > 10');
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula)).toBe(true);
   });
-  test('equal correct with num and str', () => {
+  test('greater correct with num and str', () => {
     const parser = new Parser('"10" > 10');
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula)).toBe(false);
+  });
+  test('greater correct with dates', () => {
+    const parser = new Parser('DATE(2002,2,12) > DATE(2002,12,12)');
+    const jsFormula = parser.toJs(true);
+    expect(parser.runJs(jsFormula, undefined)).toBe(false);
   });
 
   // GREATER OR EQUAL
@@ -332,6 +347,11 @@ describe('Binary operators execute', () => {
 
     expect(parser.runJs(jsFormula)).toBe(true);
   });
+  test('greater or equal correct with dates', () => {
+    const parser = new Parser('DATE(2002,2,12) >= DATE(2002,12,12)');
+    const jsFormula = parser.toJs(true);
+    expect(parser.runJs(jsFormula, undefined)).toBe(false);
+  });
 
   // LESS
   test('less correct with nums', () => {
@@ -358,6 +378,11 @@ describe('Binary operators execute', () => {
 
     expect(parser.runJs(jsFormula)).toBe(false);
   });
+  test('less correct with dates', () => {
+    const parser = new Parser('DATE(2002,2,12) < DATE(2002,12,12)');
+    const jsFormula = parser.toJs(true);
+    expect(parser.runJs(jsFormula, undefined)).toBe(true);
+  });
 
   // LESS OR EQUAL
   test('less or equal correct with nums', () => {
@@ -383,6 +408,11 @@ describe('Binary operators execute', () => {
     const jsFormula = parser.toJs();
 
     expect(parser.runJs(jsFormula)).toBe(true);
+  });
+  test('less or equal correct with dates', () => {
+    const parser = new Parser('DATE(2002,2,12) <= DATE(2002,12,12)');
+    const jsFormula = parser.toJs(true);
+    expect(parser.runJs(jsFormula, undefined)).toBe(true);
   });
 
   // AND

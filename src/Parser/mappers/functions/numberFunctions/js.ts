@@ -1,3 +1,4 @@
+import { roundedJs } from '../../../../lib/roundedNums';
 import { IFormatterFunc } from '../types';
 import { ValidNumberFunctionsNamesWithSafe } from './types';
 
@@ -56,7 +57,7 @@ export const numberFunctionsToJsMap: Record<
    * @example
    * EXP(['2']) // => 'Math.exp(2)'
    */
-  EXP: ([num]: string[]): string => `Math.exp(${num})`,
+  EXP: ([num]: string[]): string => roundedJs(`Math.exp(${num})`),
 
   /**
    * @function MOD
@@ -66,9 +67,9 @@ export const numberFunctionsToJsMap: Record<
    * @example
    * MOD(['10', '3']) // => '(10 % 3)'
    */
-  MOD: ([a, b]: string[]): string => `(${a} % ${b})`,
+  MOD: ([a, b]: string[]): string => roundedJs(`(${a} % ${b})`),
   SAFEMOD: ([a, b]: string[]): string =>
-    `(function(){if ((${b}) === 0) return null; return ${a} % ${b}})()`,
+    `(function(){if ((${b}) === 0) return null; return ${roundedJs(`(${a} % ${b})`)}})()`,
 
   /**
    * @function POWER
@@ -79,7 +80,7 @@ export const numberFunctionsToJsMap: Record<
    * POWER(['2', '3']) // => 'Math.pow(2, 3)'
    */
   POWER: ([base, exponent]: string[]): string =>
-    `Math.pow(${base}, ${exponent})`,
+    roundedJs(`Math.pow(${base}, ${exponent})`),
 
   /**
    * @function SQRT
@@ -89,9 +90,9 @@ export const numberFunctionsToJsMap: Record<
    * @example
    * SQRT(['9']) // => 'Math.sqrt(9)'
    */
-  SQRT: ([num]: string[]): string => `Math.sqrt(${num})`,
+  SQRT: ([num]: string[]): string => roundedJs(`Math.sqrt(${num})`),
   SAFESQRT: ([num]: string[]): string =>
-    `(function(){if ((${num}) < 0) return null; return Math.sqrt(${num})})()`,
+    `(function(){if ((${num}) < 0) return null; return ${roundedJs(`Math.sqrt(${num})`)}})()`,
 
   /**
    * @function RANDOM
@@ -111,7 +112,7 @@ export const numberFunctionsToJsMap: Record<
    * @example
    * SUM(['1','2']) // => '1 + 2'
    */
-  SUM: (args: string[]): string => `(${args.join(' + ')})`,
+  SUM: (args: string[]): string => roundedJs(`(${args.join(' + ')})`),
 
   /**
    * @function AVERAGE
@@ -122,7 +123,7 @@ export const numberFunctionsToJsMap: Record<
    * AVERAGE(['1','2']) // => '(1 + 2) / 2'
    */
   AVERAGE: (args: string[]): string =>
-    `((${args.join(' + ')}) / ${args.length})`,
+    roundedJs(`((${args.join(' + ')}) / ${args.length})`),
 
   /**
    * @function MAX
@@ -156,25 +157,22 @@ export const numberFunctionsToJsMap: Record<
   SAFETONUMBER: (args: string[]): string =>
     `(function(){ if (Number.isNaN(Number(${args}))) {if (String(${args}) === 'true') return 1;if (String(${args}) === 'false') return 0; return null}; return Number(${args})})()`,
 
-  SIN: ([x]) => `Number(Math.sin(${x}).toFixed(15).replace(/\\.?0+$/, ''))`,
-  COS: ([x]) => `Number(Math.cos(${x}).toFixed(15).replace(/\\.?0+$/, ''))`,
-  TAN: ([x]) => `Number(Math.tan(${x}).toFixed(15).replace(/\\.?0+$/, ''))`,
-  COT: ([x]) =>
-    `Number((1 / Math.tan(${x})).toFixed(15).replace(/\\.?0+$/, ''))`,
+  SIN: ([x]) => roundedJs(`Math.sin(${x})`),
+  COS: ([x]) => roundedJs(`Math.cos(${x})`),
+  TAN: ([x]) => roundedJs(`Math.tan(${x})`),
+  COT: ([x]) => roundedJs(`1 / Math.tan(${x})`),
   ASIN: ([x]) =>
-    `(function (){if ((${x}) >= - 1 && (${x}) <= 1) return Number(Math.asin(${x}).toFixed(15).replace(/\\.?0+$/, '')); return null})()`,
+    `(function (){if ((${x}) >= - 1 && (${x}) <= 1) return ${roundedJs(`Math.asin(${x})`)}; return null})()`,
   ACOS: ([x]) =>
-    `(function (){if ((${x}) >= - 1 && (${x}) <= 1) return Number(Math.acos(${x}).toFixed(15).replace(/\\.?0+$/, '')); return null})()`,
-  ATAN: ([x]) => `Number(Math.atan(${x}).toFixed(15).replace(/\\.?0+$/, ''))`,
-  ACOT: ([x]) =>
-    `Number((Math.PI / 2 - Math.atan(${x})).toFixed(15).replace(/\\.?0+$/, ''))`,
-  PI: () => `Number(Math.PI.toFixed(14))`,
-  LN: ([a]) =>
-    `((${a}) > 0 ? Number(Math.log(${a}).toFixed(14).replace(/\\.?0+$/, '')): null)`,
+    `(function (){if ((${x}) >= - 1 && (${x}) <= 1) return ${roundedJs(`Math.acos(${x})`)}; return null})()`,
+  ATAN: ([x]) => roundedJs(`Math.atan(${x})`),
+  ACOT: ([x]) => roundedJs(`Math.PI / 2 - Math.atan(${x})`),
+  PI: () => roundedJs(`Math.PI`),
+  LN: ([a]) => `((${a}) > 0 ? ${roundedJs(`Math.log(${a})`)}: null)`,
   LOG: ([a, b]) =>
-    `(((${a}) > 0 && (${a}) !== 1 && (${b}) > 0)  ? Number(Math.log(${b}) / Math.log(${a}).toFixed(14).replace(/\\.?0+$/, '')): null)`,
-  LOG10: ([a]) =>
-    `((${a}) > 0 ? Number(Math.log10(${a}).toFixed(14).replace(/\\.?0+$/, '')): null)`,
+    `(((${a}) > 0 && (${a}) !== 1 && (${b}) > 0)  ? ${roundedJs(`Math.log(${b}) / Math.log(${a})`)}: null)`,
+  LOG10: ([a]) => `((${a}) > 0 ? ${roundedJs(`Math.log10(${a})`)}: null)`,
+
   FIXED: ([num, decimals]) =>
     decimals
       ? `(function (){const [i, d] = (${num}).toFixed(${decimals}).split('.'); return i.replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ') + (d ? ('.' + String(d)) : '')})()`

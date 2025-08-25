@@ -127,34 +127,42 @@ export const dateFunctionsToJsMap: Record<
   //   let replacedRanges = [];
   //   let formats = ${JSON.stringify(LUXON_EQUALITY_PSQL)};
 
-  //   Object.keys(formats)
-  //     .sort((a, b) => b.length - a.length)
-  //     .forEach(psql => {
-  //       const regex = new RegExp(psql, 'g');
-  //       let match;
+  //   // сортировка по длине ключей
+  //   const keys = Object.keys(formats).sort((a, b) => b.length - a.length);
+  //   // экранирование спецсимволов
+  //   const pattern = keys.map(k => k.replace(/([.*+?^\${}()|\\[\\]\\\\/])/g, "\\\\$1")).join("|");
+  //   const regex = new RegExp(pattern, "g");
 
-  //       while ((match = regex.exec(luxonFormat)) !== null) {
-  //         const start = match.index;
-  //         const end = start + match[0].length;
+  //   luxonFormat = luxonFormat.replace(regex, (match) => formats[match]);
 
-  //         if (replacedRanges.some(r => r.start < end && r.end > start)) {
-  //           continue;
-  //         }
+  //   // Object.keys(formats)
+  //   //   .sort((a, b) => b.length - a.length)
+  //   //   .forEach(psql => {
+  //   //     const regex = new RegExp(psql, 'g');
+  //   //     let match;
 
-  //         luxonFormat = luxonFormat.slice(0, start) + formats[psql] + luxonFormat.slice(end);
-  //         regex.lastIndex = start + formats[psql].length;
-  //         replacedRanges.push({ start, end: start + formats[psql].length });
-  //       }
-  //     });
+  //   //     while ((match = regex.exec(luxonFormat)) !== null) {
+  //   //       const start = match.index;
+  //   //       const end = start + match[0].length;
+
+  //   //       if (replacedRanges.some(r => r.start < end && r.end > start)) {
+  //   //         continue;
+  //   //       }
+
+  //   //       luxonFormat = luxonFormat.slice(0, start) + formats[psql] + luxonFormat.slice(end);
+  //   //       regex.lastIndex = start + formats[psql].length;
+  //   //       replacedRanges.push({ start, end: start + formats[psql].length });
+  //   //     }
+  //   //   });
 
   //   return DateTime.fromFormat(${date}, ${DATE_FORMAT}).toFormat(luxonFormat) })()`;
   // },
 
-  // /**
-  //  * Parses a date string from a custom format.
-  //  * @param {[string, string]} args - Date string and format string.
-  //  * @returns {string} JavaScript expression returning ISO string.
-  //  */
+  /**
+   * Parses a date string from a custom format.
+   * @param {[string, string]} args - Date string and format string.
+   * @returns {string} JavaScript expression returning ISO string.
+   */
   // DATEPARSE: ([str, format]) => {
   //   return `DateTime.fromFormat(${str}, ${format}).toString()`;
   // },
@@ -263,4 +271,6 @@ export const dateFunctionsToJsMap: Record<
       return null;
     })()`;
   },
+  TIMESTAMP: ([date]) =>
+    `DateTime.fromFormat(${date}, ${DATE_FORMAT}).toUnixInteger()`,
 };

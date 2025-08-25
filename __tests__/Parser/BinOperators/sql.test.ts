@@ -20,7 +20,7 @@ describe('Binary operators to sql', () => {
 
   test('plus correct with nums', () => {
     const parser = new Parser('1 + 1');
-    expect(parser.toSqlWithVariables()).toBe('1 + 1');
+    expect(parser.toSqlWithVariables()).toBe('ROUND(1 + 1, 10)');
   });
   test('plus correct with strs', () => {
     const parser = new Parser(`'1' + "1"`);
@@ -35,7 +35,7 @@ describe('Binary operators to sql', () => {
     const sqlFormula = parser.toSqlWithVariables(false, values);
 
     expect(sqlFormula).toBe(
-      '1 + COALESCE(null, 0)', // 1 in psql
+      'ROUND(1 + COALESCE(null, 0), 10)', // 1 in psql
     );
   });
   test('plus with null and str', () => {
@@ -59,7 +59,7 @@ describe('Binary operators to sql', () => {
     const sqlFormula = parser.toSqlWithVariables(true);
 
     expect(sqlFormula).toBe(
-      '1 + (CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END)',
+      'ROUND(1 + (CASE WHEN (0) != 0 THEN ROUND((1)::numeric / 0, 10) ELSE NULL END), 10)',
     ); // null in psql
   });
   test('plus with str and null', () => {
@@ -67,7 +67,7 @@ describe('Binary operators to sql', () => {
     const sqlFormula = parser.toSqlWithVariables(true);
 
     expect(sqlFormula).toBe(
-      `CONCAT(('test')::text, ((CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END))::text)`,
+      `CONCAT(('test')::text, ((CASE WHEN (0) != 0 THEN ROUND((1)::numeric / 0, 10) ELSE NULL END))::text)`,
     ); // "test" in psql
   });
 
@@ -90,7 +90,7 @@ describe('Binary operators to sql', () => {
   // MINUS
   test('minus', () => {
     const parser = new Parser('1 - 1');
-    expect(parser.toSqlWithVariables()).toBe('1 - 1');
+    expect(parser.toSqlWithVariables()).toBe('ROUND(1 - 1, 10)');
   });
   /**
    * In psql results are:
@@ -102,7 +102,7 @@ describe('Binary operators to sql', () => {
   // MULTIPLY
   test('multiply', () => {
     const parser = new Parser('1 * 3');
-    expect(parser.toSqlWithVariables()).toBe('1 * 3');
+    expect(parser.toSqlWithVariables()).toBe('ROUND(1 * 3, 10)');
   });
   /**
    * In psql results are:
@@ -115,7 +115,7 @@ describe('Binary operators to sql', () => {
   test('division', () => {
     const parser = new Parser('10 / 3');
     expect(parser.toSqlWithVariables(true)).toBe(
-      '(CASE WHEN (3) != 0 THEN (10)::numeric / 3 ELSE NULL END)',
+      '(CASE WHEN (3) != 0 THEN ROUND((10)::numeric / 3, 10) ELSE NULL END)',
     );
   });
   /**
@@ -130,7 +130,7 @@ describe('Binary operators to sql', () => {
   test('remainder', () => {
     const parser = new Parser('10 % 3');
     expect(parser.toSqlWithVariables(true)).toBe(
-      '(CASE WHEN (3) != 0 THEN 10 % 3 ELSE NULL END)',
+      '(CASE WHEN (3) != 0 THEN ROUND(10 % 3, 10) ELSE NULL END)',
     );
   });
   /**
@@ -144,7 +144,7 @@ describe('Binary operators to sql', () => {
   // POWER
   test('power', () => {
     const parser = new Parser('10 ^ 3');
-    expect(parser.toSqlWithVariables(true)).toBe('10 ^ 3');
+    expect(parser.toSqlWithVariables(true)).toBe('ROUND(10 ^ 3, 10)');
   });
   /**
    * In psql results are:

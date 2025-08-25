@@ -142,8 +142,8 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
           },
         ],
         returnType: [NUMBER_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.YEAR,
-        sqlFn: dateFunctionsToSqlMap.YEAR,
+        jsFn: dateFunctionsToJsMap.QUARTER,
+        sqlFn: dateFunctionsToSqlMap.QUARTER,
       },
     ],
     MONTH: [
@@ -345,6 +345,14 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         returnType: [DATE_NODE_TYPE],
         jsFn: dateFunctionsToJsMap.DATEENDOF,
         sqlFn: dateFunctionsToSqlMap.DATEENDOF,
+      },
+    ],
+    TIMESTAMP: [
+      {
+        args: [{ type: [DATE_NODE_TYPE] }],
+        returnType: [NUMBER_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.TIMESTAMP,
+        sqlFn: dateFunctionsToSqlMap.TIMESTAMP,
       },
     ],
   };

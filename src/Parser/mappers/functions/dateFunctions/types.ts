@@ -41,8 +41,8 @@ export type ValidDateFunctionsNamesWithSafe =
   | 'SETMINUTE'
   | 'SETSECOND'
   | 'DATESTARTOF'
-  | 'DATEENDOF';
-// | 'TIMESTAMP';
+  | 'DATEENDOF'
+  | 'TIMESTAMP';
 // | 'DATEPARSE'
 
 export type ValidDateFunctionsNames = Exclude<

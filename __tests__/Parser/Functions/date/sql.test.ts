@@ -71,21 +71,35 @@ describe('sql date funcs', () => {
 
   test('date diff', () => {
     const parser = new Parser('DATEDIFF({Поле 1}, {Поле 2}, "month")', fields);
-    expect(parser.toSqlWithVariables(false, values)).toBe(`
-      (CASE ('month')
-        WHEN 's' THEN EXTRACT(second FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'min' THEN EXTRACT(minute FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'h' THEN EXTRACT(hour FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'd' THEN EXTRACT(day FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'w' THEN EXTRACT(week FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'mon' THEN EXTRACT(month FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'y' THEN EXTRACT(year FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL))))
-        ELSE 1 / 0
-      END)
-    `);
+    expect(parser.toSqlWithVariables(false, values)).toBe(`ABS(CASE ('month')
+      WHEN 'y' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))))
+      WHEN 'mon' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))) * 12) + EXTRACT(MONTH FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL)))
+      WHEN 'd' THEN
+          FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 86400)
+      WHEN 'h' THEN
+          FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 3600)
+      WHEN 'min' THEN
+          FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 60)
+      WHEN 's' THEN
+          FLOOR(EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL))))
+      ELSE 1 / 0
+    END)`);
   });
-  test('safe datediff with invalid unit', () => {
+  test('safe datediff', () => {
     const parser = new Parser('DATEDIFF({Поле 1}, {Поле 2}, "month")', fields);
-    expect(parser.toSqlWithVariables(true, values)).toBe(`
-      (CASE ('month')
-        WHEN 's' THEN EXTRACT(second FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'min' THEN EXTRACT(minute FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'h' THEN EXTRACT(hour FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'd' THEN EXTRACT(day FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'w' THEN EXTRACT(week FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'mon' THEN EXTRACT(month FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL)))) WHEN 'y' THEN EXTRACT(year FROM ((COALESCE("dateColumn", NULL)) - (COALESCE("2dateColumn", NULL))))
-        ELSE NULL
-      END)
-    `);
+    expect(parser.toSqlWithVariables(true, values)).toBe(`ABS(CASE ('month')
+      WHEN 'y' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))))
+      WHEN 'mon' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))) * 12) + EXTRACT(MONTH FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL)))
+      WHEN 'd' THEN
+          FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 86400)
+      WHEN 'h' THEN
+          FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 3600)
+      WHEN 'min' THEN
+          FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 60)
+      WHEN 's' THEN
+          FLOOR(EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL))))
+      ELSE NULL
+    END)`);
   });
   /**
    * DATEDIFF({Поле 1}, {Поле 2} 'month') -> 2002-10-12T00:00:00.000Z
@@ -187,6 +201,99 @@ describe('sql date funcs', () => {
   /**
    * SECOND({Поле 1}) -> 0
    */
+
+  test('datestartof month', () => {
+    const parser = new Parser('DATESTARTOF(DATE(2025,12,12), "mon")', fields);
+    expect(parser.toSqlWithVariables(false, values)).toBe(`(CASE ('mon')
+        WHEN 's' THEN DATE_TRUNC('second', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'min' THEN DATE_TRUNC('minute', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'h' THEN DATE_TRUNC('hour', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'd' THEN DATE_TRUNC('day', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'w' THEN DATE_TRUNC('week', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'mon' THEN DATE_TRUNC('month', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'y' THEN DATE_TRUNC('year', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ)
+        ELSE NULL
+      END)`);
+  });
+
+  test('dateendof month', () => {
+    const parser = new Parser('DATEENDOF(DATE(2025,12,12), "mon")', fields);
+    expect(parser.toSqlWithVariables(false, values)).toBe(`(CASE ('mon')
+        WHEN 's' THEN (DATE_TRUNC('second', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 second' - INTERVAL '1 second') WHEN 'min' THEN (DATE_TRUNC('minute', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 minute' - INTERVAL '1 second') WHEN 'h' THEN (DATE_TRUNC('hour', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 hour' - INTERVAL '1 second') WHEN 'd' THEN (DATE_TRUNC('day', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 day' - INTERVAL '1 second') WHEN 'w' THEN (DATE_TRUNC('week', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 week' - INTERVAL '1 second') WHEN 'mon' THEN (DATE_TRUNC('month', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 month' - INTERVAL '1 second') WHEN 'y' THEN (DATE_TRUNC('year', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 year' - INTERVAL '1 second')
+        ELSE NULL
+      END)`);
+  });
+  test('quarter', () => {
+    const parser = new Parser('QUARTER(DATE(2012,12,12))', fields);
+    expect(parser.toSqlWithVariables(true, values))
+      .toBe(`EXTRACT(QUARTER FROM (MAKE_DATE(2012, 1, 1)
+        + ((12) - 1) * interval '1 month'
+        + ((12) - 1) * interval '1 day'
+        + (0) * interval '1 hour'
+        + (0) * interval '1 minute'
+        + (0) * interval '1 second')::TIMESTAMPTZ)`);
+  });
+
+  test('setday', () => {
+    const parser = new Parser('SETDAY({Поле 1}, 15)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(DAYS := (15)::INT - EXTRACT(DAY FROM (COALESCE("dateColumn", NULL)))::INT))`,
+    );
+  });
+  test('SETMONTH', () => {
+    const parser = new Parser('SETMONTH({Поле 1}, 15)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(MONTHS := (15)::INT - EXTRACT(MONTH FROM (COALESCE("dateColumn", NULL)))::INT))`,
+    );
+  });
+  test('SETYEAR', () => {
+    const parser = new Parser('SETYEAR({Поле 1}, 2003)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(YEARS := (2003)::INT - EXTRACT(YEAR FROM (COALESCE("dateColumn", NULL)))::INT))`,
+    );
+  });
+  test('SETQUARTER', () => {
+    const parser = new Parser('SETQUARTER({Поле 1}, 2)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(MONTHS := (((2) - 1) * 3 + 1)::INT - EXTRACT(MONTH FROM (COALESCE("dateColumn", NULL)))::INT))`,
+    );
+  });
+  test('SETWEEKNUM', () => {
+    const parser = new Parser('SETWEEKNUM({Поле 1}, 5)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(WEEKS := (5)::INT - EXTRACT(WEEK FROM (COALESCE("dateColumn", NULL)))::INT))`,
+    );
+  });
+  test('SETWEEKDAY', () => {
+    const parser = new Parser('SETWEEKDAY({Поле 1}, 6)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(DAYS := (6)::INT - (CASE WHEN EXTRACT(DOW FROM COALESCE("dateColumn", NULL)) = 0 THEN 7 ELSE EXTRACT(DOW FROM COALESCE("dateColumn", NULL)) END)::INT))`,
+    );
+  });
+  test('SETTIME', () => {
+    const parser = new Parser('SETTIME({Поле 1}, 12,12, 12)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(HOURS := ((12)::INT - EXTRACT(HOUR FROM (COALESCE("dateColumn", NULL)))::INT), MINS := ((12)::INT - EXTRACT(MINUTE FROM (COALESCE("dateColumn", NULL)))::INT), SECS := ((12)::INT - FLOOR(EXTRACT(SECOND FROM (COALESCE("dateColumn", NULL)))))))`,
+    );
+  });
+  test('SETHOUR', () => {
+    const parser = new Parser('SETHOUR({Поле 1}, 3)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(HOURS := (3)::INT - EXTRACT(HOUR FROM (COALESCE("dateColumn", NULL)))::INT))`,
+    );
+  });
+  test('SETMINUTE', () => {
+    const parser = new Parser('SETMINUTE({Поле 1}, 3)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(MINS := (3)::INT - EXTRACT(MINUTE FROM (COALESCE("dateColumn", NULL)))::INT))`,
+    );
+  });
+  test('SETSECOND', () => {
+    const parser = new Parser('SETSECOND({Поле 1}, 3)', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `(COALESCE("dateColumn", NULL) + MAKE_INTERVAL(SECS := (3)::INT - FLOOR(EXTRACT(SECOND FROM (COALESCE("dateColumn", NULL))))))`,
+    );
+  });
+  test('TIMESTAMP', () => {
+    const parser = new Parser('TIMESTAMP({Поле 1})', fields);
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `EXTRACT(EPOCH FROM COALESCE("dateColumn", NULL))`,
+    );
+  });
 
   // test('NOW', () => {
   //   const parser = new Parser('NOW()', fields);

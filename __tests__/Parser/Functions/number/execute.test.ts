@@ -13,17 +13,29 @@ describe('number funcs', () => {
 
     expect(parser.runJs(js)).toBe(11);
   });
+  test('ceil with decimals', () => {
+    const parser = new Parser('CEIL(4.12345, 2)');
+    const js = parser.toJs();
+
+    expect(parser.runJs(js)).toBe(4.13);
+  });
   test('floor', () => {
     const parser = new Parser('FLOOR(4.8)');
     const js = parser.toJs();
 
     expect(parser.runJs(js)).toBe(4);
   });
+  test('floor with decimals', () => {
+    const parser = new Parser('FLOOR(4.12345, 2)');
+    const js = parser.toJs();
+
+    expect(parser.runJs(js)).toBe(4.12);
+  });
   test('exp', () => {
     const parser = new Parser('EXP(2)');
     const js = parser.toJs();
 
-    expect(parser.runJs(js)).toBe(7.38905609893065);
+    expect(parser.runJs(js)).toBe(7.3890560989);
   });
   test('mod', () => {
     const parser = new Parser('MOD(10, 3)');
@@ -78,6 +90,13 @@ describe('number funcs', () => {
     const js = parser.toJs();
 
     expect(parser.runJs(js)).toBe(5);
+  });
+
+  test('round mid with decimals', () => {
+    const parser = new Parser('ROUND(4.12345, 2)');
+    const js = parser.toJs();
+
+    expect(parser.runJs(js)).toBe(4.12);
   });
   test('sqrt', () => {
     const parser = new Parser('SQRT(25)');
@@ -168,74 +187,95 @@ describe('number funcs', () => {
     const parser = new Parser('SIN(PI() / 4)');
     const js = parser.toJs(true);
 
-    expect(parser.runJs(js)).toBe(0.707106781186547);
+    expect(parser.runJs(js)).toBe(0.7071067812);
   });
   test('cos', () => {
     const parser = new Parser('COS(PI() / 6)');
     const js = parser.toJs(true);
 
-    expect(parser.runJs(js)).toBe(0.866025403784439);
+    expect(parser.runJs(js)).toBe(0.8660254038);
   });
   test('tan', () => {
     const parser = new Parser('TAN(PI() / 4)');
     const js = parser.toJs(true);
 
-    expect(parser.runJs(js)).toBe(0.999999999999998);
+    expect(parser.runJs(js)).toBe(1);
   });
-  // РАСХОЖДЕНИЕ С ПОСТГРЕС, В ПОСТГРЕС 1
-  // 1.000000000000002
-  // test('cot', () => {
-  //   const parser = new Parser('COT(PI() / 4)');
-  //   const js = parser.toJs(true);
 
-  //   expect(parser.runJs(js)).toBe(1);
-  // });
+  test('cot', () => {
+    const parser = new Parser('COT(PI() / 4)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe(1);
+  });
   test('asin', () => {
     const parser = new Parser('ASIN(PI() / 4)');
     const js = parser.toJs(true);
 
-    expect(parser.runJs(js)).toBe(0.903339110766512);
+    expect(parser.runJs(js)).toBe(0.9033391108);
   });
-  // РАСХОЖДЕНИЕ С ПОСТГРЕС, В ПОСТГРЕС 1.01972674369545
-  // 1.019726743695451
-  // test('acos', () => {
-  //   const parser = new Parser('ACOS(PI() / 6)');
-  //   const js = parser.toJs(true);
+  test('acos', () => {
+    const parser = new Parser('ACOS(PI() / 6)');
+    const js = parser.toJs(true);
 
-  //   expect(parser.runJs(js)).toBe(1.01972674369545);
-  // });
+    expect(parser.runJs(js)).toBe(1.0197267437);
+  });
   test('atan', () => {
     const parser = new Parser('ATAN(PI() / 4)');
     const js = parser.toJs(true);
 
-    expect(parser.runJs(js)).toBe(0.665773750028353);
+    expect(parser.runJs(js)).toBe(0.66577375);
   });
   test('acot', () => {
     const parser = new Parser('ACOT(PI() / 4)');
     const js = parser.toJs(true);
 
-    expect(parser.runJs(js)).toBe(0.905022576766543);
+    expect(parser.runJs(js)).toBe(0.9050225768);
   });
-  // РАСХОЖДЕНИЕ В ПОСТГРЕС 1.6094379124341003
-  // 1.6094379124341
-  // test('LN', () => {
-  //   const parser = new Parser('LN(5)');
-  //   const js = parser.toJs(true);
+  test('LN', () => {
+    const parser = new Parser('LN(5)');
+    const js = parser.toJs(true);
 
-  //   expect(parser.runJs(js)).toBe(1.6094379124341003);
-  // });
-  // РАСХОЖДЕНИЕ В ПОСТГРЕС 2.0000000000000000
-  // 1.9999999999999996
-  // test('LOG', () => {
-  //   const parser = new Parser('LOG(3, 9)');
-  //   const js = parser.toJs(true);
+    expect(parser.runJs(js)).toBe(1.6094379124);
+  });
+  test('LOG', () => {
+    const parser = new Parser('LOG(3, 9)');
+    const js = parser.toJs(true);
 
-  //   expect(parser.runJs(js)).toBe(2.0);
-  // });
-  // test('LOG10', () => {
-  //   const parser = new Parser('LOG10(100)');
-  //   const js = parser.toJs(true);
+    expect(parser.runJs(js)).toBe(2.0);
+  });
+  test('LOG10', () => {
+    const parser = new Parser('LOG10(100)');
+    const js = parser.toJs(true);
 
-  //   expect(parser.runJs(js)).toBe(2);
-  // });
+    expect(parser.runJs(js)).toBe(2);
+  });
+
+  test('FIXED', () => {
+    const parser = new Parser('FIXED(10000)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe('10 000');
+  });
+
+  test('FIXED with 4 decimals', () => {
+    const parser = new Parser('FIXED(10000, 4)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe('10 000.0000');
+  });
+
+  test('FIXED with 4 decimals', () => {
+    const parser = new Parser('FIXED(10000.12345, 4)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe('10 000.1234');
+  });
+
+  test('FIXED with 4 decimals', () => {
+    const parser = new Parser('FIXED(10000.12346, 4)');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe('10 000.1235');
+  });
 });

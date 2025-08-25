@@ -18,15 +18,21 @@ describe('numberFunctionsToJsMap', () => {
   });
 
   test('EXP', () => {
-    expect(numberFunctionsToJsMap.EXP(['2'])).toBe('Math.exp(2)');
+    expect(numberFunctionsToJsMap.EXP(['2'])).toBe(
+      'Number((Math.exp(2)).toFixed(10))',
+    );
   });
 
   test('MOD', () => {
-    expect(numberFunctionsToJsMap.MOD(['10', '3'])).toBe('(10 % 3)');
+    expect(numberFunctionsToJsMap.MOD(['10', '3'])).toBe(
+      'Number(((10 % 3)).toFixed(10))',
+    );
   });
 
   test('POWER', () => {
-    expect(numberFunctionsToJsMap.POWER(['2', '3'])).toBe('Math.pow(2, 3)');
+    expect(numberFunctionsToJsMap.POWER(['2', '3'])).toBe(
+      'Number((Math.pow(2, 3)).toFixed(10))',
+    );
   });
 
   test('ROUND', () => {
@@ -36,7 +42,9 @@ describe('numberFunctionsToJsMap', () => {
   });
 
   test('SQRT', () => {
-    expect(numberFunctionsToJsMap.SQRT(['9'])).toBe('Math.sqrt(9)');
+    expect(numberFunctionsToJsMap.SQRT(['9'])).toBe(
+      'Number((Math.sqrt(9)).toFixed(10))',
+    );
   });
 
   test('RANDOM', () => {
@@ -44,11 +52,15 @@ describe('numberFunctionsToJsMap', () => {
   });
 
   test('SUM', () => {
-    expect(numberFunctionsToJsMap.SUM(['2', '3'])).toBe('(2 + 3)');
+    expect(numberFunctionsToJsMap.SUM(['2', '3'])).toBe(
+      'Number(((2 + 3)).toFixed(10))',
+    );
   });
 
   test('AVERAGE', () => {
-    expect(numberFunctionsToJsMap.AVERAGE(['2', '3'])).toBe('((2 + 3) / 2)');
+    expect(numberFunctionsToJsMap.AVERAGE(['2', '3'])).toBe(
+      'Number((((2 + 3) / 2)).toFixed(10))',
+    );
   });
 
   test('MAX', () => {
@@ -61,67 +73,67 @@ describe('numberFunctionsToJsMap', () => {
 
   test('SIN', () => {
     expect(numberFunctionsToJsMap.SIN(['2'])).toBe(
-      "Number(Math.sin(2).toFixed(15).replace(/\\.?0+$/, ''))",
+      'Number((Math.sin(2)).toFixed(10))',
     );
   });
 
   test('COS', () => {
     expect(numberFunctionsToJsMap.COS(['2'])).toBe(
-      "Number(Math.cos(2).toFixed(15).replace(/\\.?0+$/, ''))",
+      'Number((Math.cos(2)).toFixed(10))',
     );
   });
 
   test('TAN', () => {
     expect(numberFunctionsToJsMap.TAN(['2'])).toBe(
-      "Number(Math.tan(2).toFixed(15).replace(/\\.?0+$/, ''))",
+      'Number((Math.tan(2)).toFixed(10))',
     );
   });
 
   test('COT', () => {
     expect(numberFunctionsToJsMap.COT(['2'])).toBe(
-      "Number((1 / Math.tan(2)).toFixed(15).replace(/\\.?0+$/, ''))",
+      'Number((1 / Math.tan(2)).toFixed(10))',
     );
   });
 
   test('ASIN', () => {
     expect(numberFunctionsToJsMap.ASIN(['2'])).toBe(
-      "(function (){if ((2) >= - 1 && (2) <= 1) return Number(Math.asin(2).toFixed(15).replace(/\\.?0+$/, '')); return null})()",
+      '(function (){if ((2) >= - 1 && (2) <= 1) return Number((Math.asin(2)).toFixed(10)); return null})()',
     );
   });
 
   test('ACOS', () => {
     expect(numberFunctionsToJsMap.ACOS(['2'])).toBe(
-      "(function (){if ((2) >= - 1 && (2) <= 1) return Number(Math.acos(2).toFixed(15).replace(/\\.?0+$/, '')); return null})()",
+      '(function (){if ((2) >= - 1 && (2) <= 1) return Number((Math.acos(2)).toFixed(10)); return null})()',
     );
   });
 
   test('ATAN', () => {
     expect(numberFunctionsToJsMap.ATAN(['2'])).toBe(
-      "Number(Math.atan(2).toFixed(15).replace(/\\.?0+$/, ''))",
+      'Number((Math.atan(2)).toFixed(10))',
     );
   });
 
   test('ACOT', () => {
     expect(numberFunctionsToJsMap.ACOT(['2'])).toBe(
-      "Number((Math.PI / 2 - Math.atan(2)).toFixed(15).replace(/\\.?0+$/, ''))",
+      'Number((Math.PI / 2 - Math.atan(2)).toFixed(10))',
     );
   });
 
   test('LN', () => {
     expect(numberFunctionsToJsMap.LN(['2'])).toBe(
-      "((2) > 0 ? Number(Math.log(2).toFixed(14).replace(/\\.?0+$/, '')): null)",
+      '((2) > 0 ? Number((Math.log(2)).toFixed(10)): null)',
     );
   });
 
   test('LOG', () => {
     expect(numberFunctionsToJsMap.LOG(['2', '3'])).toBe(
-      "(((2) > 0 && (2) !== 1 && (3) > 0)  ? Number(Math.log(3) / Math.log(2).toFixed(14).replace(/\\.?0+$/, '')): null)",
+      '(((2) > 0 && (2) !== 1 && (3) > 0)  ? Number((Math.log(3) / Math.log(2)).toFixed(10)): null)',
     );
   });
 
   test('LOG10', () => {
     expect(numberFunctionsToJsMap.LOG10(['2'])).toBe(
-      "((2) > 0 ? Number(Math.log10(2).toFixed(14).replace(/\\.?0+$/, '')): null)",
+      '((2) > 0 ? Number((Math.log10(2)).toFixed(10)): null)',
     );
   });
 });

@@ -5,6 +5,7 @@ import {
   LITERAL_NODE_TYPE,
   NUMBER_NODE_TYPE,
 } from '../../../constants/nodeTypes';
+import { roundedJs, roundedSql } from '../../../lib/roundedNums';
 import { ValidBinOperatorsNames, Operator, isSafeOperator } from './types';
 
 // null in returnType means all types are valid
@@ -14,8 +15,8 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: NUMBER_NODE_TYPE,
       returnType: NUMBER_NODE_TYPE,
-      jsFn: (left, right) => `${left} + ${right}`,
-      sqlFn: (left, right) => `${left} + ${right}`,
+      jsFn: (left, right) => roundedJs(`${left} + ${right}`),
+      sqlFn: (left, right) => roundedSql(`${left} + ${right}`),
     },
     {
       operandType: LITERAL_NODE_TYPE,
@@ -47,48 +48,48 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
     {
       operandType: NUMBER_NODE_TYPE,
       returnType: NUMBER_NODE_TYPE,
-      jsFn: (left, right) => `${left} - ${right}`,
-      sqlFn: (left, right) => `${left} - ${right}`,
+      jsFn: (left, right) => roundedJs(`${left} - ${right}`),
+      sqlFn: (left, right) => roundedSql(`${left} - ${right}`),
     },
   ],
   MULTIPLY: [
     {
       operandType: NUMBER_NODE_TYPE,
       returnType: NUMBER_NODE_TYPE,
-      jsFn: (left, right) => `${left} * ${right}`,
-      sqlFn: (left, right) => `${left} * ${right}`,
+      jsFn: (left, right) => roundedJs(`${left} * ${right}`),
+      sqlFn: (left, right) => roundedSql(`${left} * ${right}`),
     },
   ],
   DIVISION: [
     {
       operandType: NUMBER_NODE_TYPE,
       returnType: NUMBER_NODE_TYPE,
-      jsFn: (left, right) => `${left} / ${right}`,
-      sqlFn: (left, right) => `${left} / ${right}`,
+      jsFn: (left, right) => roundedJs(`${left} / ${right}`),
+      sqlFn: (left, right) => roundedSql(`${left} / ${right}`),
       jsSafeFn: (left, right) =>
-        `(function(){if ((${right}) === 0) return null; return ${left} / ${right}})()`,
+        `(function(){if ((${right}) === 0) return null; return ${roundedJs(`${left} / ${right}`)}})()`,
       sqlSafeFn: (left, right) =>
-        `(CASE WHEN (${right}) != 0 THEN (${left})::numeric / ${right} ELSE NULL END)`,
+        `(CASE WHEN (${right}) != 0 THEN ${roundedSql(`(${left})::numeric / ${right}`)} ELSE NULL END)`,
     },
   ],
   REMAINDER: [
     {
       operandType: NUMBER_NODE_TYPE,
       returnType: NUMBER_NODE_TYPE,
-      jsFn: (left, right) => `${left} % ${right}`,
-      sqlFn: (left, right) => `${left} % ${right}`,
+      jsFn: (left, right) => roundedJs(`${left} % ${right}`),
+      sqlFn: (left, right) => roundedSql(`${left} % ${right}`),
       jsSafeFn: (left, right) =>
-        `(function(){if ((${right}) === 0) return null; return ${left} % ${right}})()`,
+        `(function(){if ((${right}) === 0) return null; return ${roundedJs(`${left} % ${right}`)}})()`,
       sqlSafeFn: (left, right) =>
-        `(CASE WHEN (${right}) != 0 THEN ${left} % ${right} ELSE NULL END)`,
+        `(CASE WHEN (${right}) != 0 THEN ${roundedSql(`${left} % ${right}`)} ELSE NULL END)`,
     },
   ],
   POWER: [
     {
       operandType: NUMBER_NODE_TYPE,
       returnType: NUMBER_NODE_TYPE,
-      jsFn: (left, right) => `${left} ** ${right}`,
-      sqlFn: (left, right) => `${left} ^ ${right}`,
+      jsFn: (left, right) => roundedJs(`${left} ** ${right}`),
+      sqlFn: (left, right) => roundedSql(`${left} ^ ${right}`),
     },
   ],
   EQUAL: [
@@ -114,7 +115,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       operandType: DATE_NODE_TYPE,
       returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) =>
-        `DateTime.fromFormat(${left}, ${DATE_FORMAT}) == DateTime.fromFormat(${right}, ${DATE_FORMAT})`,
+        `DateTime.fromFormat(${left}, ${DATE_FORMAT}).equals(DateTime.fromFormat(${right}, ${DATE_FORMAT}))`,
       sqlFn: (left, right) => `${left} = ${right}`,
     },
     {
@@ -147,7 +148,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       operandType: DATE_NODE_TYPE,
       returnType: BOOLEAN_NODE_TYPE,
       jsFn: (left, right) =>
-        `DateTime.fromFormat(${left}, ${DATE_FORMAT}) != DateTime.fromFormat(${right}, ${DATE_FORMAT})`,
+        `!DateTime.fromFormat(${left}, ${DATE_FORMAT}).equals(DateTime.fromFormat(${right}, ${DATE_FORMAT}))`,
       sqlFn: (left, right) => `${left} != ${right}`,
     },
     {

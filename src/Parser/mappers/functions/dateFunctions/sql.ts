@@ -86,43 +86,47 @@ export const dateFunctionsToSqlMap: Record<
    * @returns {string} SQL string.
    */
   DATEDIFF: ([end, start, unit]) => {
-    const getCaseBlock = (key: string, val: string) => {
-      return `WHEN '${key}' THEN EXTRACT(${val} FROM ((${end}) - (${start})))`;
-    };
-    return `
-      (CASE (${unit})
-        ${Object.entries(UNIT)
-          .map(([key, val]) => getCaseBlock(key, val))
-          .join(' ')}
-        ELSE 1 / 0
-      END)
-    `;
+    return `ABS(CASE (${unit})
+      WHEN 'y' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})))
+      WHEN 'mon' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})) * 12) + EXTRACT(MONTH FROM AGE(${start}, ${end}))
+      WHEN 'd' THEN
+          FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 86400)
+      WHEN 'h' THEN
+          FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 3600)
+      WHEN 'min' THEN
+          FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 60)
+      WHEN 's' THEN
+          FLOOR(EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end})))
+      ELSE 1 / 0
+    END)`;
   },
   SAFEDATEDIFF: ([end, start, unit]) => {
-    const getCaseBlock = (key: string, val: string) => {
-      return `WHEN '${key}' THEN EXTRACT(${val} FROM ((${end}) - (${start})))`;
-    };
-    return `
-      (CASE (${unit})
-        ${Object.entries(UNIT)
-          .map(([key, val]) => getCaseBlock(key, val))
-          .join(' ')}
-        ELSE NULL
-      END)
-    `;
+    return `ABS(CASE (${unit})
+      WHEN 'y' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})))
+      WHEN 'mon' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})) * 12) + EXTRACT(MONTH FROM AGE(${start}, ${end}))
+      WHEN 'd' THEN
+          FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 86400)
+      WHEN 'h' THEN
+          FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 3600)
+      WHEN 'min' THEN
+          FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 60)
+      WHEN 's' THEN
+          FLOOR(EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end})))
+      ELSE NULL
+    END)`;
   },
-  // /**
-  //  * Formats a date using a pattern.
-  //  * @param {[string, string]} args - Date and format pattern.
-  //  * @returns {string} SQL string.
-  //  */
+  /**
+   * Formats a date using a pattern.
+   * @param {[string, string]} args - Date and format pattern.
+   * @returns {string} SQL string.
+   */
   // DATEFORMAT: ([date, format]) => {
-  //   return `TO_CHAR(${date}, REGEXP_REPLACE(${format}, '\\m(${PSQL_EQUALITY_LUXON.sort(
+  //   return `TO_CHAR(${date}, REGEXP_REPLACE(${format}, '(${PSQL_EQUALITY_LUXON.sort(
   //     (a, b) => b.length - a.length,
   //   ).reduce((acc: string, i: string, idx: number) => {
   //     if (idx === 0) return i;
   //     return acc + '|' + i;
-  //   }, '')})\\M','"\\1"','g'))`;
+  //   }, '')})','"\\1"','g'))`;
   // },
 
   // /**
@@ -197,26 +201,24 @@ export const dateFunctionsToSqlMap: Record<
     const getCaseBlock = (key: string, val: string) => {
       return `WHEN '${key}' THEN DATE_TRUNC('${val}', ${date})`;
     };
-    return `
-      (CASE (${unit})
+    return `(CASE (${unit})
         ${Object.entries(UNIT)
           .map(([key, val]) => getCaseBlock(key, val))
           .join(' ')}
         ELSE NULL
-      END)
-    `;
+      END)`;
   },
   DATEENDOF: ([date, unit]) => {
     const getCaseBlock = (key: string, val: string) => {
       return `WHEN '${key}' THEN (DATE_TRUNC('${val}', ${date}) + INTERVAL '1 ${val}' - INTERVAL '1 second')`;
     };
-    return `
-      (CASE (${unit})
+    return `(CASE (${unit})
         ${Object.entries(UNIT)
           .map(([key, val]) => getCaseBlock(key, val))
           .join(' ')}
         ELSE NULL
-      END)
-    `;
+      END)`;
   },
+
+  TIMESTAMP: ([date]) => `EXTRACT(EPOCH FROM ${date})`,
 };

@@ -1,3 +1,4 @@
+import { roundedSql } from '../../../../lib/roundedNums';
 import { IFormatterFunc } from '../types';
 import { ValidNumberFunctionsNamesWithSafe } from './types';
 
@@ -51,7 +52,7 @@ export const numberFunctionsToSqlMap: Record<
    * @returns {string} Sql format EXP expression.
    * @example EXP(['2']) => "EXP(2)"
    */
-  EXP: ([num]: string[]): string => `EXP(${num})`,
+  EXP: ([num]: string[]): string => roundedSql(`EXP(${num})`),
 
   /**
    * @function MOD
@@ -60,9 +61,9 @@ export const numberFunctionsToSqlMap: Record<
    * @returns {string} Sql format MOD expression.
    * @example MOD(['10', '3']) => "MOD(10, 3)"
    */
-  MOD: ([a, b]: string[]): string => `MOD(${a}, ${b})`,
+  MOD: ([a, b]: string[]): string => roundedSql(`MOD(${a}, ${b})`),
   SAFEMOD: ([a, b]: string[]): string =>
-    `(CASE WHEN (${b}) != 0 THEN MOD(${a}, ${b}) ELSE NULL END)`,
+    `(CASE WHEN (${b}) != 0 THEN ${roundedSql(`(MOD(${a}, ${b})`)} ELSE NULL END)`,
 
   /**
    * @function POWER
@@ -71,7 +72,8 @@ export const numberFunctionsToSqlMap: Record<
    * @returns {string} Sql format POWER expression.
    * @example POWER(['2', '3']) => "POWER(2, 3)"
    */
-  POWER: ([base, exponent]: string[]): string => `POWER(${base}, ${exponent})`,
+  POWER: ([base, exponent]: string[]): string =>
+    roundedSql(`POWER(${base}, ${exponent})`),
 
   /**
    * @function SQRT
@@ -80,9 +82,9 @@ export const numberFunctionsToSqlMap: Record<
    * @returns {string} Sql format SQRT expression.
    * @example SQRT(['9']) => "SQRT(9)"
    */
-  SQRT: ([num]: string[]): string => `SQRT(${num})`,
+  SQRT: ([num]: string[]): string => roundedSql(`SQRT(${num})`),
   SAFESQRT: ([num]: string[]): string =>
-    `(CASE WHEN ${num} >= 0 THEN SQRT(${num}) ELSE NULL END)`,
+    `(CASE WHEN ${num} >= 0 THEN ${roundedSql(`SQRT(${num})`)} ELSE NULL END)`,
 
   /**
    * @function RANDOM
@@ -101,7 +103,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example
    * SUM(['1','2']) // => '1 + 2'
    */
-  SUM: (args: string[]): string => `((${args.join(') + (')}))`,
+  SUM: (args: string[]): string => roundedSql(`((${args.join(') + (')}))`),
 
   /**
    * @function AVERAGE
@@ -112,7 +114,7 @@ export const numberFunctionsToSqlMap: Record<
    * AVERAGE(['1','2']) // => '(1 + 2) / 2'
    */
   AVERAGE: (args: string[]): string =>
-    `(((${args.join(') + (')})) / (${args.length}))`,
+    roundedSql(`(((${args.join(') + (')})) / (${args.length}))`),
 
   /**
    * @function MAX
@@ -145,22 +147,25 @@ export const numberFunctionsToSqlMap: Record<
   TONUMBER: (args: string[]): string => `(${args})::numeric`,
   SAFETONUMBER: (args: string[]): string =>
     `(CASE WHEN (${args})::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN (${args})::text::numeric WHEN (${args})::text ~ 'true' THEN 1 WHEN (${args})::text ~ 'false' THEN 0 ELSE NULL END)`,
-  SIN: ([x]) => `SIN(${x})::NUMERIC`,
-  COS: ([x]) => `COS(${x})::NUMERIC`,
-  TAN: ([x]) => `TAN(${x})::NUMERIC`,
-  COT: ([x]) => `COT(${x})::NUMERIC`,
+
+  SIN: ([x]) => roundedSql(`SIN(${x})::NUMERIC`),
+  COS: ([x]) => roundedSql(`COS(${x})::NUMERIC`),
+  TAN: ([x]) => roundedSql(`TAN(${x})::NUMERIC`),
+  COT: ([x]) => roundedSql(`COT(${x})::NUMERIC`),
   ASIN: ([x]) =>
-    `(CASE WHEN (${x}) >= - 1 AND (${x}) <= 1 THEN ASIN(${x})::NUMERIC ELSE NULL END)`,
+    `(CASE WHEN (${x}) >= - 1 AND (${x}) <= 1 THEN ${roundedSql(`ASIN(${x})::NUMERIC`)} ELSE NULL END)`,
   ACOS: ([x]) =>
-    `(CASE WHEN (${x}) >= - 1 AND (${x}) <= 1 THEN ACOS(${x})::NUMERIC ELSE NULL END)`,
-  ATAN: ([x]) => `ATAN(${x})::NUMERIC`,
-  ACOT: ([x]) => `(PI() / 2 - ATAN(${x}))::NUMERIC`,
-  PI: () => `PI()::NUMERIC`,
-  LN: ([a]) => `(CASE WHEN (${a}) > 0 THEN LN(${a})::NUMERIC ELSE NULL END)`,
+    `(CASE WHEN (${x}) >= - 1 AND (${x}) <= 1 THEN ${roundedSql(`ACOS(${x})::NUMERIC`)} ELSE NULL END)`,
+  ATAN: ([x]) => roundedSql(`ATAN(${x})::NUMERIC`),
+  ACOT: ([x]) => roundedSql(`(PI() / 2 - ATAN(${x}))::NUMERIC`),
+  PI: () => roundedSql(`PI()::NUMERIC`),
+  LN: ([a]) =>
+    `(CASE WHEN (${a}) > 0 THEN ${roundedSql(`LN(${a})::NUMERIC`)} ELSE NULL END)`,
   LOG: ([a, b]) =>
-    `(CASE WHEN (${a}) > 0 AND (${b}) > 0 AND (${a}) != 1 THEN LOG(${a}, ${b})::NUMERIC ELSE NULL END)`,
+    `(CASE WHEN (${a}) > 0 AND (${b}) > 0 AND (${a}) != 1 THEN ${roundedSql(`LOG(${a}, ${b})::NUMERIC`)} ELSE NULL END)`,
   LOG10: ([a]) =>
-    `(CASE WHEN (${a}) > 0 THEN LOG(${a})::NUMERIC ELSE NULL END)`,
+    `(CASE WHEN (${a}) > 0 THEN ${roundedSql(`LOG(${a})::NUMERIC`)} ELSE NULL END)`,
+
   FIXED: ([num, decimals]) =>
     decimals
       ? `((REGEXP_REPLACE(SPLIT_PART(ROUND(${num}, ${decimals})::TEXT, '.', 1), '(\\d)(?=(\\d{3})+(?!\\d))', '\\1 ', 'g') || COALESCE(NULLIF('.' || SPLIT_PART(ROUND(${num}, ${decimals})::TEXT, '.', 2), '.'), '')))`

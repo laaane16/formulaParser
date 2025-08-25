@@ -39,18 +39,18 @@ describe('bin operator node to sql', () => {
     const result = stringifyAstToSql(code);
 
     expect(result).toBe(
-      '(CASE WHEN (2 > 1) THEN (1)::text ELSE (0)::text END)::NUMERIC + (CASE WHEN (2 < 1) THEN (1)::text ELSE (0)::text END)::NUMERIC',
+      'ROUND((CASE WHEN (2 > 1) THEN (1)::text ELSE (0)::text END)::NUMERIC + (CASE WHEN (2 < 1) THEN (1)::text ELSE (0)::text END)::NUMERIC, 10)',
     );
   });
   test('binary operators can work with valid vars, which has equal types', () => {
     const code = '{Поле 2} + {Поле 2}';
     const result = stringifyAstToSql(code, fields, values);
 
-    expect(result).toBe('COALESCE(150, 0) + COALESCE(150, 0)');
+    expect(result).toBe('ROUND(COALESCE(150, 0) + COALESCE(150, 0), 10)');
   });
   test('bin operators precedences take into priorities', () => {
     expect(stringifyAstToSql(`1 * 1 + ""`)).toBe(
-      `CONCAT((1 * 1)::text, ('')::text)`,
+      `CONCAT((ROUND(1 * 1, 10))::text, ('')::text)`,
     );
   });
   test('binary operators can`t work with IfStatementNode if it may returns different types', () => {

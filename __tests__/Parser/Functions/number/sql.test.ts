@@ -29,9 +29,16 @@ describe('number funcs', () => {
    * return 4 in psql
    */
 
+  test('FIXED', () => {
+    const parser = new Parser('FIXED(10000)');
+    expect(parser.toSqlWithVariables()).toBe(
+      `((REGEXP_REPLACE(SPLIT_PART((10000)::TEXT, '.', 1), '(\\d)(?=(\\d{3})+(?!\\d))', '\\1 ', 'g') || COALESCE(NULLIF('.' || SPLIT_PART((10000)::TEXT, '.', 2), '.'), '')))`,
+    );
+  });
+
   test('exp', () => {
     const parser = new Parser('EXP(2)');
-    expect(parser.toSqlWithVariables()).toBe('EXP(2)');
+    expect(parser.toSqlWithVariables()).toBe('ROUND(EXP(2), 10)');
   });
   /**
    * return 7.38905609893065 in psql
@@ -39,12 +46,12 @@ describe('number funcs', () => {
 
   test('mod', () => {
     const parser = new Parser('MOD(10, 3)');
-    expect(parser.toSqlWithVariables()).toBe('MOD(10, 3)');
+    expect(parser.toSqlWithVariables()).toBe('ROUND(MOD(10, 3), 10)');
   });
   test('mod safe', () => {
     const parser = new Parser('MOD(10, 3)');
     expect(parser.toSqlWithVariables(true)).toBe(
-      `(CASE WHEN (3) != 0 THEN MOD(10, 3) ELSE NULL END)`,
+      `(CASE WHEN (3) != 0 THEN ROUND((MOD(10, 3), 10) ELSE NULL END)`,
     );
   });
   /**
@@ -56,7 +63,7 @@ describe('number funcs', () => {
 
   test('power', () => {
     const parser = new Parser('POWER(2, 3)');
-    expect(parser.toSqlWithVariables()).toBe('POWER(2, 3)');
+    expect(parser.toSqlWithVariables()).toBe('ROUND(POWER(2, 3), 10)');
   });
   /**
    * return 8 in psql
@@ -76,12 +83,12 @@ describe('number funcs', () => {
 
   test('sqrt', () => {
     const parser = new Parser('SQRT(25)');
-    expect(parser.toSqlWithVariables()).toBe('SQRT(25)');
+    expect(parser.toSqlWithVariables()).toBe('ROUND(SQRT(25), 10)');
   });
   test('sqrt safe', () => {
     const parser = new Parser('SQRT(25)');
     expect(parser.toSqlWithVariables(true)).toBe(
-      '(CASE WHEN 25 >= 0 THEN SQRT(25) ELSE NULL END)',
+      '(CASE WHEN 25 >= 0 THEN ROUND(SQRT(25), 10) ELSE NULL END)',
     );
   });
   /**
@@ -101,7 +108,9 @@ describe('number funcs', () => {
 
   test('sum', () => {
     const parser = new Parser('SUM(1,2,3,4,5)');
-    expect(parser.toSqlWithVariables()).toBe('((1) + (2) + (3) + (4) + (5))');
+    expect(parser.toSqlWithVariables()).toBe(
+      'ROUND(((1) + (2) + (3) + (4) + (5)), 10)',
+    );
   });
   /**
    * return 15 in psql
@@ -110,7 +119,7 @@ describe('number funcs', () => {
   test('average', () => {
     const parser = new Parser('AVERAGE(1,2,3,4,5)');
     expect(parser.toSqlWithVariables()).toBe(
-      '(((1) + (2) + (3) + (4) + (5)) / (5))',
+      'ROUND((((1) + (2) + (3) + (4) + (5)) / (5)), 10)',
     );
   });
   /**
