@@ -23,7 +23,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example CEIL(['4.2']) => "CEIL(4.2)"
    */
   CEIL: ([num, dig]: string[]): string =>
-    `(CEIL((${num}) * (10 ^ (${dig ?? 0}))) / (10 ^ (${dig ?? 0})))`,
+    `(CEIL((${num}) * (10 ^ (${dig ?? 0}))) / (10 ^ (${dig ?? 0})))::NUMERIC`,
 
   /**
    * @function FLOOR
@@ -33,7 +33,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example FLOOR(['4.8']) => "FLOOR(4.8)"
    */
   FLOOR: ([num, dig]: string[]): string =>
-    `(FLOOR((${num}) * (10 ^ (${dig ?? 0}))) / (10 ^ (${dig ?? 0})))`,
+    `(FLOOR((${num}) * (10 ^ (${dig ?? 0}))) / (10 ^ (${dig ?? 0})))::NUMERIC`,
 
   /**
    * @function ROUND
@@ -43,7 +43,7 @@ export const numberFunctionsToSqlMap: Record<
    * @example ROUND(['4.6']) => "ROUND(4.6)"
    */
   ROUND: ([num, dig]: string[]): string =>
-    `(ROUND((${num}) * (10 ^ (${dig ?? 0}))) / (10 ^ (${dig ?? 0})))`,
+    `(ROUND((${num}) * (10 ^ (${dig ?? 0}))) / (10 ^ (${dig ?? 0})))::NUMERIC`,
 
   /**
    * @function EXP

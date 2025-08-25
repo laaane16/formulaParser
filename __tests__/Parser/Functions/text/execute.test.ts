@@ -65,13 +65,13 @@ describe('execute text funcs', () => {
     const parser = new Parser('SEARCH("lo", "Hello")');
     const js = parser.toJs(true);
 
-    expect(parser.runJs(js)).toBe(4);
+    expect(parser.runJs(js)).toBe(3);
   });
   test('search without occurrence', () => {
     const parser = new Parser('SEARCH("a", "Hello")');
     const js = parser.toJs();
 
-    expect(parser.runJs(js)).toBe(0);
+    expect(parser.runJs(js)).toBe(-1);
   });
   test('replace', () => {
     const parser = new Parser('REPLACE("banana", "a", "o")');
@@ -119,7 +119,7 @@ describe('execute text funcs', () => {
     const parser = new Parser('SUBSTRING("abcdef", 2, 4)');
     const js = parser.toJs();
 
-    expect(parser.runJs(js)).toBe('bcde');
+    expect(parser.runJs(js)).toBe('cdef');
   });
   test('substring with negative nums', () => {
     const parser = new Parser('SUBSTRING("str", -1, 3)');

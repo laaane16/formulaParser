@@ -44,7 +44,9 @@ describe('execute text funcs', () => {
 
   test('search', () => {
     const parser = new Parser('SEARCH("lo", "Hello")');
-    expect(parser.toSqlWithVariables()).toBe(`POSITION(('lo') in ('Hello'))`);
+    expect(parser.toSqlWithVariables()).toBe(
+      `(POSITION(('lo') in ('Hello')) - 1)`,
+    );
   });
   /**
    * SEARCH("lo", "Hello") -> 4
@@ -88,7 +90,7 @@ describe('execute text funcs', () => {
   test('substring', () => {
     const parser = new Parser('SUBSTRING("abcdef", 2, 4)');
     expect(parser.toSqlWithVariables()).toBe(
-      "SUBSTRING(('abcdef') from (CASE WHEN (2) > 0 THEN (2) ELSE 0 END) for (CASE WHEN (2) > 0 AND (2) > 0 THEN (4) ELSE 0 END))",
+      "SUBSTRING(('abcdef') from (CASE WHEN (2) >= 0 THEN (2) + 1 ELSE 1 END) for (CASE WHEN (2) >= 0 AND (4) > 0 THEN (4) ELSE 0 END))",
     );
   });
   /**

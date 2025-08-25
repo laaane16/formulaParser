@@ -92,7 +92,6 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlSafeFn: dateFunctionsToSqlMap.SAFEDATEDIFF,
       },
     ],
-    // temporary comment this func too
     // DATEFORMAT: [
     //   {
     //     args: [

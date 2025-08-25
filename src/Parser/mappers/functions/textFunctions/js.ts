@@ -70,7 +70,7 @@ export const textFunctionsToJsMap: Record<
    * SEARCH(['"lo"', '"Hello"']) // => '"Hello".indexOf("lo") + 1'
    */
   SEARCH: (args: string[]): string => {
-    return `((${args[1]}).indexOf(${args[0]}) + 1)`;
+    return `(${args[1]}).indexOf(${args[0]})`;
   },
 
   /**
@@ -134,7 +134,7 @@ export const textFunctionsToJsMap: Record<
    * SUBSTRING(['"abcdef"', "2", "3"]) // => '"abcdef".slice(1, 1 + 3)'
    */
   SUBSTRING: ([str, start, length]: string[]): string =>
-    `((${str}).slice((${start}) > 0 ? (${start}) - 1 : 0, (${start}) > 0 && (${length}) > 0? (${start}) +  (${length}) - 1 : 0))`,
+    `((${str}).slice((${start}) >= 0 ? (${start}) : 0, (${start}) >= 0 && (${length}) > 0? (${start}) + (${length}) : 0))`,
   /**
    * @function LEFT
    * @description Extracts the leftmost characters from a string.

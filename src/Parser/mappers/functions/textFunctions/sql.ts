@@ -61,7 +61,7 @@ export const textFunctionsToSqlMap: Record<
    * SEARCH(["'abc'", "'abcde'"]) // => "POSITION('abc' in 'abcde')"
    */
   SEARCH: ([substr, str]: string[]): string =>
-    `POSITION((${substr}) in (${str}))`,
+    `(POSITION((${substr}) in (${str})) - 1)`,
 
   /**
    * @function REPLACE
@@ -115,14 +115,14 @@ export const textFunctionsToSqlMap: Record<
    * @description Extracts a substring from a string, starting at a position for a specified length.
    * @param {string[]} args -
    *   [0] - The input string,
-   *   [1] - Start position (1-based),
+   *   [1] - Start position (0-based),
    *   [2] - Length of the substring.
    * @returns {string} PostgreSQL SUBSTRING expression.
    * @example
    * SUBSTRING(["'abcdef'", '2', '3']) // => "SUBSTRING('abcdef' from 2 for 3)"
    */
   SUBSTRING: (args: string[]): string =>
-    `SUBSTRING((${args[0]}) from (CASE WHEN (${args[1]}) > 0 THEN (${args[1]}) ELSE 0 END) for (CASE WHEN (${args[1]}) > 0 AND (${args[1]}) > 0 THEN (${args[2]}) ELSE 0 END))`,
+    `SUBSTRING((${args[0]}) from (CASE WHEN (${args[1]}) >= 0 THEN (${args[1]}) + 1 ELSE 1 END) for (CASE WHEN (${args[1]}) >= 0 AND (${args[2]}) > 0 THEN (${args[2]}) ELSE 0 END))`,
 
   /**
    * @function LEFT

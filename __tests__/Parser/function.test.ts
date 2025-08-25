@@ -71,7 +71,7 @@ describe('function node to sql', () => {
     const code = `CONCAT(1 + 1)`;
 
     const result = stringifyAstToSql(code);
-    expect(result).toBe('CONCAT(ROUND(1 + 1, 10))');
+    expect(result).toBe('CONCAT(ROUND(1 + 1, 10)::NUMERIC)');
   });
 
   test(`function CONCAT can work with expression in args`, () => {
@@ -86,7 +86,7 @@ describe('function node to sql', () => {
 
     const result = stringifyAstToSql(code);
     expect(result).toBe(
-      "CONCAT((ROUND(1 + ROUND(1 + ROUND(1 + RANDOM()::NUMERIC, 10), 10), 10)),CONCAT('',1,2,'test'),(ROUND(RANDOM()::NUMERIC + RANDOM()::NUMERIC, 10)))",
+      "CONCAT((ROUND(1 + ROUND(1 + ROUND(1 + RANDOM()::NUMERIC, 10)::NUMERIC, 10)::NUMERIC, 10)::NUMERIC),CONCAT('',1,2,'test'),(ROUND(RANDOM()::NUMERIC + RANDOM()::NUMERIC, 10)::NUMERIC))",
     );
   });
 
@@ -94,14 +94,14 @@ describe('function node to sql', () => {
     const code = `CONCAT(- 1 - 1)`;
 
     const result = stringifyAstToSql(code);
-    expect(result).toBe('CONCAT((- ROUND(1 - 1, 10)))');
+    expect(result).toBe('CONCAT((- ROUND(1 - 1, 10)::NUMERIC))');
   });
 
   test('function CONCAT can work with negative num', () => {
     const code = `CONCAT(- (1 - 1))`;
 
     const result = stringifyAstToSql(code);
-    expect(result).toBe('CONCAT((- (ROUND(1 - 1, 10))))');
+    expect(result).toBe('CONCAT((- (ROUND(1 - 1, 10)::NUMERIC)))');
   });
 
   test('function RANDOM can be without params', () => {

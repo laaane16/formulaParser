@@ -57,7 +57,7 @@ describe('textFunctionsToJsMap', () => {
 
   test('SEARCH', () => {
     const result = textFunctionsToJsMap.SEARCH(['"lo"', '"Hello"']);
-    expect(result).toBe('(("Hello").indexOf("lo") + 1)');
+    expect(result).toBe('("Hello").indexOf("lo")');
   });
 
   test('REPLACE', () => {
@@ -85,7 +85,7 @@ describe('textFunctionsToJsMap', () => {
   test('SUBSTRING', () => {
     const result = textFunctionsToJsMap.SUBSTRING(['"abcdef"', '2', '3']);
     expect(result).toBe(
-      `(("abcdef").slice((2) > 0 ? (2) - 1 : 0, (2) > 0 && (3) > 0? (2) +  (3) - 1 : 0))`,
+      `(("abcdef").slice((2) >= 0 ? (2) : 0, (2) >= 0 && (3) > 0? (2) + (3) : 0))`,
     );
   });
 

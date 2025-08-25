@@ -11,7 +11,7 @@ describe('ifStatementNode special tests', () => {
   test('if can work with expressions', () => {
     const parser = new Parser('IF((1 + 1 + RANDOM()) == 2.5, "win", "lose")');
     expect(parser.toSqlWithVariables()).toBe(
-      "(CASE WHEN ((ROUND(1 + ROUND(1 + RANDOM()::NUMERIC, 10), 10)) = 2.5) THEN ('win')::text ELSE ('lose')::text END)",
+      "(CASE WHEN ((ROUND(1 + ROUND(1 + RANDOM()::NUMERIC, 10)::NUMERIC, 10)::NUMERIC) = 2.5) THEN ('win')::text ELSE ('lose')::text END)",
     );
   });
 
