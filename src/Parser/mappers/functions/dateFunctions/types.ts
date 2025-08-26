@@ -28,7 +28,6 @@ export type ValidDateFunctionsNamesWithSafe =
   // | 'TODAY'
   | 'WEEKDAY'
   | 'WEEKNUM'
-  | 'YEAR'
   | 'DATEPARSE'
   | 'YEAR'
   | 'QUARTER'

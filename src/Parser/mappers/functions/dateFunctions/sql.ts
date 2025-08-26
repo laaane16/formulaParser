@@ -137,7 +137,7 @@ export const dateFunctionsToSqlMap: Record<
   // FIXME: Через функцию в sql
   // TODO: добавить санитайз
   DATEPARSE: ([str, format]) => {
-    return `BPIUMDATEPARSE(${str}, ${format})`;
+    return `BPIUMDATEPARSE(${str}, ${format})::TIMESTAMPTZ`;
   },
 
   /** Extracts the year from a date. */

@@ -2,8 +2,6 @@ import { UNIT, DATE_FORMAT } from '../../../../constants/date';
 import { IFormatterFunc } from '../types';
 import { ValidDateFunctionsNamesWithSafe } from './types';
 
-// const DATE_FORMAT = '"yyyy-LL-dd HH:mm:ssZZZ"';
-
 export const dateFunctionsToJsMap: Record<
   ValidDateFunctionsNamesWithSafe,
   IFormatterFunc
@@ -196,8 +194,7 @@ export const dateFunctionsToJsMap: Record<
             .replace(/%S/g, 'ss');
     }`;
 
-    // return `DateTime.fromFormat(${str}, (${sanitizer})(${format})).toFormat("yyyy-LL-dd HH:mm:ssZZZ").slice(0, -2)`;
-    return `DateTime.fromFormat(${str}, (${sanitizer})(${format}), { zone: "utc" }).toISO()`;
+    return `DateTime.fromFormat(${str}, (${sanitizer})(${format}), { zone: "utc" }).slice(0, -2)`;
   },
 
   /** Gets the year from a date. */
