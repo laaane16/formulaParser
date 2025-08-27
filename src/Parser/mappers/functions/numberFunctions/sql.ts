@@ -63,7 +63,7 @@ export const numberFunctionsToSqlMap: Record<
    */
   MOD: ([a, b]: string[]): string => roundedSql(`MOD(${a}, ${b})`),
   SAFEMOD: ([a, b]: string[]): string =>
-    `(CASE WHEN (${b}) != 0 THEN ${roundedSql(`(MOD(${a}, ${b})`)} ELSE NULL END)`,
+    `(CASE WHEN (${b}) != 0 THEN ${roundedSql(`MOD(${a}, ${b})`)} ELSE NULL END)`,
 
   /**
    * @function POWER

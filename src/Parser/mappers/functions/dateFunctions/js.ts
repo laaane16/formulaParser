@@ -249,7 +249,7 @@ export const dateFunctionsToJsMap: Record<
   SETSECOND: ([date, sec]) =>
     `DateTime.fromFormat(${date}, ${DATE_FORMAT}).set({second: ${sec}}).toFormat(${DATE_FORMAT}).slice(0, -2)`,
 
-  DATESTARTOF([date, unit]) {
+  STARTOF([date, unit]) {
     const getCaseBlock = (key: string, val: string) => {
       return `if ('${key}'=== (${unit})) return DateTime.fromFormat(${date}, ${DATE_FORMAT}).startOf('${val}').toFormat(${DATE_FORMAT}).slice(0, -2);`;
     };
@@ -260,7 +260,7 @@ export const dateFunctionsToJsMap: Record<
       return null;
     })()`;
   },
-  DATEENDOF([date, unit]) {
+  ENDOF([date, unit]) {
     const getCaseBlock = (key: string, val: string) => {
       return `if ('${key}'=== (${unit})) return DateTime.fromFormat(${date}, ${DATE_FORMAT}).endOf('${val}').toFormat(${DATE_FORMAT}).slice(0, -2);`;
     };

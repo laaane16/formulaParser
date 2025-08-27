@@ -73,7 +73,7 @@ describe('execute date funcs', () => {
   });
 
   test('DATEADD', () => {
-    const parser = new Parser('DATEADD({Поле 1}, 10, "mon")', fields);
+    const parser = new Parser('DATEADD({Поле 1}, 10, "m")', fields);
     const js = parser.toJs();
     console.log(js);
     expect(parser.runJs(js, values)).toBe('2024-11-01 11:00:00+03');
@@ -85,7 +85,7 @@ describe('execute date funcs', () => {
     expect(parser.runJs(js, values)).toBe(null);
   });
   test('date diff', () => {
-    const parser = new Parser('DATEDIFF({Поле 1}, {Поле 2}, "mon")', fields);
+    const parser = new Parser('DATEDIFF({Поле 1}, {Поле 2}, "m")', fields);
     const js = parser.toJs();
     expect(parser.runJs(js, values)).toBe(23);
   });
@@ -98,7 +98,7 @@ describe('execute date funcs', () => {
 
   test('safe datediff in mins', () => {
     const parser = new Parser(
-      'DATEDIFF(DATE(2002,1,1), DATE(2004, 2,6,6,13), "min")',
+      'DATEDIFF(DATE(2002,1,1), DATE(2004, 2,6,6,13), "mi")',
       fields,
     );
     const js = parser.toJs(true);
@@ -106,21 +106,15 @@ describe('execute date funcs', () => {
     expect(parser.runJs(js, values)).toBe(1103413);
   });
 
-  test('safe datestartof month', () => {
-    const parser = new Parser(
-      'DAY(DATESTARTOF(DATE(2025,12,12), "mon"))',
-      fields,
-    );
+  test('safe STARTOF month', () => {
+    const parser = new Parser('DAY(STARTOF(DATE(2025,12,12), "m"))', fields);
     const js = parser.toJs(true);
 
     expect(parser.runJs(js, values)).toBe(1);
   });
 
-  test('safe dateendof month', () => {
-    const parser = new Parser(
-      'DAY(DATEENDOF(DATE(2025,12,12), "mon"))',
-      fields,
-    );
+  test('safe ENDOF month', () => {
+    const parser = new Parser('DAY(ENDOF(DATE(2025,12,12), "m"))', fields);
     const js = parser.toJs(true);
 
     expect(parser.runJs(js, values)).toBe(31);

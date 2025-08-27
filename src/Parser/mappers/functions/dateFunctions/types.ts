@@ -40,8 +40,8 @@ export type ValidDateFunctionsNamesWithSafe =
   | 'SETHOUR'
   | 'SETMINUTE'
   | 'SETSECOND'
-  | 'DATESTARTOF'
-  | 'DATEENDOF'
+  | 'STARTOF'
+  | 'ENDOF'
   | 'TIMESTAMP';
 // | 'DATEPARSE'
 

@@ -51,7 +51,7 @@ describe('number funcs', () => {
   test('mod safe', () => {
     const parser = new Parser('MOD(10, 3)');
     expect(parser.toSqlWithVariables(true)).toBe(
-      `(CASE WHEN (3) != 0 THEN ROUND((MOD(10, 3), 10)::NUMERIC ELSE NULL END)`,
+      `(CASE WHEN (3) != 0 THEN ROUND(MOD(10, 3), 10)::NUMERIC ELSE NULL END)`,
     );
   });
   /**

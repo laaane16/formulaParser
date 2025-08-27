@@ -48,7 +48,7 @@ describe('sql date funcs', () => {
     const parser = new Parser('DATEADD({Поле 1}, 10, "month")', fields);
     expect(parser.toSqlWithVariables(false, values)).toBe(`
       (CASE ('month')
-        WHEN 's' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' second')::INTERVAL) WHEN 'min' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'h' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'd' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' day')::INTERVAL) WHEN 'w' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' week')::INTERVAL) WHEN 'mon' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' month')::INTERVAL) WHEN 'y' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' year')::INTERVAL)
+        WHEN 's' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' second')::INTERVAL) WHEN 'mi' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'h' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'd' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' day')::INTERVAL) WHEN 'w' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' week')::INTERVAL) WHEN 'm' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' month')::INTERVAL) WHEN 'y' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' year')::INTERVAL)
         ELSE (1 / 0)::text::date
       END)
     `);
@@ -57,7 +57,7 @@ describe('sql date funcs', () => {
     const parser = new Parser('DATEADD({Поле 1}, 10, "month")', fields);
     expect(parser.toSqlWithVariables(true, values)).toBe(`
       (CASE ('month')
-        WHEN 's' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' second')::INTERVAL) WHEN 'min' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'h' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'd' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' day')::INTERVAL) WHEN 'w' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' week')::INTERVAL) WHEN 'mon' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' month')::INTERVAL) WHEN 'y' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' year')::INTERVAL)
+        WHEN 's' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' second')::INTERVAL) WHEN 'mi' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' minute')::INTERVAL) WHEN 'h' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' hour')::INTERVAL) WHEN 'd' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' day')::INTERVAL) WHEN 'w' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' week')::INTERVAL) WHEN 'm' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' month')::INTERVAL) WHEN 'y' THEN ((COALESCE("dateColumn", NULL)) + ((10) || ' year')::INTERVAL)
         ELSE NULL
       END)
     `);
@@ -73,12 +73,12 @@ describe('sql date funcs', () => {
     const parser = new Parser('DATEDIFF({Поле 1}, {Поле 2}, "month")', fields);
     expect(parser.toSqlWithVariables(false, values)).toBe(`ABS(CASE ('month')
       WHEN 'y' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))))
-      WHEN 'mon' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))) * 12) + EXTRACT(MONTH FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL)))
+      WHEN 'm' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))) * 12) + EXTRACT(MONTH FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL)))
       WHEN 'd' THEN
           FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 86400)
       WHEN 'h' THEN
           FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 3600)
-      WHEN 'min' THEN
+      WHEN 'mi' THEN
           FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 60)
       WHEN 's' THEN
           FLOOR(EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL))))
@@ -89,12 +89,14 @@ describe('sql date funcs', () => {
     const parser = new Parser('DATEDIFF({Поле 1}, {Поле 2}, "month")', fields);
     expect(parser.toSqlWithVariables(true, values)).toBe(`ABS(CASE ('month')
       WHEN 'y' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))))
-      WHEN 'mon' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))) * 12) + EXTRACT(MONTH FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL)))
+      WHEN 'm' THEN ABS(EXTRACT(YEAR FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL))) * 12) + EXTRACT(MONTH FROM AGE(COALESCE("2dateColumn", NULL), COALESCE("dateColumn", NULL)))
+      WHEN 'w' THEN
+          FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 604800)
       WHEN 'd' THEN
           FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 86400)
       WHEN 'h' THEN
           FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 3600)
-      WHEN 'min' THEN
+      WHEN 'mi' THEN
           FLOOR((EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL)))) / 60)
       WHEN 's' THEN
           FLOOR(EXTRACT(EPOCH FROM (COALESCE("2dateColumn", NULL))) - EXTRACT(EPOCH FROM (COALESCE("dateColumn", NULL))))
@@ -202,18 +204,18 @@ describe('sql date funcs', () => {
    * SECOND({Поле 1}) -> 0
    */
 
-  test('datestartof month', () => {
-    const parser = new Parser('DATESTARTOF(DATE(2025,12,12), "mon")', fields);
-    expect(parser.toSqlWithVariables(false, values)).toBe(`(CASE ('mon')
-        WHEN 's' THEN DATE_TRUNC('second', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'min' THEN DATE_TRUNC('minute', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'h' THEN DATE_TRUNC('hour', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'd' THEN DATE_TRUNC('day', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'w' THEN DATE_TRUNC('week', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'mon' THEN DATE_TRUNC('month', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'y' THEN DATE_TRUNC('year', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ)
+  test('STARTOF month', () => {
+    const parser = new Parser('STARTOF(DATE(2025,12,12), "m")', fields);
+    expect(parser.toSqlWithVariables(false, values)).toBe(`(CASE ('m')
+        WHEN 's' THEN DATE_TRUNC('second', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'mi' THEN DATE_TRUNC('minute', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'h' THEN DATE_TRUNC('hour', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'd' THEN DATE_TRUNC('day', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'w' THEN DATE_TRUNC('week', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'm' THEN DATE_TRUNC('month', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) WHEN 'y' THEN DATE_TRUNC('year', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ)
         ELSE NULL
       END)`);
   });
 
-  test('dateendof month', () => {
-    const parser = new Parser('DATEENDOF(DATE(2025,12,12), "mon")', fields);
-    expect(parser.toSqlWithVariables(false, values)).toBe(`(CASE ('mon')
-        WHEN 's' THEN (DATE_TRUNC('second', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 second' - INTERVAL '1 second') WHEN 'min' THEN (DATE_TRUNC('minute', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 minute' - INTERVAL '1 second') WHEN 'h' THEN (DATE_TRUNC('hour', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 hour' - INTERVAL '1 second') WHEN 'd' THEN (DATE_TRUNC('day', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 day' - INTERVAL '1 second') WHEN 'w' THEN (DATE_TRUNC('week', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 week' - INTERVAL '1 second') WHEN 'mon' THEN (DATE_TRUNC('month', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 month' - INTERVAL '1 second') WHEN 'y' THEN (DATE_TRUNC('year', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 year' - INTERVAL '1 second')
+  test('ENDOF month', () => {
+    const parser = new Parser('ENDOF(DATE(2025,12,12), "m")', fields);
+    expect(parser.toSqlWithVariables(false, values)).toBe(`(CASE ('m')
+        WHEN 's' THEN (DATE_TRUNC('second', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 second' - INTERVAL '1 second') WHEN 'mi' THEN (DATE_TRUNC('minute', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 minute' - INTERVAL '1 second') WHEN 'h' THEN (DATE_TRUNC('hour', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 hour' - INTERVAL '1 second') WHEN 'd' THEN (DATE_TRUNC('day', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 day' - INTERVAL '1 second') WHEN 'w' THEN (DATE_TRUNC('week', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 week' - INTERVAL '1 second') WHEN 'm' THEN (DATE_TRUNC('month', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 month' - INTERVAL '1 second') WHEN 'y' THEN (DATE_TRUNC('year', MAKE_TIMESTAMP(2025, 12, 12, 0, 0, 0)::TIMESTAMPTZ) + INTERVAL '1 year' - INTERVAL '1 second')
         ELSE NULL
       END)`);
   });

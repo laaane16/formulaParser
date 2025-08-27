@@ -1,10 +1,10 @@
 export const UNIT = {
   s: 'second',
-  min: 'minute',
+  mi: 'minute',
   h: 'hour',
   d: 'day',
   w: 'week',
-  mon: 'month',
+  m: 'month',
   y: 'year',
 };
 

@@ -88,12 +88,12 @@ export const dateFunctionsToSqlMap: Record<
   DATEDIFF: ([end, start, unit]) => {
     return `ABS(CASE (${unit})
       WHEN 'y' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})))
-      WHEN 'mon' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})) * 12) + EXTRACT(MONTH FROM AGE(${start}, ${end}))
+      WHEN 'm' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})) * 12) + EXTRACT(MONTH FROM AGE(${start}, ${end}))
       WHEN 'd' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 86400)
       WHEN 'h' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 3600)
-      WHEN 'min' THEN
+      WHEN 'mi' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 60)
       WHEN 's' THEN
           FLOOR(EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end})))
@@ -103,12 +103,14 @@ export const dateFunctionsToSqlMap: Record<
   SAFEDATEDIFF: ([end, start, unit]) => {
     return `ABS(CASE (${unit})
       WHEN 'y' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})))
-      WHEN 'mon' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})) * 12) + EXTRACT(MONTH FROM AGE(${start}, ${end}))
+      WHEN 'm' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})) * 12) + EXTRACT(MONTH FROM AGE(${start}, ${end}))
+      WHEN 'w' THEN
+          FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 604800)
       WHEN 'd' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 86400)
       WHEN 'h' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 3600)
-      WHEN 'min' THEN
+      WHEN 'mi' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 60)
       WHEN 's' THEN
           FLOOR(EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end})))
@@ -197,7 +199,7 @@ export const dateFunctionsToSqlMap: Record<
   SETSECOND: ([date, second]) =>
     `(${date} + MAKE_INTERVAL(SECS := (${second})::INT - FLOOR(EXTRACT(SECOND FROM (${date})))))`,
 
-  DATESTARTOF: ([date, unit]) => {
+  STARTOF: ([date, unit]) => {
     const getCaseBlock = (key: string, val: string) => {
       return `WHEN '${key}' THEN DATE_TRUNC('${val}', ${date})`;
     };
@@ -208,7 +210,7 @@ export const dateFunctionsToSqlMap: Record<
         ELSE NULL
       END)`;
   },
-  DATEENDOF: ([date, unit]) => {
+  ENDOF: ([date, unit]) => {
     const getCaseBlock = (key: string, val: string) => {
       return `WHEN '${key}' THEN (DATE_TRUNC('${val}', ${date}) + INTERVAL '1 ${val}' - INTERVAL '1 second')`;
     };

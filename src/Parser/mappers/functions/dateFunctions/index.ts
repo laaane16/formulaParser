@@ -70,10 +70,10 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
           { type: [LITERAL_NODE_TYPE] }, // unit (e.g., "days", "months")
         ],
         returnType: [DATE_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.DATEADD,
-        sqlFn: dateFunctionsToSqlMap.DATEADD,
-        jsSafeFn: dateFunctionsToJsMap.SAFEDATEADD,
-        sqlSafeFn: dateFunctionsToSqlMap.SAFEDATEADD,
+        jsFn: dateFunctionsToJsMap.DATESUB,
+        sqlFn: dateFunctionsToSqlMap.DATESUB,
+        jsSafeFn: dateFunctionsToJsMap.SAFEDATESUB,
+        sqlSafeFn: dateFunctionsToSqlMap.SAFEDATESUB,
       },
     ],
     DATEDIFF: [
@@ -330,20 +330,20 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.SETSECOND,
       },
     ],
-    DATESTARTOF: [
+    STARTOF: [
       {
         args: [{ type: [DATE_NODE_TYPE] }, { type: [LITERAL_NODE_TYPE] }],
         returnType: [DATE_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.DATESTARTOF,
-        sqlFn: dateFunctionsToSqlMap.DATESTARTOF,
+        jsFn: dateFunctionsToJsMap.STARTOF,
+        sqlFn: dateFunctionsToSqlMap.STARTOF,
       },
     ],
-    DATEENDOF: [
+    ENDOF: [
       {
         args: [{ type: [DATE_NODE_TYPE] }, { type: [LITERAL_NODE_TYPE] }],
         returnType: [DATE_NODE_TYPE],
-        jsFn: dateFunctionsToJsMap.DATEENDOF,
-        sqlFn: dateFunctionsToSqlMap.DATEENDOF,
+        jsFn: dateFunctionsToJsMap.ENDOF,
+        sqlFn: dateFunctionsToSqlMap.ENDOF,
       },
     ],
     TIMESTAMP: [
