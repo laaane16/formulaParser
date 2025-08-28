@@ -75,7 +75,7 @@ export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
     `(CASE WHEN (${res})::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN (${res})::text::numeric WHEN (${res})::text ~ 'true' THEN 1 WHEN (${res})::text ~ 'false' THEN 0 ELSE NULL END)`,
   [LITERAL_NODE_TYPE]: (res) => `(${res})::text`,
   [DATE_NODE_TYPE]: (res) =>
-    `(CASE WHEN (${res})::text ~ '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(Z|[+-]\\d{2})$' THEN (${res})::text::timestamptz ELSE NULL END)`,
+    `(CASE WHEN (${res})::text ~ '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(Z|[+-]\\d{2}(:\\d{2}:\\d{2})?)$' THEN (${res})::text::timestamptz ELSE NULL END)`,
   [BOOLEAN_NODE_TYPE]: (res) =>
     `(CASE WHEN (${res})::text ~* '^(true|false|0|1)$' THEN (${res})::BOOLEAN ELSE NULL END)`,
 };
