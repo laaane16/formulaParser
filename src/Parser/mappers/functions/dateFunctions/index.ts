@@ -92,19 +92,19 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlSafeFn: dateFunctionsToSqlMap.SAFEDATEDIFF,
       },
     ],
-    // DATEFORMAT: [
-    //   {
-    //     args: [
-    //       {
-    //         type: [DATE_NODE_TYPE],
-    //       },
-    //       { type: [LITERAL_NODE_TYPE] }, // format string
-    //     ],
-    //     returnType: [LITERAL_NODE_TYPE],
-    //     jsFn: dateFunctionsToJsMap.DATEFORMAT,
-    //     sqlFn: dateFunctionsToSqlMap.DATEFORMAT,
-    //   },
-    // ],
+    DATEFORMAT: [
+      {
+        args: [
+          {
+            type: [DATE_NODE_TYPE],
+          },
+          { type: [LITERAL_NODE_TYPE] }, // format string
+        ],
+        returnType: [LITERAL_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.DATEFORMAT,
+        sqlFn: dateFunctionsToSqlMap.DATEFORMAT,
+      },
+    ],
     // i don`t know how make this without exception
     // DATEPARSE: [
     //   {

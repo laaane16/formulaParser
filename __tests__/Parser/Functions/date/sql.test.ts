@@ -312,4 +312,14 @@ describe('sql date funcs', () => {
   /**
    * TODAY() -> 2025-05-20 00:00:00
    */
+
+  test('DATEFORMAT', () => {
+    const parser = new Parser(
+      'DATEFORMAT({Поле 1}, "MM-Day-dy-E-год")',
+      fields,
+    );
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `TO_CHAR(COALESCE("dateColumn", NULL), 'MM-Day-dy-E-год')`,
+    );
+  });
 });

@@ -291,4 +291,14 @@ describe('execute date funcs', () => {
 
     expect(parser.runJs(js, values)).toBe('2001-12-24 00:00:00+03');
   });
+
+  test('DATEFORMAT', () => {
+    const parser = new Parser(
+      'DATEFORMAT({Поле 1}, "MM-Day-dy-E-год")',
+      fields,
+    );
+    const js = parser.toJs();
+
+    expect(parser.runJs(js, values)).toBe('01-Monday--E-год');
+  });
 });

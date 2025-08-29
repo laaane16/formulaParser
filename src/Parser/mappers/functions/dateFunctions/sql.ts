@@ -1,4 +1,4 @@
-import { PSQL_EQUALITY_LUXON, UNIT } from '../../../../constants/date';
+import { UNIT } from '../../../../constants/date';
 import { IFormatterFunc } from '../types';
 import { ValidDateFunctionsNamesWithSafe } from './types';
 
@@ -122,14 +122,9 @@ export const dateFunctionsToSqlMap: Record<
    * @param {[string, string]} args - Date and format pattern.
    * @returns {string} SQL string.
    */
-  // DATEFORMAT: ([date, format]) => {
-  //   return `TO_CHAR(${date}, REGEXP_REPLACE(${format}, '(${PSQL_EQUALITY_LUXON.sort(
-  //     (a, b) => b.length - a.length,
-  //   ).reduce((acc: string, i: string, idx: number) => {
-  //     if (idx === 0) return i;
-  //     return acc + '|' + i;
-  //   }, '')})','"\\1"','g'))`;
-  // },
+  DATEFORMAT: ([date, format]) => {
+    return `TO_CHAR(${date}, ${format})`;
+  },
 
   // /**
   //  * Parses a date string to a timestamp using format.

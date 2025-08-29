@@ -18,7 +18,7 @@ export type ValidDateFunctionsNamesWithSafe =
   | 'SAFEDATEADD'
   | 'SAFEDATEDIFF'
   | 'DATEDIFF'
-  // | 'DATEFORMAT'
+  | 'DATEFORMAT'
   | 'DAY'
   | 'HOUR'
   | 'MINUTE'

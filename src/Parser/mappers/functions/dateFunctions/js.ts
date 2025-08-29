@@ -2,9 +2,14 @@ import {
   UNIT,
   DATE_FORMAT,
   LUXON_EQUALITY_PSQL,
+  UNSUPPORTED_DATE_FORMATS,
+  PSQL_DATE_FORMATS,
 } from '../../../../constants/date';
 import { IFormatterFunc } from '../types';
 import { ValidDateFunctionsNamesWithSafe } from './types';
+
+const TEMPLATE_LEFT_DATEFORMAT = '%';
+const TEMPLATE_RIGHT_FORMAT = '$';
 
 export const dateFunctionsToJsMap: Record<
   ValidDateFunctionsNamesWithSafe,
@@ -121,42 +126,31 @@ export const dateFunctionsToJsMap: Record<
    * @param {[string, string]} args - Date string and format string.
    * @returns {string} JavaScript expression returning formatted string.
    */
-  // DATEFORMAT: ([date, format]) => {
-  //   return `(function(){
-  //   let luxonFormat = ${format};
-  //   let replacedRanges = [];
-  //   let formats = ${JSON.stringify(LUXON_EQUALITY_PSQL)};
+  DATEFORMAT: ([date, format]) => {
+    return `(function(){
+    let preparedFormat = ${format};
+    const psqlFormats = ${JSON.stringify(PSQL_DATE_FORMATS)}.sort((a, b) => b.length - a.length);
+    const luxonEqualityPsql = ${JSON.stringify(LUXON_EQUALITY_PSQL)};
+    const unsupportedFormats = ${JSON.stringify(UNSUPPORTED_DATE_FORMATS)}.sort((a, b) => b.length - a.length);
 
-  //   // сортировка по длине ключей
-  //   const keys = Object.keys(formats).sort((a, b) => b.length - a.length);
-  //   // экранирование спецсимволов
-  //   const pattern = keys.map(k => k.replace(/([.*+?^\${}()|\\[\\]\\\\/])/g, "\\\\$1")).join("|");
-  //   const regex = new RegExp(pattern, "g");
+    let pattern = psqlFormats.join("|");
+    let regex = new RegExp(pattern, "g");
+    preparedFormat = preparedFormat.replace(regex, (match) => '${TEMPLATE_LEFT_DATEFORMAT}' + match + '${TEMPLATE_RIGHT_FORMAT}');
 
-  //   luxonFormat = luxonFormat.replace(regex, (match) => formats[match]);
+    pattern = unsupportedFormats.join("|");
+    regex = new RegExp("(?<!${TEMPLATE_LEFT_DATEFORMAT})\\\\b(" + pattern + ")\\\\b(?!\\\\${TEMPLATE_RIGHT_FORMAT})", "g");
+    preparedFormat = preparedFormat.replace(regex, (match) => "'" + match + "'");
 
-  //   // Object.keys(formats)
-  //   //   .sort((a, b) => b.length - a.length)
-  //   //   .forEach(psql => {
-  //   //     const regex = new RegExp(psql, 'g');
-  //   //     let match;
+    pattern = psqlFormats.join("|");
+    regex = new RegExp("${TEMPLATE_LEFT_DATEFORMAT}(" + pattern + ")\\\\${TEMPLATE_RIGHT_FORMAT}", "g");
+    preparedFormat = preparedFormat.replace(regex, (match) => {
+      const withoutTemplate = match.replace(new RegExp('[${TEMPLATE_LEFT_DATEFORMAT}\\\\${TEMPLATE_RIGHT_FORMAT}]', 'g'), '');
+      return luxonEqualityPsql[withoutTemplate] ?? '';
+    });
 
-  //   //     while ((match = regex.exec(luxonFormat)) !== null) {
-  //   //       const start = match.index;
-  //   //       const end = start + match[0].length;
 
-  //   //       if (replacedRanges.some(r => r.start < end && r.end > start)) {
-  //   //         continue;
-  //   //       }
-
-  //   //       luxonFormat = luxonFormat.slice(0, start) + formats[psql] + luxonFormat.slice(end);
-  //   //       regex.lastIndex = start + formats[psql].length;
-  //   //       replacedRanges.push({ start, end: start + formats[psql].length });
-  //   //     }
-  //   //   });
-
-  //   return DateTime.fromFormat(${date}, ${DATE_FORMAT}).toFormat(luxonFormat) })()`;
-  // },
+    return DateTime.fromFormat(${date}, ${DATE_FORMAT}).toFormat(preparedFormat) })()`;
+  },
 
   /**
    * Parses a date string from a custom format.
