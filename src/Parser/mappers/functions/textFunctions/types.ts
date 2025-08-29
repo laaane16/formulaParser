@@ -13,6 +13,8 @@ export type ValidTextFunctionsNamesWithSafe =
   | 'LEN'
   // | 'JOIN'
   | 'TOSTRING'
+  | 'REGEXMATCH'
+  | 'REGEXREPLACE'
   | 'DATETOSTRING';
 
 export type ValidTextFunctionsNames = Exclude<

@@ -19,6 +19,24 @@ export const textFunctionsToSqlMap: Record<
    */
   CONCAT: (args: string[]): string => `CONCAT(${args})`,
 
+  REGEXMATCH: ([str, regex, mode]: string[]): string => {
+    return `
+    (CASE (${mode ?? 0})
+      WHEN 1 THEN ((${str}) ~* (${regex}))
+      ELSE ((${str}) ~ (${regex}))
+      END)`;
+  },
+
+  REGEXREPLACE: ([str, regex, replacement, mode]) => {
+    return `
+    (CASE (${mode ?? 0})
+      WHEN 1 THEN REGEXP_REPLACE(${str}, ${regex}, ${replacement}, 'g')
+      ELSE REGEXP_REPLACE(${str}, ${regex}, ${replacement})
+      END
+    )
+    `;
+  },
+
   /**
    * @function TRIM
    * @description Removes specific characters from the beginning, end, or both sides of a string.

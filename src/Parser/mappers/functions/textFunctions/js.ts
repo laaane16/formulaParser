@@ -22,6 +22,13 @@ export const textFunctionsToJsMap: Record<
   CONCAT: (args: string[]): string =>
     `[${args}].filter(v => v).reduce((accum, i) => accum + String(i), "")`,
 
+  REGEXMATCH: ([str, regex, mode]: string[]): string =>
+    `(new RegExp((${regex}).replace(new RegExp('\\\\'), '\\\\\\\\'), ((${mode}) === 1 ? 'i': ''))).test(${str})`,
+  //
+  REGEXREPLACE: ([str, regex, replacement, mode]) => {
+    return `(${str}).replace(new RegExp(${regex}, ((${mode}) === 1 ? 'g': '')), ${replacement})`;
+  },
+
   /**
    * @function TRIM
    * @description Removes specific characters from the beginning, end, or both sides of a string.
