@@ -1,7 +1,7 @@
 export const UNIT = {
-  s: 'second',
-  mi: 'minute',
-  h: 'hour',
+  ss: 'second',
+  mm: 'minute',
+  hh: 'hour',
   d: 'day',
   w: 'week',
   m: 'month',

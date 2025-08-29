@@ -98,7 +98,7 @@ describe('execute date funcs', () => {
 
   test('safe datediff in mins', () => {
     const parser = new Parser(
-      'DATEDIFF(DATE(2002,1,1), DATE(2004, 2,6,6,13), "mi")',
+      'DATEDIFF(DATE(2002,1,1), DATE(2004, 2,6,6,13), "mm")',
       fields,
     );
     const js = parser.toJs(true);

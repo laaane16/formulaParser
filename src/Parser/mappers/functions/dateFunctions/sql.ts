@@ -91,11 +91,11 @@ export const dateFunctionsToSqlMap: Record<
       WHEN 'm' THEN ABS(EXTRACT(YEAR FROM AGE(${start}, ${end})) * 12) + EXTRACT(MONTH FROM AGE(${start}, ${end}))
       WHEN 'd' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 86400)
-      WHEN 'h' THEN
+      WHEN 'hh' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 3600)
-      WHEN 'mi' THEN
+      WHEN 'mm' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 60)
-      WHEN 's' THEN
+      WHEN 'ss' THEN
           FLOOR(EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end})))
       ELSE 1 / 0
     END)`;
@@ -108,11 +108,11 @@ export const dateFunctionsToSqlMap: Record<
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 604800)
       WHEN 'd' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 86400)
-      WHEN 'h' THEN
+      WHEN 'hh' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 3600)
-      WHEN 'mi' THEN
+      WHEN 'mm' THEN
           FLOOR((EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end}))) / 60)
-      WHEN 's' THEN
+      WHEN 'ss' THEN
           FLOOR(EXTRACT(EPOCH FROM (${start})) - EXTRACT(EPOCH FROM (${end})))
       ELSE NULL
     END)`;
