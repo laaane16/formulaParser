@@ -322,4 +322,12 @@ describe('sql date funcs', () => {
       `TO_CHAR(COALESCE("dateColumn", NULL), 'MM-Day-dy-E-год')`,
     );
   });
+
+  test('DATEPARSE', () => {
+    const parser = new Parser('DATEPARSE("2012", "YYYY")', fields);
+
+    expect(parser.toSqlWithVariables(true, values)).toBe(
+      `BPIUMDATEPARSE('2012', 'YYYY')::TIMESTAMPTZ`,
+    );
+  });
 });

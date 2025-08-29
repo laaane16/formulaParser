@@ -314,7 +314,7 @@ const bpiumValues = {
   recordDbId: 12,
 };
 
-const expression = 'DATEFORMAT(DATE(2012,12,12), "MM-Day-dy-E-год")';
+const expression = 'DATEPARSE("2012", "YYYY")';
 
 const parser = new Parser(expression, variables);
 

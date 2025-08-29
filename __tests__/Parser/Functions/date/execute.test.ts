@@ -301,4 +301,11 @@ describe('execute date funcs', () => {
 
     expect(parser.runJs(js, values)).toBe('01-Monday--E-год');
   });
+
+  test('DATEPARSE', () => {
+    const parser = new Parser('DATEPARSE("2012", "YYYY")', fields);
+    const js = parser.toJs();
+
+    expect(parser.runJs(js, values)).toBe('2012-01-01 00:00:00+04');
+  });
 });

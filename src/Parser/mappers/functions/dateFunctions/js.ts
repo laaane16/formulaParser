@@ -148,8 +148,7 @@ export const dateFunctionsToJsMap: Record<
       return luxonEqualityPsql[withoutTemplate] ?? '';
     });
 
-
-    return DateTime.fromFormat(${date}, ${DATE_FORMAT}).toFormat(preparedFormat) })()`;
+    return DateTime.fromFormat(${date}, ${DATE_FORMAT}).toFormat(preparedFormat)})()`;
   },
 
   /**
@@ -157,9 +156,30 @@ export const dateFunctionsToJsMap: Record<
    * @param {[string, string]} args - Date string and format string.
    * @returns {string} JavaScript expression returning ISO string.
    */
-  // DATEPARSE: ([str, format]) => {
-  //   return `DateTime.fromFormat(${str}, ${format}).toString()`;
-  // },
+  DATEPARSE: ([str, format]) => {
+    return `(function(){
+    let preparedFormat = ${format};
+    const psqlFormats = ${JSON.stringify(PSQL_DATE_FORMATS)}.sort((a, b) => b.length - a.length);
+    const luxonEqualityPsql = ${JSON.stringify(LUXON_EQUALITY_PSQL)};
+    const unsupportedFormats = ${JSON.stringify(UNSUPPORTED_DATE_FORMATS)}.sort((a, b) => b.length - a.length);
+
+    let pattern = psqlFormats.join("|");
+    let regex = new RegExp(pattern, "g");
+    preparedFormat = preparedFormat.replace(regex, (match) => '${TEMPLATE_LEFT_DATEFORMAT}' + match + '${TEMPLATE_RIGHT_FORMAT}');
+
+    pattern = unsupportedFormats.join("|");
+    regex = new RegExp("(?<!${TEMPLATE_LEFT_DATEFORMAT})\\\\b(" + pattern + ")\\\\b(?!\\\\${TEMPLATE_RIGHT_FORMAT})", "g");
+    preparedFormat = preparedFormat.replace(regex, (match) => "'" + match + "'");
+
+    pattern = psqlFormats.join("|");
+    regex = new RegExp("${TEMPLATE_LEFT_DATEFORMAT}(" + pattern + ")\\\\${TEMPLATE_RIGHT_FORMAT}", "g");
+    preparedFormat = preparedFormat.replace(regex, (match) => {
+      const withoutTemplate = match.replace(new RegExp('[${TEMPLATE_LEFT_DATEFORMAT}\\\\${TEMPLATE_RIGHT_FORMAT}]', 'g'), '');
+      return luxonEqualityPsql[withoutTemplate] ?? '';
+    });
+
+    return DateTime.fromFormat(${str}, preparedFormat).toFormat(${DATE_FORMAT}).slice(0, -2)})()`;
+  },
 
   /** Gets the year from a date. */
   YEAR: ([date]) => {

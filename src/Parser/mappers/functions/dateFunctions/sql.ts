@@ -131,14 +131,8 @@ export const dateFunctionsToSqlMap: Record<
   //  * @param {[string, string]} args - String and format.
   //  * @returns {string} SQL Date.
   //  */
-  // DATEPARSE: ([str, format]) => {
-  //   const getCaseBlock = (frmt: string) =>
-  //     `WHEN '${frmt}' THEN TO_TIMESTAMPTZ(${str}, ${format})`;
-
-  //   return `CASE ${format} ${Object.values(DATE_FORMATS_FORMULA)
-  //     .map((i) => getCaseBlock(format))
-  //     .join(' ')} ELSE NULL END)`;
-  // },
+  DATEPARSE: ([str, format]) =>
+    `BPIUMDATEPARSE(${str}, ${format})::TIMESTAMPTZ`,
 
   /** Extracts the year from a date. */
   YEAR: ([date]) => `EXTRACT(YEAR FROM ${date})`,

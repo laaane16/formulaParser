@@ -105,21 +105,20 @@ export const dateFunctions: Record<ValidDateFunctionsNames, VariableFunction> =
         sqlFn: dateFunctionsToSqlMap.DATEFORMAT,
       },
     ],
-    // i don`t know how make this without exception
-    // DATEPARSE: [
-    //   {
-    //     args: [
-    //       // in airtable arg locale last
-    //       {
-    //         type: [LITERAL_NODE_TYPE],
-    //       }, // string
-    //       { type: [LITERAL_NODE_TYPE] }, // format
-    //     ],
-    //     returnType: [DATE_NODE_TYPE],
-    //     jsFn: dateFunctionsToJsMap.DATEPARSE,
-    //     sqlFn: dateFunctionsToSqlMap.DATE_PARSE,
-    //   },
-    // ],
+    DATEPARSE: [
+      {
+        args: [
+          // in airtable arg locale last
+          {
+            type: [LITERAL_NODE_TYPE],
+          }, // string
+          { type: [LITERAL_NODE_TYPE] }, // format
+        ],
+        returnType: [DATE_NODE_TYPE],
+        jsFn: dateFunctionsToJsMap.DATEPARSE,
+        sqlFn: dateFunctionsToSqlMap.DATEPARSE,
+      },
+    ],
 
     YEAR: [
       {

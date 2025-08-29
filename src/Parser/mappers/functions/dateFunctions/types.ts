@@ -42,8 +42,8 @@ export type ValidDateFunctionsNamesWithSafe =
   | 'SETSECOND'
   | 'STARTOF'
   | 'ENDOF'
-  | 'TIMESTAMP';
-// | 'DATEPARSE'
+  | 'TIMESTAMP'
+  | 'DATEPARSE';
 
 export type ValidDateFunctionsNames = Exclude<
   ValidDateFunctionsNamesWithSafe,
