@@ -134,7 +134,9 @@ export const textFunctionsToJsMap: Record<
    * SUBSTRING(['"abcdef"', "2", "3"]) // => '"abcdef".slice(1, 1 + 3)'
    */
   SUBSTRING: ([str, start, length]: string[]): string =>
-    `((${str}).slice((${start}) >= 0 ? (${start}) : 0, (${start}) >= 0 && (${length}) > 0? (${start}) + (${length}) : 0))`,
+    length
+      ? `(${str}).slice((${start}) >= 0 ? (${start}) : 0, (${start}) >= 0 && (${length}) > 0? (${start}) + (${length}) : 0)`
+      : `(${str}).slice((${start}) >= 0 ? (${start}) : 0)`,
   /**
    * @function LEFT
    * @description Extracts the leftmost characters from a string.

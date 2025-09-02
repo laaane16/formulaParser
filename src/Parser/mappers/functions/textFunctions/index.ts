@@ -147,6 +147,7 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
           },
           {
             type: [NUMBER_NODE_TYPE],
+            required: false,
           },
         ],
         returnType: [LITERAL_NODE_TYPE],

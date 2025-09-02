@@ -121,8 +121,10 @@ export const textFunctionsToSqlMap: Record<
    * @example
    * SUBSTRING(["'abcdef'", '2', '3']) // => "SUBSTRING('abcdef' from 2 for 3)"
    */
-  SUBSTRING: (args: string[]): string =>
-    `SUBSTRING((${args[0]}) from (CASE WHEN (${args[1]}) >= 0 THEN (${args[1]}) + 1 ELSE 1 END) for (CASE WHEN (${args[1]}) >= 0 AND (${args[2]}) > 0 THEN (${args[2]}) ELSE 0 END))`,
+  SUBSTRING: ([str, start, length]): string =>
+    length
+      ? `SUBSTRING((${str}) from (CASE WHEN (${start}) >= 0 THEN (${start}) + 1 ELSE 1 END) for (CASE WHEN (${start}) >= 0 AND (${length}) > 0 THEN (${length}) ELSE 0 END))`
+      : `SUBSTRING((${str}) from (CASE WHEN (${start}) >= 0 THEN (${start}) + 1 ELSE 1 END))`,
 
   /**
    * @function LEFT
