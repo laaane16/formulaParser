@@ -69,8 +69,8 @@ export const textFunctionsToJsMap: Record<
    * @example
    * SEARCH(['"lo"', '"Hello"']) // => '"Hello".indexOf("lo") + 1'
    */
-  SEARCH: (args: string[]): string => {
-    return `(${args[1]}).indexOf(${args[0]})`;
+  SEARCH: ([str, substr]): string => {
+    return `(${str}).indexOf(${substr})`;
   },
 
   /**

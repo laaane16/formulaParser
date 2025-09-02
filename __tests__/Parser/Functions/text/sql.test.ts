@@ -45,7 +45,7 @@ describe('execute text funcs', () => {
   test('search', () => {
     const parser = new Parser('SEARCH("lo", "Hello")');
     expect(parser.toSqlWithVariables()).toBe(
-      `(POSITION(('lo') in ('Hello')) - 1)`,
+      `(POSITION(('Hello') in ('lo')) - 1)`,
     );
   });
   /**

@@ -62,7 +62,7 @@ describe('execute text funcs', () => {
     expect(parser.runJs(js)).toBe(null);
   });
   test('search', () => {
-    const parser = new Parser('SEARCH("lo", "Hello")');
+    const parser = new Parser('SEARCH("Hello", "lo")');
     const js = parser.toJs(true);
 
     expect(parser.runJs(js)).toBe(3);

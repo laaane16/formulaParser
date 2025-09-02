@@ -60,7 +60,7 @@ export const textFunctionsToSqlMap: Record<
    * @example
    * SEARCH(["'abc'", "'abcde'"]) // => "POSITION('abc' in 'abcde')"
    */
-  SEARCH: ([substr, str]: string[]): string =>
+  SEARCH: ([str, substr]: string[]): string =>
     `(POSITION((${substr}) in (${str})) - 1)`,
 
   /**
