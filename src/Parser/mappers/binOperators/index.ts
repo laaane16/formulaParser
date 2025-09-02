@@ -89,7 +89,7 @@ export const allBinOperators: Record<ValidBinOperatorsNames, Operator[]> = {
       operandType: NUMBER_NODE_TYPE,
       returnType: NUMBER_NODE_TYPE,
       jsFn: (left, right) => roundedJs(`${left} ** ${right}`),
-      sqlFn: (left, right) => roundedSql(`${left} ^ ${right}`),
+      sqlFn: (left, right) => roundedSql(`(${left} ^ ${right})::NUMERIC`),
     },
   ],
   EQUAL: [
