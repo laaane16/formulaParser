@@ -7,9 +7,13 @@ describe('Lexer', () => {
 
     expect(tokens.map((t) => t.token.name)).toEqual([
       'NUMBER',
+      'SPACE',
       'PLUS',
+      'SPACE',
       'NUMBER',
+      'SPACE',
       'MULTIPLY',
+      'SPACE',
       'NUMBER',
     ]);
   });
@@ -36,7 +40,7 @@ describe('Lexer', () => {
     const lexer = new Lexer('true false');
     const tokens = lexer.lexAnalysis();
 
-    expect(tokens.map((t) => t.token.name)).toEqual(['TRUE', 'FALSE']);
+    expect(tokens.map((t) => t.token.name)).toEqual(['TRUE', 'SPACE', 'FALSE']);
   });
 
   test('должен распознать унарные и бинарные операторы', () => {
@@ -45,17 +49,29 @@ describe('Lexer', () => {
 
     expect(tokens.map((t) => t.token.name)).toEqual([
       'NOT',
+      'SPACE',
       'MINUS',
+      'SPACE',
       'PLUS',
+      'SPACE',
       'MULTIPLY',
+      'SPACE',
       'DIVISION',
+      'SPACE',
       'REMAINDER',
+      'SPACE',
       'POWER',
+      'SPACE',
       'EQUAL',
+      'SPACE',
       'NOTEQUAL',
+      'SPACE',
       'GREATER',
+      'SPACE',
       'GREATEROREQUAL',
+      'SPACE',
       'LESS',
+      'SPACE',
       'LESSOREQUAL',
     ]);
   });
@@ -70,9 +86,18 @@ describe('Lexer', () => {
     const tokens = lexer.lexAnalysis();
 
     expect(tokens.map((t) => t.token.name)).toEqual([
+      'SPACE',
+      'SPACE',
+      'SPACE',
       'NUMBER',
+      'SPACE',
+      'SPACE',
+      'SPACE',
+      'SPACE',
       'PLUS',
+      'SPACE',
       'NUMBER',
+      'SPACE',
     ]);
   });
 
@@ -106,7 +131,9 @@ describe('lexer analyze string', () => {
     const tokens = new Lexer(`"'''''''test'" + '"" "'`).lexAnalysis();
     expect(tokens.map((t) => t.token.name)).toEqual([
       'STRING',
+      'SPACE',
       'PLUS',
+      'SPACE',
       'STRING',
     ]);
   });
@@ -115,7 +142,9 @@ describe('lexer analyze string', () => {
     const tokens = new Lexer(`" \\" " + ' \\' '`).lexAnalysis();
     expect(tokens.map((t) => t.token.name)).toEqual([
       'STRING',
+      'SPACE',
       'PLUS',
+      'SPACE',
       'STRING',
     ]);
   });
@@ -126,9 +155,13 @@ describe('lexer analyze string', () => {
     ).lexAnalysis();
     expect(tokens.map((t) => t.token.name)).toEqual([
       'STRING',
+      'SPACE',
       'PLUS',
+      'SPACE',
       'STRING',
+      'SPACE',
       'PLUS',
+      'SPACE',
       'STRING',
     ]);
   });
@@ -139,7 +172,9 @@ describe('lexer analyze string', () => {
     ).lexAnalysis();
     expect(tokens.map((t) => t.token.name)).toEqual([
       'STRING',
+      'SPACE',
       'PLUS',
+      'SPACE',
       'STRING',
     ]);
   });
@@ -148,7 +183,9 @@ describe('lexer analyze string', () => {
     const tokens = new Lexer(`" \\\\" + '\\\\'`).lexAnalysis();
     expect(tokens.map((t) => t.token.name)).toEqual([
       'STRING',
+      'SPACE',
       'PLUS',
+      'SPACE',
       'STRING',
     ]);
   });

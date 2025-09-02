@@ -12,6 +12,7 @@ export const VARIABLE_NODE_TYPE = 'VariableNode';
 export const BOOLEAN_NODE_TYPE = 'BooleanNode';
 export const IF_STATEMENT_NODE_TYPE = 'IfStatementNode';
 export const NULL_NODE_TYPE = 'NullNode';
+export const SPACE_NODE_TYPE = 'SpaceNode';
 
 export const UNKNOWN_NODE_TYPE = 'unknown';
 

@@ -17,6 +17,7 @@ import VariableNode from '../AST/VariableNode';
 import UnarOperationNode from '../AST/UnarOperationNode';
 import IfStatementNode from '../AST/IfStatementNode';
 import BooleanNode from '../AST/BooleanNode';
+import SpaceNode from '../AST/SpaceNode';
 
 import { allFunctions } from './mappers/functions';
 import { isSafeFunction, ValidFunctionsNames } from './mappers/functions/types';
@@ -117,7 +118,6 @@ export default class Parser {
       if (root.codeStrings.length > 0) {
         FormulaError.syntaxError(this.tokens[this.pos].pos);
       }
-
       const codeStringNode = this.parseExpression();
       // if we need make formula multiline, uncomment this string and add in tokens symbol, which mean end of line
       // this.require(END_LINE_SYMBOL)
@@ -158,10 +158,29 @@ export default class Parser {
       this.parseFunctionNode,
     ];
 
+    // parser work with nodes from parseFormula and parseExpression, but they get first node fron this func,
+    // we need left spaces and right because in funcs upper we try find bin operator after node, but parser find space
+    const leftSpaces: SpaceNode[] = [];
+    while (true) {
+      const space = this.parseSpaceNode();
+      if (!space) break;
+      leftSpaces.push(space);
+    }
+
     for (const parseFn of parsersForPossibleResults) {
       // with call method typescript  gets confused
       const possibleResult = parseFn.bind(this)();
       if (possibleResult !== null) {
+        const rightSpaces: SpaceNode[] = [];
+        while (true) {
+          const space = this.parseSpaceNode();
+          if (!space) break;
+          rightSpaces.push(space);
+        }
+
+        possibleResult.leftSpaces = leftSpaces;
+        possibleResult.rightSpaces = rightSpaces;
+
         return possibleResult;
       }
     }
@@ -173,6 +192,15 @@ export default class Parser {
     const string = this.match(tokenTypesList.get('STRING') as TokenType);
     if (string) {
       return new LiteralNode(string);
+    }
+
+    return null;
+  }
+
+  parseSpaceNode(): SpaceNode | null {
+    const space = this.match(tokenTypesList.get('SPACE') as TokenType);
+    if (space) {
+      return new SpaceNode(space);
     }
 
     return null;
@@ -1104,16 +1132,18 @@ export default class Parser {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const traverse = (n: ExpressionNode): any => {
+      let result = '';
+      if (n.leftSpaces) {
+        n.leftSpaces.forEach((i) => (result += i.space.text));
+      }
+
       if (n instanceof NumberNode) {
-        return n.number.text;
-      }
-      if (n instanceof LiteralNode) {
-        return n.literal.text;
-      }
-      if (n instanceof BooleanNode) {
-        return n.keyword.text;
-      }
-      if (n instanceof VariableNode) {
+        result += n.number.text;
+      } else if (n instanceof LiteralNode) {
+        result += n.literal.text;
+      } else if (n instanceof BooleanNode) {
+        result += n.keyword.text;
+      } else if (n instanceof VariableNode) {
         const varKey = removePrefixSuffix(n.variable.text);
 
         let variable;
@@ -1132,27 +1162,28 @@ export default class Parser {
           FormulaError.mapIdsToError(varKey, to);
         }
 
-        return `${FORMULA_TEMPLATES.PREFIX}${variable[to]}${FORMULA_TEMPLATES.POSTFIX}`;
-      }
-      if (n instanceof ParenthesizedNode) {
-        return `(${traverse(n.expression)})`;
-      }
-      if (n instanceof UnarOperationNode) {
-        return `${n.operator.text} ${traverse(n.operand)}`;
-      }
-      if (n instanceof BinOperationNode) {
-        return `${traverse(n.left)} ${n.operator.text} ${traverse(n.right)}`;
-      }
-      if (n instanceof IfStatementNode) {
-        return `${n.ifToken.text}(${traverse(n.test)}, ${traverse(n.consequent)}, ${traverse(n.alternate)})`;
-      }
-      if (n instanceof FunctionNode) {
-        return `${n.func.text.toUpperCase()}(${n.args.map((i) => traverse(i))})`;
-      }
-      if (n instanceof StatementsNode) {
+        result += `${FORMULA_TEMPLATES.PREFIX}${variable[to]}${FORMULA_TEMPLATES.POSTFIX}`;
+      } else if (n instanceof ParenthesizedNode) {
+        result += `(${traverse(n.expression)})`;
+      } else if (n instanceof UnarOperationNode) {
+        result += `${n.operator.text}${traverse(n.operand)}`;
+      } else if (n instanceof BinOperationNode) {
+        result += `${traverse(n.left)}${n.operator.text}${traverse(n.right)}`;
+      } else if (n instanceof IfStatementNode) {
+        result += `${n.ifToken.text}(${traverse(n.test)},${traverse(n.consequent)},${traverse(n.alternate)})`;
+      } else if (n instanceof FunctionNode) {
+        result += `${n.func.text.toUpperCase()}(${n.args.map((i) => traverse(i))})`;
+      } else if (n instanceof StatementsNode) {
         return n.codeStrings.map((i) => traverse(i));
+      } else {
+        FormulaError.impossibleMapIds();
       }
-      FormulaError.impossibleMapIds();
+
+      if (n.rightSpaces) {
+        n.rightSpaces.forEach((i) => (result += i.space.text));
+      }
+
+      return result;
     };
     return traverse(node);
   }

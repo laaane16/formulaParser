@@ -15,9 +15,6 @@ export default class Lexer {
     while (this.nextToken()) {
       /* empty */
     }
-    this.tokens = this.tokens.filter(
-      (i) => i.token.name !== tokenTypesList.get('SPACE')?.name,
-    );
     return this.tokens;
   }
 
