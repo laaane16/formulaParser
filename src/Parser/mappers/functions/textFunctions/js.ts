@@ -23,8 +23,7 @@ export const textFunctionsToJsMap: Record<
     `[${args}].filter(v => v).reduce((accum, i) => accum + String(i), "")`,
 
   REGEXMATCH: ([str, regex, mode]: string[]): string =>
-    `(new RegExp((${regex}).replace(new RegExp('\\\\'), '\\\\\\\\'), ((${mode}) === 1 ? 'i': ''))).test(${str})`,
-  //
+     `(new RegExp(${regex}, ((${mode}) === 1 ? 'i': ''))).test(${str})`,
   REGEXREPLACE: ([str, regex, replacement, mode]) => {
     return `(${str}).replace(new RegExp(${regex}, ((${mode}) === 1 ? 'g': '')), ${replacement})`;
   },

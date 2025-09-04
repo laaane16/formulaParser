@@ -14,7 +14,7 @@ export default class TokenType {
 export const tokenTypesList: Map<string, TokenType> = new Map([
   // DATA TYPES
   ['NUMBER', new TokenType('NUMBER', '[0-9]+\\.*[0-9]*')],
-  ['STRING', new TokenType('STRING', `(["'])((?:\\\\\\1|[\\s\\S])*?)\\1`)],
+  ['STRING', new TokenType('STRING', `(["'])(([\\s\\S])*?)\\1`)],
 
   // VARIABLES: {...}
   [

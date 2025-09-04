@@ -288,44 +288,44 @@ export default class Parser {
 
 // Example usage:
 // key - value in {...}
-const variables: Record<string, IVar> = {
-  1: {
-    id: '1',
-    dbId: 2,
-    prevId: '3',
-    name: 'Поле 1',
-    type: 'date',
-  },
-  some: {
-    name: 'Поле 2',
-    dbId: 5,
-    id: '2',
-    type: 'number',
-  },
-};
+// const variables: Record<string, IVar> = {
+//   1: {
+//     id: '1',
+//     dbId: 2,
+//     prevId: '3',
+//     name: 'Поле 1',
+//     type: 'date',
+//   },
+//   some: {
+//     name: 'Поле 2',
+//     dbId: 5,
+//     id: '2',
+//     type: 'number',
+//   },
+// };
 
-const values: Record<string, unknown> = {
-  1: '2012-12-12 00:00:00+03',
-  some: 5000,
-};
+// const values: Record<string, unknown> = {
+//   1: '2012-12-12 00:00:00+03',
+//   some: 5000,
+// };
 
-const bpiumValues = {
-  catalogId: 'teeest',
-  recordDbId: 12,
-};
+// const bpiumValues = {
+//   catalogId: 'teeest',
+//   recordDbId: 12,
+// };
 
-const expression = 'REGEXMATCH("Hello 1 1 1", "\\d")';
+// const expression = 'REGEXREPLACE("Hello 1 1 1", "\\d", "2", 1)';
 
-const parser = new Parser(expression, variables);
+// const parser = new Parser(expression, variables);
 
-const sqlQuery = parser.toSqlWithVariables(true, values, bpiumValues);
-console.log('SQL:', sqlQuery); // Outputs the generated SQL query
+// const sqlQuery = parser.toSqlWithVariables(true, values, bpiumValues);
+// console.log('SQL:', sqlQuery); // Outputs the generated SQL query
 
-const jsFormula = parser.toJs(true, bpiumValues);
-console.log('JS:', jsFormula); // Outputs the generated JS query
+// const jsFormula = parser.toJs(true, bpiumValues);
+// console.log('JS:', jsFormula); // Outputs the generated JS query
 
-console.log('RUN JS:', parser.runJs(jsFormula, values));
+// console.log('RUN JS:', parser.runJs(jsFormula, values));
 
-console.log(
-  parser.castResultType(parser.runJs(jsFormula, values), 'js', 'text'),
-);
+// console.log(
+//   parser.castResultType(parser.runJs(jsFormula, values), 'js', 'text'),
+// );
