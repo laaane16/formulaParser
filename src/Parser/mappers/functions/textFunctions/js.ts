@@ -23,10 +23,10 @@ export const textFunctionsToJsMap: Record<
     `[${args}].filter(v => v).reduce((accum, i) => accum + String(i), "")`,
 
   REGEXMATCH: ([str, regex, mode]: string[]): string =>
-     `(new RegExp(${regex}, ((${mode}) === 1 ? 'i': ''))).test(${str})`,
-  REGEXREPLACE: ([str, regex, replacement, mode]) => {
-    return `(${str}).replace(new RegExp(${regex}, ((${mode}) === 1 ? 'g': '')), ${replacement})`;
-  },
+     `(function(){try{return (new RegExp(${regex}, ((${mode}) === 1 ? 'i': ''))).test(${str})}catch(e){if (e.message.match('Invalid regular expression')) return null; throw e}})()`,
+  REGEXREPLACE: ([str, regex, replacement, mode]) => 
+    `(function(){try{return (${str}).replace(new RegExp(${regex}, ((${mode}) === 1 ? 'g': '')), ${replacement})}catch(e){if (e.message.match('Invalid regular expression')) return null; throw e}})()`,
+  
 
   /**
    * @function TRIM
