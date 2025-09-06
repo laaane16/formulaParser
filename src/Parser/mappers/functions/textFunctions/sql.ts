@@ -20,11 +20,11 @@ export const textFunctionsToSqlMap: Record<
   CONCAT: (args: string[]): string => `CONCAT(${args})`,
 
   REGEXMATCH: ([str, regex, mode]: string[]): string => {
-    return `BPIUMREGEXMATCH(${str}, ${regex}, ${mode})`
+    return `BPIUMREGEXMATCH(${str}, ${regex}, ${mode ?? 0})`
   },
 
   REGEXREPLACE: ([str, regex, replacement, mode]) => {
-    return `BPIUMREGEXREPLACE(${str}, ${regex}, ${replacement}, ${mode})`
+    return `BPIUMREGEXREPLACE(${str}, ${regex}, ${replacement}, ${mode ?? 0})`
   },
 
   /**
