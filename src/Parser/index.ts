@@ -434,7 +434,7 @@ export default class Parser {
     if (format === FORMATS.SQL) {
       return `'${node.literal.text.slice(1, -1)}'`;
     }
-    return `${node.literal.text}`;
+    return `${node.literal.text.replace(/\\/g, '\\\\')}`;
   }
 
   private stringifyBooleanNode({

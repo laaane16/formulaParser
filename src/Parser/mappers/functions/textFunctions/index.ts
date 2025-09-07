@@ -1,4 +1,5 @@
 import {
+  BOOLEAN_NODE_TYPE,
   DATE_NODE_TYPE,
   LITERAL_NODE_TYPE,
   NUMBER_NODE_TYPE,
@@ -23,6 +24,47 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         jsFn: textFunctionsToJsMap.CONCAT,
         sqlFn: textFunctionsToSqlMap.CONCAT,
         specialWorkWithNull: true,
+      },
+    ],
+    REGEXMATCH: [
+      {
+        args: [
+          {
+            type: [LITERAL_NODE_TYPE],
+          },
+          {
+            type: [LITERAL_NODE_TYPE],
+          },
+          {
+            type: [NUMBER_NODE_TYPE],
+            required: false,
+          },
+        ],
+        returnType: [BOOLEAN_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.REGEXMATCH,
+        sqlFn: textFunctionsToSqlMap.REGEXMATCH,
+      },
+    ],
+    REGEXREPLACE: [
+      {
+        args: [
+          {
+            type: [LITERAL_NODE_TYPE],
+          },
+          {
+            type: [LITERAL_NODE_TYPE],
+          },
+          {
+            type: [LITERAL_NODE_TYPE],
+          },
+          {
+            type: [NUMBER_NODE_TYPE],
+            required: false,
+          },
+        ],
+        returnType: [BOOLEAN_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.REGEXREPLACE,
+        sqlFn: textFunctionsToSqlMap.REGEXREPLACE,
       },
     ],
     // JOIN: [
