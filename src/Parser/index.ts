@@ -266,7 +266,7 @@ export default class Parser {
         tokenTypesList.get('ARRAYRPAR') as TokenType,
       );
       if (isBracketsEmpty) {
-        return new ArrayNode(leftPar, []);
+        FormulaError.emptyArray(leftPar.pos);
       }
       const args = this.parseEnumeratedElems();
       this.require(tokenTypesList.get('ARRAYRPAR') as TokenType);
@@ -531,7 +531,7 @@ export default class Parser {
       // if (elems.length === 0){
       //   FormulaError.emptyArray();
       // }
-      FormulaError.unexpectedArrayDataType(node.start)
+      FormulaError.unexpectedArrayDataType(node.start);
     }
 
     const stringifiedElems = `[${elems.map((i) => this.stringifyAst({ node: i, format, safe, values, bpiumValues }))}]`;
@@ -795,7 +795,9 @@ export default class Parser {
   }
 
   private getArrayReturnType({
-    node, ctx, position
+    node,
+    ctx,
+    position,
   }: GetReturnTypeArgs<ArrayNode>): INodeReturnType {
     const elementsTypes = node.elements.map((i) => this.getReturnType(i));
 
@@ -805,10 +807,12 @@ export default class Parser {
       for (const variant of returnTypeArr) {
         resultSet.add(variant);
       }
-    })
+    });
 
     if (resultSet.size === 1) {
-      const res = this.prepareReturnType(Array.from(resultSet)[0] + ARRAY_NODE_TYPE);
+      const res = this.prepareReturnType(
+        Array.from(resultSet)[0] + ARRAY_NODE_TYPE,
+      );
       this.setReturnTypeInCache(res, node.start, node.end);
       return res;
     }

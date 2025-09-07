@@ -75,6 +75,14 @@ export class FormulaError extends Error {
     );
   }
 
+  static emptyArray(position: number): never {
+    throw new FormulaError(
+      `Empty array at the position ${position}`,
+      'emptyArray',
+      [position],
+    );
+  }
+
   /**
    * Throws an error when in functions arguments list incorrect args count.
    * @param {number} position - The position of the syntax error.
@@ -103,10 +111,10 @@ export class FormulaError extends Error {
   }
 
   /**
- * Throws an error when a array list is expected but missing.
- * @param {number} position - The position where list are expected.
- * @throws {FormulaError}
- */
+   * Throws an error when a array list is expected but missing.
+   * @param {number} position - The position where list are expected.
+   * @throws {FormulaError}
+   */
   static expectedArrayElements(position: number): never {
     throw new FormulaError(
       `Expected array elements list at the position ${position}`,
@@ -245,7 +253,6 @@ export class FormulaError extends Error {
       [position],
     );
   }
-
 
   /**
    * Throws an error when an unsupported operation is attempted.
