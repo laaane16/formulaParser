@@ -156,4 +156,24 @@ describe('execute text funcs', () => {
    * TOSTRING(1 / 0) -> NULL
    * TOSTRING('') -> ''
    */
+
+  test('regex match', () => {
+    const parser = new Parser('REGEXMATCH("Hello 1", "\\d")');
+    expect(parser.toSqlWithVariables()).toBe(
+      "BPIUMREGEXMATCH('Hello 1', '\\d', 0)",
+    );
+  });
+
+  /**
+   * REGEXMATCH("Hello 1", "\\d") -> true
+   * REGEXMATCH("Hello 1", "h", 2) -> false
+   * REGEXMATCH("Hello 1", "h", 1) -> true
+   */
+
+  test('regex replace', () => {
+    const parser = new Parser('REGEXREPLACE("1 H 1", "\\d", "2")');
+    expect(parser.toSqlWithVariables()).toBe(
+      "BPIUMREGEXREPLACE('1 H 1', '\\d', '2', 0)",
+    );
+  });
 });

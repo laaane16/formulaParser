@@ -199,4 +199,40 @@ describe('execute text funcs', () => {
 
     expect(parser.runJs(js)).toBe('');
   });
+  test('regex match', () => {
+    const parser = new Parser('REGEXMATCH("Hello 1", "\\d")');
+    const js = parser.toJs();
+
+    expect(parser.runJs(js)).toBe(true);
+  });
+  test('regex match with incorrect mode', () => {
+    const parser = new Parser('REGEXMATCH("Hello 1", "h", 2)');
+    const js = parser.toJs();
+
+    expect(parser.runJs(js)).toBe(false);
+  });
+  test('regex match with correct mode', () => {
+    const parser = new Parser('REGEXMATCH("Hello 1", "h", 1)');
+    const js = parser.toJs();
+
+    expect(parser.runJs(js)).toBe(true);
+  });
+  test('regex replace', () => {
+    const parser = new Parser('REGEXREPLACE("1 H 1", "\\d", "2")');
+    const js = parser.toJs();
+
+    expect(parser.runJs(js)).toBe('2 H 1');
+  });
+  test('regex replace with incorrect mode', () => {
+    const parser = new Parser('REGEXREPLACE("1 H 1", "\\d", "2", 2)');
+    const js = parser.toJs();
+
+    expect(parser.runJs(js)).toBe('2 H 1');
+  });
+  test('regex replace with correct mode', () => {
+    const parser = new Parser('REGEXREPLACE("1 H 1", "\\d", "2", 1)');
+    const js = parser.toJs();
+
+    expect(parser.runJs(js)).toBe('2 H 2');
+  });
 });
