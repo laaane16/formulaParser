@@ -13,8 +13,13 @@ export const BOOLEAN_NODE_TYPE = 'BooleanNode';
 export const IF_STATEMENT_NODE_TYPE = 'IfStatementNode';
 export const NULL_NODE_TYPE = 'NullNode';
 export const SPACE_NODE_TYPE = 'SpaceNode';
-
+export const ARRAY_NODE_TYPE = 'ArrayNode';
 export const UNKNOWN_NODE_TYPE = 'unknown';
+
+export const NUMBER_ARRAY_NODE_TYPE = `${NUMBER_NODE_TYPE}ArrayNode`;
+export const LITERAL_ARRAY_NODE_TYPE = `${LITERAL_NODE_TYPE}ArrayNode`;
+export const DATE_ARRAY_NODE_TYPE = `${DATE_NODE_TYPE}ArrayNode`;
+export const BOOLEAN_ARRAY_NODE_TYPE = `${BOOLEAN_NODE_TYPE}ArrayNode`;
 
 export const NODE_TYPES = {
   NULL: NULL_NODE_TYPE,
@@ -29,6 +34,11 @@ export const NODE_TYPES = {
   UNAR_OPERATION: UNAR_OPERATION_NODE_TYPE,
   VARIABLE: VARIABLE_NODE_TYPE,
   IF_STATEMENT: IF_STATEMENT_NODE_TYPE,
+  ARRAY: ARRAY_NODE_TYPE,
+  NUMBER_ARRAY: NUMBER_ARRAY_NODE_TYPE,
+  LITERAL_ARRAY: LITERAL_ARRAY_NODE_TYPE,
+  DATE_ARRAY: DATE_ARRAY_NODE_TYPE,
+  BOOLEAN_ARRAY: BOOLEAN_ARRAY_NODE_TYPE
 } as const;
 
 export type NodeTypesValues = (typeof NODE_TYPES)[keyof typeof NODE_TYPES];

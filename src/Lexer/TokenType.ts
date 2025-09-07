@@ -39,6 +39,8 @@ export const tokenTypesList: Map<string, TokenType> = new Map([
   ['SPACE', new TokenType('SPACE', '[ \\n\\t\\r]')],
   ['LPAR', new TokenType('LPAR', '\\(')],
   ['RPAR', new TokenType('RPAR', '\\)')],
+  ['ARRAYLPAR', new TokenType('ARRAYLPAR', '\\[')],
+  ['ARRAYRPAR', new TokenType('ARRAYRPAR', '\\]')],
   ['VIRGULE', new TokenType('VIRGULE', ',')],
 
   // UNAR_OPERATORS

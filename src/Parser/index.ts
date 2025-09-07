@@ -18,6 +18,7 @@ import UnarOperationNode from '../AST/UnarOperationNode';
 import IfStatementNode from '../AST/IfStatementNode';
 import BooleanNode from '../AST/BooleanNode';
 import SpaceNode from '../AST/SpaceNode';
+import ArrayNode from '../AST/ArrayNode';
 
 import { allFunctions } from './mappers/functions';
 import { isSafeFunction, ValidFunctionsNames } from './mappers/functions/types';
@@ -32,6 +33,7 @@ import {
 
 import { FORMATS } from '../constants/formats';
 import {
+  ARRAY_NODE_TYPE,
   BIN_OPERATION_NODE_TYPE,
   BOOLEAN_NODE_TYPE,
   FUNCTION_NODE_TYPE,
@@ -83,6 +85,7 @@ export default class Parser {
       [LiteralNode, this.stringifyLiteralNode.bind(this)],
       [BooleanNode, this.stringifyBooleanNode.bind(this)],
       [VariableNode, this.stringifyVariableNode.bind(this)],
+      [ArrayNode, this.stringifyArrayNode.bind(this)],
       [ParenthesizedNode, this.stringifyParenthesizedNode.bind(this)],
       [UnarOperationNode, this.stringifyUnarOperationNode.bind(this)],
       [BinOperationNode, this.stringifyBinOperationNode.bind(this)],
@@ -96,6 +99,7 @@ export default class Parser {
       [LiteralNode, this.getPrimitiveReturnType.bind(this)],
       [BooleanNode, this.getPrimitiveReturnType.bind(this)],
       [VariableNode, this.getVariableReturnType.bind(this)],
+      [ArrayNode, this.getArrayReturnType.bind(this)],
       [ParenthesizedNode, this.getParenthesizedReturnType.bind(this)],
       [UnarOperationNode, this.getUnarReturnType.bind(this)],
       [BinOperationNode, this.getBinReturnType.bind(this)],
@@ -154,6 +158,7 @@ export default class Parser {
       this.parseVariableNode,
       this.parseUnarOperatorNode,
       this.parseParenthesizedNode,
+      this.parseArrayNode,
       this.parseIfStatementNode,
       this.parseFunctionNode,
     ];
@@ -254,6 +259,22 @@ export default class Parser {
     return null;
   }
 
+  parseArrayNode(): ArrayNode | null {
+    const leftPar = this.match(tokenTypesList.get('ARRAYLPAR') as TokenType);
+    if (leftPar) {
+      const isBracketsEmpty = !!this.match(
+        tokenTypesList.get('ARRAYRPAR') as TokenType,
+      );
+      if (isBracketsEmpty) {
+        return new ArrayNode(leftPar, []);
+      }
+      const args = this.parseEnumeratedElems();
+      this.require(tokenTypesList.get('ARRAYRPAR') as TokenType);
+      return new ArrayNode(leftPar, args);
+    }
+    return null;
+  }
+
   parseIfStatementNode(): IfStatementNode | null {
     const ifStatement = this.match(tokenTypesList.get('IF') as TokenType);
     if (ifStatement) {
@@ -307,7 +328,7 @@ export default class Parser {
         if (isBracketsEmpty) {
           return new FunctionNode(func, func.text.toUpperCase(), []);
         }
-        const args = this.parseFunctionArgs();
+        const args = this.parseEnumeratedElems();
         this.require(tokenTypesList.get('RPAR') as TokenType);
         return new FunctionNode(func, func.text.toUpperCase(), args);
       }
@@ -316,7 +337,7 @@ export default class Parser {
     return null;
   }
 
-  parseFunctionArgs(): ExpressionNode[] {
+  parseEnumeratedElems(): ExpressionNode[] {
     const result = [];
     let currentNode = this.parseFormula();
     if (!currentNode) {
@@ -495,6 +516,30 @@ export default class Parser {
     bpiumValues,
   }: StringifyArgs & { node: ParenthesizedNode }) {
     return `(${this.stringifyAst({ node: node.expression, format, safe, values, bpiumValues })})`;
+  }
+
+  private stringifyArrayNode({
+    node,
+    format,
+    safe,
+    values,
+    bpiumValues,
+  }: StringifyArgs & { node: ArrayNode }) {
+    const elems = node.elements;
+    const [operatorType] = this.getReturnType(node);
+    if (operatorType.has(UNKNOWN_NODE_TYPE)) {
+      // if (elems.length === 0){
+      //   FormulaError.emptyArray();
+      // }
+      FormulaError.unexpectedArrayDataType(node.start)
+    }
+
+    const stringifiedElems = `[${elems.map((i) => this.stringifyAst({ node: i, format, safe, values, bpiumValues }))}]`;
+    if (format === FORMATS.JS) {
+      return stringifiedElems;
+    }
+
+    return `ARRAY${stringifiedElems}`;
   }
 
   private stringifyUnarOperationNode({
@@ -747,6 +792,30 @@ export default class Parser {
       return this.prepareReturnType(variableType);
     }
     return this.prepareReturnType(UNKNOWN_NODE_TYPE);
+  }
+
+  private getArrayReturnType({
+    node, ctx, position
+  }: GetReturnTypeArgs<ArrayNode>): INodeReturnType {
+    const elementsTypes = node.elements.map((i) => this.getReturnType(i));
+
+    const [resultSet] = [new Set<string>()];
+    elementsTypes.forEach(([returnType]) => {
+      const returnTypeArr = Array.from(returnType);
+      for (const variant of returnTypeArr) {
+        resultSet.add(variant);
+      }
+    })
+
+    if (resultSet.size === 1) {
+      const res = this.prepareReturnType(Array.from(resultSet)[0] + ARRAY_NODE_TYPE);
+      this.setReturnTypeInCache(res, node.start, node.end);
+      return res;
+    }
+
+    const res = this.prepareReturnType(UNKNOWN_NODE_TYPE);
+    this.setReturnTypeInCache(res, node.start, node.end);
+    return res;
   }
 
   private getParenthesizedReturnType({

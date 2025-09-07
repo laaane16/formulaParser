@@ -103,6 +103,19 @@ export class FormulaError extends Error {
   }
 
   /**
+ * Throws an error when a array list is expected but missing.
+ * @param {number} position - The position where list are expected.
+ * @throws {FormulaError}
+ */
+  static expectedArrayElements(position: number): never {
+    throw new FormulaError(
+      `Expected array elements list at the position ${position}`,
+      'expectedArrayElements',
+      [position],
+    );
+  }
+
+  /**
    * Throws an error when a conditional operator is empty.
    * @param {number} position - The position of the empty conditional.
    * @throws {FormulaError}
@@ -224,6 +237,15 @@ export class FormulaError extends Error {
       [position, operator],
     );
   }
+
+  static unexpectedArrayDataType(position: number): never {
+    throw new FormulaError(
+      `Array supported only equality data types on the position ${position}`,
+      'unexpectedArrayDataType',
+      [position],
+    );
+  }
+
 
   /**
    * Throws an error when an unsupported operation is attempted.

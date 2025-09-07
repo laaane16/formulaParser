@@ -314,7 +314,7 @@ const bpiumValues = {
   recordDbId: 12,
 };
 
-const expression = 'SEARCH("Hello", "o")';
+const expression = '["21312", CONCAT("", 123)]';
 
 const parser = new Parser(expression, variables);
 
