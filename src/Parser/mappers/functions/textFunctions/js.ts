@@ -174,16 +174,16 @@ export const textFunctionsToJsMap: Record<
    */
   LEN: ([str]: string[]): string => `(${str}).length`,
 
-  // /**
-  //  * @function JOIN
-  //  * @param {string[]} args -
-  //  *  [0] - separator
-  //  *  [1, ...] - values
-  //  * @returns {string} Js format JOIN expression.
-  //  * @example
-  //  * JOIN(['","', '"1"', '1']) // => '["1", 1].join(",")'
-  //  */
-  // JOIN: ([sep, ...vals]) => `[${vals}].filter(v => v).join(${sep})`,
+  /**
+   * @function JOIN
+   * @param {string[]} args -
+   *  [0] - separator
+   *  [1, ...] - values
+   * @returns {string} Js format JOIN expression.
+   * @example
+   * JOIN(['","', '"1"', '1']) // => 'ARRAY_TO_STRING(['1', '1'], ",")'
+   */
+  JOIN: ([vals, sep]) => `${vals}.filter(v => v).join(${sep})`,
 
   /**
    * @function TOSTRING

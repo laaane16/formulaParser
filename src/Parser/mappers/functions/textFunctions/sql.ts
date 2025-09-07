@@ -163,16 +163,16 @@ export const textFunctionsToSqlMap: Record<
    */
   LEN: (args: string[]): string => `LENGTH(${args})`,
 
-  // /**
-  //  * @function JOIN
-  //  * @param {string[]} args -
-  //  *  [0] - separator
-  //  *  [1, ...] - values
-  //  * @returns {string} Sql format LENGTH expression.
-  //  * @example
-  //  * JOIN(['","', '"1"', '1']) // => 'CONCAT_WS(',', '1', 1)'
-  //  */
-  // JOIN: ([sep, ...vals]) => `CONCAT_WS(${sep}, ${vals})`,
+  /**
+   * @function JOIN
+   * @param {string[]} args -
+   *  [0] - separator
+   *  [1, ...] - values
+   * @returns {string} Sql format LENGTH expression.
+   * @example
+   * JOIN(['","', '"1"', '1']) // => 'ARRAY_TO_STRING(['1', '1'], ",")'
+   */
+  JOIN: ([vals, sep]) => `ARRAY_TO_STRING(${vals}, ${sep})`,
 
   /**
    * @function TOSTRING

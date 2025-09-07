@@ -11,7 +11,7 @@ export type ValidTextFunctionsNamesWithSafe =
   | 'LEFT'
   | 'RIGHT'
   | 'LEN'
-  // | 'JOIN'
+  | 'JOIN'
   | 'TOSTRING'
   | 'DATETOSTRING';
 
