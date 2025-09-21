@@ -490,7 +490,7 @@ export default class Parser {
       if (format === FORMATS.JS) {
         const preparedVar = `$$VARIABLES['${globalVarKey}']`;
 
-        if (!defaultValue){
+        if (defaultValue === undefined){
           return preparedVar
         }
 
@@ -507,7 +507,7 @@ export default class Parser {
         const preparedValue = this.prepareVariableValue(value);
 
 
-        if (!defaultValue){
+        if (defaultValue === undefined){
           return String(preparedValue)
         }
 
