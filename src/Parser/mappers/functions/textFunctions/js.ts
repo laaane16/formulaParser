@@ -184,6 +184,9 @@ export const textFunctionsToJsMap: Record<
    * JOIN(['","', '"1"', '1']) // => 'ARRAY_TO_STRING(['1', '1'], ",")'
    */
   JOIN: ([vals, sep]) => `${vals}.filter(v => v).join(${sep})`,
+  JOINFORITEMS: ([vals, sep, attr]) => attr ?
+   `(((${attr}) === 'id' || (${attr}) === 'title') ? (${vals}).map(i => i[${attr}]).filter(v => v).join(${sep}): null)` :
+   `(${vals}).map(i => i.name).filter(v => v).join(${sep})`,
 
   /**
    * @function TOSTRING

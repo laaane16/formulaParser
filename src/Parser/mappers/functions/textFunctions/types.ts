@@ -12,10 +12,11 @@ export type ValidTextFunctionsNamesWithSafe =
   | 'RIGHT'
   | 'LEN'
   | 'JOIN'
+  | 'JOINFORITEMS'
   | 'TOSTRING'
   | 'DATETOSTRING';
 
 export type ValidTextFunctionsNames = Exclude<
   ValidTextFunctionsNamesWithSafe,
-  'SAFETRIM' | 'DATETOSTRING'
+  'SAFETRIM' | 'DATETOSTRING'| 'JOINFORITEMS'
 >;

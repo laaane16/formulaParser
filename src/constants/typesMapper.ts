@@ -1,16 +1,19 @@
 import { DateTime } from 'luxon';
-import { NUMBER, PROGRESS, STARS, SWITCH } from './fieldTypes';
+import { CHECKBOXES, DROPDOWN, NUMBER, PROGRESS, STARS, SWITCH } from './fieldTypes';
 import {
   NUMBER_NODE_TYPE,
   LITERAL_NODE_TYPE,
   BOOLEAN_NODE_TYPE,
   DATE_NODE_TYPE,
+  ARRAY_WITH_ITEMS_NODE,
 } from './nodeTypes';
 
 export const typesMapper = {
   [PROGRESS]: NUMBER,
   [STARS]: NUMBER,
   [SWITCH]: BOOLEAN_NODE_TYPE,
+  [DROPDOWN]: ARRAY_WITH_ITEMS_NODE,
+  [CHECKBOXES]: ARRAY_WITH_ITEMS_NODE,
 };
 
 export const ifTypesMapper: Record<string, string> = {
@@ -66,7 +69,7 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
           : Number(res),
   [LITERAL_NODE_TYPE]: (res: unknown) => (res === null ? null : String(res)),
   [DATE_NODE_TYPE]: (res: unknown): DateTime =>
-    DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
+       DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
   [BOOLEAN_NODE_TYPE]: (res: unknown) => (res === null ? null : Boolean(res)),
 };
 

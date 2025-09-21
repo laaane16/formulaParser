@@ -2,7 +2,7 @@ import { ARRAY_NODE_TYPE } from '../constants/nodeTypes';
 import Token from '../Lexer/Token';
 import ExpressionNode from './ExpressionNode';
 
-export default class NumberNode extends ExpressionNode {
+export default class ArrayNode extends ExpressionNode {
   elements: ExpressionNode[] = [];
 
   constructor(leftPar: Token, elements: ExpressionNode[]) {

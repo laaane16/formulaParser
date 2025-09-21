@@ -39,6 +39,7 @@ import {
   FUNCTION_NODE_TYPE,
   IF_STATEMENT_NODE_TYPE,
   LITERAL_NODE_TYPE,
+  NESTED_ARRAY_NODE_TYPE,
   NodeTypesValues,
   NUMBER_NODE_TYPE,
   PARENTHESIZED_NODE_TYPE,
@@ -66,6 +67,7 @@ import {
 import { operatorPrecedence } from '../constants/operatorPrecedence';
 import { defaultValues } from '../constants/defaultValues';
 import { FormulaError } from '../lib/exceptions';
+import { DROPDOWN } from '../constants/fieldTypes';
 
 export default class Parser {
   tokens: Token[];
@@ -484,12 +486,15 @@ export default class Parser {
         typesMapper[variableType as keyof typeof typesMapper] || variableType;
 
       const defaultValue = defaultValues[format][variableType];
-      const alternateValue = "''";
 
       if (format === FORMATS.JS) {
         const preparedVar = `$$VARIABLES['${globalVarKey}']`;
 
-        return `(${preparedVar} === null ? ${defaultValue ?? alternateValue}: ${preparedVar})`;
+        if (!defaultValue){
+          return preparedVar
+        }
+
+        return `(${preparedVar} === null ? ${defaultValue}: ${preparedVar})`;
       } else {
         if (!values) {
           FormulaError.requiredParamsError(['values']);
@@ -501,7 +506,12 @@ export default class Parser {
         }
         const preparedValue = this.prepareVariableValue(value);
 
-        return `COALESCE(${preparedValue}, ${defaultValue ?? alternateValue})`;
+
+        if (!defaultValue){
+          return String(preparedValue)
+        }
+
+        return `COALESCE(${preparedValue}, ${defaultValue})`;
       }
     }
 
@@ -528,9 +538,6 @@ export default class Parser {
     const elems = node.elements;
     const [operatorType] = this.getReturnType(node);
     if (operatorType.has(UNKNOWN_NODE_TYPE)) {
-      // if (elems.length === 0){
-      //   FormulaError.emptyArray();
-      // }
       FormulaError.unexpectedArrayDataType(node.start);
     }
 
@@ -810,9 +817,19 @@ export default class Parser {
     });
 
     if (resultSet.size === 1) {
-      const res = this.prepareReturnType(
-        Array.from(resultSet)[0] + ARRAY_NODE_TYPE,
-      );
+
+      const type = Array.from(resultSet)[0];
+      let preparedType;
+      if (type.includes(NESTED_ARRAY_NODE_TYPE)){
+        preparedType = type;
+      }
+      else if (type.includes(ARRAY_NODE_TYPE)){
+        preparedType = type.replace(ARRAY_NODE_TYPE, NESTED_ARRAY_NODE_TYPE);
+      }else{
+         preparedType = type + ARRAY_NODE_TYPE;
+      }
+
+      const res = this.prepareReturnType(preparedType);
       this.setReturnTypeInCache(res, node.start, node.end);
       return res;
     }

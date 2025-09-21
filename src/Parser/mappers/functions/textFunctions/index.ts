@@ -1,4 +1,7 @@
 import {
+  ARRAY_WITH_ITEMS_NODE,
+  BOOLEAN_ARRAY_NODE_TYPE,
+  DATE_ARRAY_NODE_TYPE,
   DATE_NODE_TYPE,
   LITERAL_ARRAY_NODE_TYPE,
   LITERAL_NODE_TYPE,
@@ -31,7 +34,7 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
       {
         args: [
           {
-            type: [LITERAL_ARRAY_NODE_TYPE, NUMBER_ARRAY_NODE_TYPE],
+            type: [LITERAL_ARRAY_NODE_TYPE, NUMBER_ARRAY_NODE_TYPE, BOOLEAN_ARRAY_NODE_TYPE, DATE_ARRAY_NODE_TYPE],
           },
           {
             type: [LITERAL_NODE_TYPE],
@@ -40,6 +43,24 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.JOIN,
         sqlFn: textFunctionsToSqlMap.JOIN,
+        specialWorkWithNull: true,
+      },
+      {
+        args: [
+          {
+            type: [ARRAY_WITH_ITEMS_NODE],
+          },
+          {
+            type: [LITERAL_NODE_TYPE],
+          },
+          {
+            type: [LITERAL_NODE_TYPE],
+            required: false
+          }
+        ],
+        returnType: [LITERAL_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.JOINFORITEMS,
+        sqlFn: textFunctionsToSqlMap.JOINFORITEMS,
         specialWorkWithNull: true,
       },
     ],

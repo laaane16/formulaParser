@@ -2,6 +2,7 @@
  * In this file we work with strings - NODE_STRING_TYPE as ''!!!
  */
 
+import { getArrayWithNames } from '../arrayFunctions/sql';
 import { IFormatterFunc } from '../types';
 import { ValidTextFunctionsNamesWithSafe } from './types';
 
@@ -173,6 +174,10 @@ export const textFunctionsToSqlMap: Record<
    * JOIN(['","', '"1"', '1']) // => 'ARRAY_TO_STRING(['1', '1'], ",")'
    */
   JOIN: ([vals, sep]) => `ARRAY_TO_STRING(${vals}, ${sep})`,
+  JOINFORITEMS: ([vals, sep, attr]) =>
+  attr?
+    `(CASE (${attr}) WHEN 'id' THEN ARRAY_TO_STRING(${vals}, ${sep}) WHEN 'name' THEN ARRAY_TO_STRING(${getArrayWithNames(vals)}, ${sep}) ELSE NULL END)`:
+    `ARRAY_TO_STRING(${getArrayWithNames(vals)}, ${sep})`,
 
   /**
    * @function TOSTRING
