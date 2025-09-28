@@ -1266,6 +1266,8 @@ export default class Parser {
         result += `${n.operator.text}${traverse(n.operand)}`;
       } else if (n instanceof BinOperationNode) {
         result += `${traverse(n.left)}${n.operator.text}${traverse(n.right)}`;
+      } else if (n instanceof ArrayNode) {
+        result += `[${n.elements.map((i) => traverse(i))}]`;
       } else if (n instanceof IfStatementNode) {
         result += `${n.ifToken.text}(${traverse(n.test)},${traverse(n.consequent)},${traverse(n.alternate)})`;
       } else if (n instanceof FunctionNode) {
