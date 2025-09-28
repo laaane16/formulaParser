@@ -1,3 +1,4 @@
+import ArrayNode from '../AST/ArrayNode';
 import BinOperationNode from '../AST/BinOperationNode';
 import BooleanNode from '../AST/BooleanNode';
 import ExpressionNode from '../AST/ExpressionNode';
@@ -55,6 +56,7 @@ export type NodeStringifierMap = [
   [typeof LiteralNode, StringifyFn<LiteralNode>],
   [typeof BooleanNode, StringifyFn<BooleanNode>],
   [typeof VariableNode, StringifyFn<VariableNode>],
+  [typeof ArrayNode, StringifyFn<ArrayNode>],
   [typeof ParenthesizedNode, StringifyFn<ParenthesizedNode>],
   [typeof UnarOperationNode, StringifyFn<UnarOperationNode>],
   [typeof BinOperationNode, StringifyFn<BinOperationNode>],
@@ -67,6 +69,7 @@ export type NodeTypesGettersMap = [
   [typeof LiteralNode, GetReturnTypeFn<LiteralNode>],
   [typeof BooleanNode, GetReturnTypeFn<BooleanNode>],
   [typeof VariableNode, GetReturnTypeFn<VariableNode>],
+  [typeof ArrayNode, GetReturnTypeFn<ArrayNode>],
   [typeof ParenthesizedNode, GetReturnTypeFn<ParenthesizedNode>],
   [typeof UnarOperationNode, GetReturnTypeFn<UnarOperationNode>],
   [typeof BinOperationNode, GetReturnTypeFn<BinOperationNode>],

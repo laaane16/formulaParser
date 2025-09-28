@@ -1,19 +1,23 @@
 import { dateFunctions } from './dateFunctions';
 import { textFunctions } from './textFunctions';
 import { numberFunctions } from './numberFunctions';
-import { bpiumFunctions } from './bpiumFunctions';
+// import { bpiumFunctions } from './bpiumFunctions';
+import { logicFunctions } from './logicFunctions';
+import { arrayFunctions } from './arrayFunctions';
 
 import { isSafeFunction, ValidFunctionsNames, VariableFunction } from './types';
-import { logicFunctions } from './logicFunctions';
 
-// mutate all js funcs for supporting check nulls in arguments without large string
-Object.values({
+export const allFunctions: Record<ValidFunctionsNames, VariableFunction> = {
   ...textFunctions,
   ...numberFunctions,
   ...dateFunctions,
   ...logicFunctions,
+  ...arrayFunctions,
   // ...bpiumFunctions,
-}).forEach((func) => {
+};
+
+// mutate all js funcs for supporting check nulls in arguments without large string
+Object.values(allFunctions).forEach((func) => {
   func.forEach((variant) => {
     if (variant.specialWorkWithNull) {
       return;
@@ -37,11 +41,3 @@ Object.values({
     }
   });
 });
-
-export const allFunctions: Record<ValidFunctionsNames, VariableFunction> = {
-  ...textFunctions,
-  ...numberFunctions,
-  ...dateFunctions,
-  ...logicFunctions,
-  // ...bpiumFunctions,
-};

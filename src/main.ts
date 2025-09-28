@@ -248,15 +248,16 @@ export default class Parser {
     result: unknown,
     format: 'js' | 'sql',
     to: NodeTypesValues,
+    validate?: unknown,
   ): unknown {
     const resultType = typesMapper[to as keyof typeof typesMapper] || to;
     if (format === 'js') {
-      const res = JS_CAST_TYPES[resultType](result);
+      const res = JS_CAST_TYPES[resultType](result, validate);
       const preparedResult = this._prepareJsResult(res);
       return preparedResult;
     }
     if (format === 'sql') {
-      const res = SQL_CAST_TYPES[resultType](result);
+      const res = SQL_CAST_TYPES[resultType](result, validate);
       return res;
     }
   }
@@ -275,6 +276,9 @@ export default class Parser {
       case 'object':
         if (res === null) {
           return null;
+        }
+        if (Array.isArray(res)) {
+          return res;
         }
         if (res instanceof DateTime && res.isValid) {
           return res.toFormat('yyyy-LL-dd HH:mm:ssZZZ').slice(0, -2);
@@ -302,23 +306,35 @@ export default class Parser {
 //     id: '2',
 //     type: 'number',
 //   },
+//   status: {
+//     name: "status",
+//     id: "3",
+//     type: 'dropdown'
+//   }
 // };
 
 // const values: Record<string, unknown> = {
 //   1: '2012-12-12 00:00:00+03',
 //   some: 5000,
+//   status: [{id:'2', dbId: 123, name: 'Завершено'}, {id: "3", dbId: 124, name: "В процессе"}]
 // };
+
+// const sqlValues = {
+//   1: 'field1',
+//   some: 'field2',
+//   status: 'field5'
+// }
 
 // const bpiumValues = {
 //   catalogId: 'teeest',
 //   recordDbId: 12,
 // };
 
-// const expression = 'REGEXREPLACE("Hello 1 1 1", "\\d", "2", 1)';
+// const expression = "{status}";
 
 // const parser = new Parser(expression, variables);
 
-// const sqlQuery = parser.toSqlWithVariables(true, values, bpiumValues);
+// const sqlQuery = parser.toSqlWithVariables(true, sqlValues, bpiumValues);
 // console.log('SQL:', sqlQuery); // Outputs the generated SQL query
 
 // const jsFormula = parser.toJs(true, bpiumValues);
@@ -327,5 +343,6 @@ export default class Parser {
 // console.log('RUN JS:', parser.runJs(jsFormula, values));
 
 // console.log(
-//   parser.castResultType(parser.runJs(jsFormula, values), 'js', 'text'),
+//   parser.castResultType(parser.runJs(jsFormula, values), 'js', LITERAL_ARRAY_NODE_TYPE, [['2', '3'], ['Завершено', 'В процессе']]),
+//   parser.castResultType(sqlQuery, 'sql', LITERAL_ARRAY_NODE_TYPE, [['2', '3'], ['Завершено', 'В процессе'], "field5_names"]),
 // );

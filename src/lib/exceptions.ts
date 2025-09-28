@@ -75,6 +75,14 @@ export class FormulaError extends Error {
     );
   }
 
+  static emptyArray(position: number): never {
+    throw new FormulaError(
+      `Empty array at the position ${position}`,
+      'emptyArray',
+      [position],
+    );
+  }
+
   /**
    * Throws an error when in functions arguments list incorrect args count.
    * @param {number} position - The position of the syntax error.
@@ -98,6 +106,19 @@ export class FormulaError extends Error {
     throw new FormulaError(
       `Expected function argument list at the position ${position}`,
       'expectedFunctionArguments',
+      [position],
+    );
+  }
+
+  /**
+   * Throws an error when a array list is expected but missing.
+   * @param {number} position - The position where list are expected.
+   * @throws {FormulaError}
+   */
+  static expectedArrayElements(position: number): never {
+    throw new FormulaError(
+      `Expected array elements list at the position ${position}`,
+      'expectedArrayElements',
       [position],
     );
   }
@@ -222,6 +243,14 @@ export class FormulaError extends Error {
       `Unexpected type of data when ${operator} on the position ${position}`,
       'unexpectedDataType',
       [position, operator],
+    );
+  }
+
+  static unexpectedArrayDataType(position: number): never {
+    throw new FormulaError(
+      `Array supported only equality data types on the position ${position}`,
+      'unexpectedArrayDataType',
+      [position],
     );
   }
 

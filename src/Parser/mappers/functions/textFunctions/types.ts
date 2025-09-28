@@ -11,7 +11,8 @@ export type ValidTextFunctionsNamesWithSafe =
   | 'LEFT'
   | 'RIGHT'
   | 'LEN'
-  // | 'JOIN'
+  | 'JOIN'
+  | 'JOINFORITEMS'
   | 'TOSTRING'
   | 'REGEXMATCH'
   | 'REGEXREPLACE'
@@ -19,5 +20,5 @@ export type ValidTextFunctionsNamesWithSafe =
 
 export type ValidTextFunctionsNames = Exclude<
   ValidTextFunctionsNamesWithSafe,
-  'SAFETRIM' | 'DATETOSTRING'
+  'SAFETRIM' | 'DATETOSTRING' | 'JOINFORITEMS'
 >;

@@ -130,22 +130,24 @@ describe('execute text funcs', () => {
    * return in psql 3
    */
 
-  // test('join with nums and strs', () => {
-  //   const parser = new Parser('JOIN(",", "213", "test", 213)');
-  //   expect(parser.toSqlWithVariables()).toBe(
-  //     "CONCAT_WS(',', '213','test',213)",
-  //   );
-  // });
-  // test('join with nums and strs and null', () => {
-  //   const parser = new Parser('JOIN(",", "213", "test", 213, 1 / 0)');
-  //   expect(parser.toSqlWithVariables(true)).toBe(
-  //     "CONCAT_WS(',', '213','test',213,(CASE WHEN (0) != 0 THEN (1)::numeric / 0 ELSE NULL END))",
-  //   );
-  // });
-  // /**
-  //  * JOIN(',', 'str', 2) -> 'str,2'
-  //  * JOIN(',', 'str', 2, 1/0) -> 'str,2'
-  //  */
+  test('join with strs array', () => {
+    const parser = new Parser('JOIN(["213", "test", "213"], ",")');
+    expect(parser.toSqlWithVariables()).toBe(
+      "ARRAY_TO_STRING(ARRAY['213','test','213'], ',')",
+    );
+  });
+  test('join with nums array', () => {
+    const parser = new Parser('JOIN([1, 2, 3], ",")');
+    expect(parser.toSqlWithVariables()).toBe(
+      "ARRAY_TO_STRING(ARRAY[1,2,3], ',')",
+    );
+  });
+  test('join with nums array, null should be ignored', () => {
+    const parser = new Parser('JOIN([1, 2, 3, 1 / 0], ",")');
+    expect(parser.toSqlWithVariables(true)).toBe(
+      "ARRAY_TO_STRING(ARRAY[1,2,3,(CASE WHEN (0) != 0 THEN ROUND((1)::numeric / 0, 10)::NUMERIC ELSE NULL END)], ',')",
+    );
+  });
 
   test('to string', () => {
     const parser = new Parser('TOSTRING(1)');

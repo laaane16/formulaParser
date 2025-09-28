@@ -1,7 +1,12 @@
 import {
+  ARRAY_WITH_ITEMS_NODE,
+  BOOLEAN_ARRAY_NODE_TYPE,
   BOOLEAN_NODE_TYPE,
+  DATE_ARRAY_NODE_TYPE,
   DATE_NODE_TYPE,
+  LITERAL_ARRAY_NODE_TYPE,
   LITERAL_NODE_TYPE,
+  NUMBER_ARRAY_NODE_TYPE,
   NUMBER_NODE_TYPE,
 } from '../../../../constants/nodeTypes';
 import { VariableFunction } from '../types';
@@ -62,28 +67,41 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
             required: false,
           },
         ],
-        returnType: [BOOLEAN_NODE_TYPE],
+        returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.REGEXREPLACE,
         sqlFn: textFunctionsToSqlMap.REGEXREPLACE,
       },
     ],
-    // JOIN: [
-    //   {
-    //     args: [
-    //       {
-    //         type: [LITERAL_NODE_TYPE],
-    //       },
-    //       {
-    //         type: [LITERAL_NODE_TYPE, NUMBER_NODE_TYPE],
-    //         many: true,
-    //       },
-    //     ],
-    //     returnType: [LITERAL_NODE_TYPE],
-    //     jsFn: textFunctionsToJsMap.JOIN,
-    //     sqlFn: textFunctionsToSqlMap.JOIN,
-    //     specialWorkWithNull: true,
-    //   },
-    // ],
+    JOIN: [
+      {
+        args: [
+          {
+            type: [
+              LITERAL_ARRAY_NODE_TYPE,
+              NUMBER_ARRAY_NODE_TYPE,
+              BOOLEAN_ARRAY_NODE_TYPE,
+              DATE_ARRAY_NODE_TYPE,
+            ],
+          },
+        ],
+        returnType: [LITERAL_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.JOIN,
+        sqlFn: textFunctionsToSqlMap.JOIN,
+        specialWorkWithNull: true,
+      },
+      {
+        args: [
+          {
+            type: [ARRAY_WITH_ITEMS_NODE],
+            required: false,
+          },
+        ],
+        returnType: [LITERAL_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.JOINFORITEMS,
+        sqlFn: textFunctionsToSqlMap.JOINFORITEMS,
+        specialWorkWithNull: true,
+      },
+    ],
     TRIM: [
       {
         args: [

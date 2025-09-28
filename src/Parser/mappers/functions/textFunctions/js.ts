@@ -179,16 +179,20 @@ export const textFunctionsToJsMap: Record<
    */
   LEN: ([str]: string[]): string => `(${str}).length`,
 
-  // /**
-  //  * @function JOIN
-  //  * @param {string[]} args -
-  //  *  [0] - separator
-  //  *  [1, ...] - values
-  //  * @returns {string} Js format JOIN expression.
-  //  * @example
-  //  * JOIN(['","', '"1"', '1']) // => '["1", 1].join(",")'
-  //  */
-  // JOIN: ([sep, ...vals]) => `[${vals}].filter(v => v).join(${sep})`,
+  /**
+   * @function JOIN
+   * @param {string[]} args -
+   *  [0] - separator
+   *  [1, ...] - values
+   * @returns {string} Js format JOIN expression.
+   * @example
+   * JOIN(['","', '"1"', '1']) // => 'ARRAY_TO_STRING(['1', '1'], ",")'
+   */
+  JOIN: ([vals, sep]) => `${vals}.filter(v => v).join(${sep})`,
+  JOINFORITEMS: ([vals, sep, attr]) =>
+    attr
+      ? `(((${attr}) === 'id' || (${attr}) === 'title') ? (${vals}).map(i => i[${attr}]).filter(v => v).join(${sep}): null)`
+      : `(${vals}).map(i => i.name).filter(v => v).join(${sep})`,
 
   /**
    * @function TOSTRING

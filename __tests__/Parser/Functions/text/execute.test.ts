@@ -169,18 +169,24 @@ describe('execute text funcs', () => {
 
     expect(parser.runJs(js)).toBe(3);
   });
-  // test('join with nums and strs', () => {
-  //   const parser = new Parser('JOIN(",", "213", "test", 213)');
-  //   const js = parser.toJs();
+  test('join with strs array', () => {
+    const parser = new Parser('JOIN(["213", "test", "213"], ",")');
+    const js = parser.toJs();
 
-  //   expect(parser.runJs(js)).toBe('213,test,213');
-  // });
-  // test('join with nums and strs', () => {
-  //   const parser = new Parser('JOIN(",", "213", "test", 213, 1 / 0)');
-  //   const js = parser.toJs(true);
+    expect(parser.runJs(js)).toBe('213,test,213');
+  });
+  test('join with nums array', () => {
+    const parser = new Parser('JOIN([1, 2, 3], ",")');
+    const js = parser.toJs();
 
-  //   expect(parser.runJs(js)).toBe('213,test,213');
-  // });
+    expect(parser.runJs(js)).toBe('1,2,3');
+  });
+  test('join with nums and null, null should be ignored', () => {
+    const parser = new Parser('JOIN([1, 2, 3, 1 / 0], ",")');
+    const js = parser.toJs(true);
+
+    expect(parser.runJs(js)).toBe('1,2,3');
+  });
   test('to string', () => {
     const parser = new Parser('TOSTRING(1)');
     const js = parser.toJs();
