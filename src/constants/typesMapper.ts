@@ -1,11 +1,19 @@
 import { DateTime } from 'luxon';
-import { CHECKBOXES, DROPDOWN, NUMBER, PROGRESS, STARS, SWITCH } from './fieldTypes';
+import {
+  CHECKBOXES,
+  DROPDOWN,
+  NUMBER,
+  PROGRESS,
+  STARS,
+  SWITCH,
+} from './fieldTypes';
 import {
   NUMBER_NODE_TYPE,
   LITERAL_NODE_TYPE,
   BOOLEAN_NODE_TYPE,
   DATE_NODE_TYPE,
   ARRAY_WITH_ITEMS_NODE,
+  LITERAL_ARRAY_NODE_TYPE,
 } from './nodeTypes';
 
 export const typesMapper = {
@@ -56,7 +64,7 @@ export const typesMapperSql: Record<string, string> = {
   [BOOLEAN_NODE_TYPE]: 'BOOLEAN',
 };
 
-type CastTypeHandler = (res: unknown) => unknown;
+type CastTypeHandler = (res: unknown, validate?: unknown) => unknown;
 
 export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
   [NUMBER_NODE_TYPE]: (res: unknown) =>
@@ -69,8 +77,61 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
           : Number(res),
   [LITERAL_NODE_TYPE]: (res: unknown) => (res === null ? null : String(res)),
   [DATE_NODE_TYPE]: (res: unknown): DateTime =>
-       DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
+    DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
   [BOOLEAN_NODE_TYPE]: (res: unknown) => (res === null ? null : Boolean(res)),
+  [LITERAL_ARRAY_NODE_TYPE]: (res, filter) => {
+    if (Array.isArray(filter)) {
+      const [ids, names] = filter;
+      if (Array.isArray(ids) && Array.isArray(names)) {
+        if (Array.isArray(res)) {
+          let preparedRes = res;
+          if (typeof res[0] === 'object' && res[0] !== null) {
+            preparedRes = res.map((i) => i.id);
+          }
+
+          let includesCount = 0;
+
+          const firstResItem = String(preparedRes[0]);
+          const attr: 'id' | 'name' | null = ids.includes(firstResItem)
+            ? 'id'
+            : names.includes(firstResItem)
+              ? 'name'
+              : null;
+          if (attr === null) {
+            return null;
+          }
+          includesCount++;
+          const possibleFormat = attr === 'id' ? ids : names;
+
+          for (let i = 1; i < preparedRes.length; i++) {
+            const item = String(preparedRes[i]);
+
+            if (possibleFormat.includes(item)) {
+              includesCount++;
+              continue;
+            }
+            return null;
+          }
+
+          if (includesCount === preparedRes.length) {
+            if (attr === 'id') {
+              return Array.from(new Set(preparedRes));
+            }
+
+            return Array.from(
+              new Set(
+                preparedRes.map((i) => ids[names.findIndex((j) => j === i)]),
+              ),
+            );
+          }
+        }
+      }
+
+      return null;
+    }
+
+    throw new Error('filter should be array');
+  },
 };
 
 export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
@@ -81,4 +142,12 @@ export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
     `(CASE WHEN (${res})::text ~ '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(Z|[+-]\\d{2}(:\\d{2}:\\d{2})?)$' THEN (${res})::text::timestamptz ELSE NULL END)`,
   [BOOLEAN_NODE_TYPE]: (res) =>
     `(CASE WHEN (${res})::text ~* '^(true|false|0|1)$' THEN (${res})::BOOLEAN ELSE NULL END)`,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-expect-error
+  [LITERAL_ARRAY_NODE_TYPE]: (res, [ids, names, fieldTitle]) =>
+    `(CASE WHEN PG_TYPEOF((${res})::TEXT[])::TEXT = 'text[]'
+      THEN (CASE WHEN ((${res})::TEXT[] <@ ARRAY[${ids.map((i: unknown) => `'${i}'`)}]) THEN (${res})
+        WHEN ((${res})::TEXT[] <@ ARRAY[${names.map((i: unknown) => `'${i}'`)}]) THEN (SELECT array_agg(id) FROM (SELECT id FROM ${fieldTitle} WHERE name = ANY((${res})::TEXT[])))
+        ELSE NULL END)
+      ELSE NULL END)`,
 };
