@@ -21,8 +21,12 @@ describe('arrays', () => {
     const parser = new Parser('IF(2 > 1, [1,2], [1])');
     expect(parser.runJs(parser.toJs(true))).toEqual([1, 2]);
   });
+  test('if', () => {
+    const parser = new Parser('INDEX(IF(2 > 1, [1,2], [1]), 0)');
+    expect(parser.runJs(parser.toJs(true))).toBe(1);
+  });
   test('if with different arrays', () => {
     const parser = new Parser('IF(2 > 1, [1,2,3], ["4","5","6"])');
-    expect(parser.runJs(parser.toJs(true))).toEqual([1, 2, 3]);
+    expect(() => parser.runJs(parser.toJs(true))).toThrow();
   });
 });

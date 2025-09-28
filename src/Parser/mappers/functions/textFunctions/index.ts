@@ -83,6 +83,7 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
               DATE_ARRAY_NODE_TYPE,
             ],
           },
+          { type: [LITERAL_NODE_TYPE] },
         ],
         returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.JOIN,
@@ -93,8 +94,9 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         args: [
           {
             type: [ARRAY_WITH_ITEMS_NODE],
-            required: false,
           },
+          { type: [LITERAL_NODE_TYPE] },
+          { type: [LITERAL_NODE_TYPE], required: false },
         ],
         returnType: [LITERAL_NODE_TYPE],
         jsFn: textFunctionsToJsMap.JOINFORITEMS,
