@@ -490,8 +490,8 @@ export default class Parser {
       if (format === FORMATS.JS) {
         const preparedVar = `$$VARIABLES['${globalVarKey}']`;
 
-        if (defaultValue === undefined){
-          return preparedVar
+        if (defaultValue === undefined) {
+          return preparedVar;
         }
 
         return `(${preparedVar} === null ? ${defaultValue}: ${preparedVar})`;
@@ -506,9 +506,8 @@ export default class Parser {
         }
         const preparedValue = this.prepareVariableValue(value);
 
-
-        if (defaultValue === undefined){
-          return String(preparedValue)
+        if (defaultValue === undefined) {
+          return String(preparedValue);
         }
 
         return `COALESCE(${preparedValue}, ${defaultValue})`;
@@ -674,6 +673,16 @@ export default class Parser {
     const preparedAlternateType = Array.from(alternateType)[0];
     const formatHandler = ifStatementMap[`${format}Fn`];
 
+    if (
+      preparedAlternateType.endsWith(ARRAY_NODE_TYPE) &&
+      preparedConsequentType.endsWith(ARRAY_NODE_TYPE)
+    ) {
+      if (preparedAlternateType === preparedConsequentType) {
+        return formatHandler(test, consequent, alternate, undefined, true);
+      }
+      FormulaError.invalidIfStatement(node.start);
+    }
+
     // this hack work because only in one case we expect if is not in the return type cache,
     // this is when in formula is only if (example: IF(1 > 2, 1, 2)), in this case we expect it to be cast correctly above
     const hasTypeInCache = this.getCachedReturnType(node.start, node.end);
@@ -817,16 +826,14 @@ export default class Parser {
     });
 
     if (resultSet.size === 1) {
-
       const type = Array.from(resultSet)[0];
       let preparedType;
-      if (type.includes(NESTED_ARRAY_NODE_TYPE)){
+      if (type.includes(NESTED_ARRAY_NODE_TYPE)) {
         preparedType = type;
-      }
-      else if (type.includes(ARRAY_NODE_TYPE)){
+      } else if (type.includes(ARRAY_NODE_TYPE)) {
         preparedType = type.replace(ARRAY_NODE_TYPE, NESTED_ARRAY_NODE_TYPE);
-      }else{
-         preparedType = type + ARRAY_NODE_TYPE;
+      } else {
+        preparedType = type + ARRAY_NODE_TYPE;
       }
 
       const res = this.prepareReturnType(preparedType);

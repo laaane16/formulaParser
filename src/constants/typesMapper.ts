@@ -84,7 +84,7 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
       const [ids, names] = filter;
       if (Array.isArray(ids) && Array.isArray(names)) {
         if (Array.isArray(res)) {
-          let preparedRes = res;
+          let preparedRes = res.map((i) => String(i));
           if (typeof res[0] === 'object' && res[0] !== null) {
             preparedRes = res.map((i) => i.id);
           }
@@ -146,7 +146,7 @@ export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
   //@ts-expect-error
   [LITERAL_ARRAY_NODE_TYPE]: (res, [ids, names, fieldTitle]) =>
     `(CASE WHEN PG_TYPEOF((${res})::TEXT[])::TEXT = 'text[]'
-      THEN (CASE WHEN ((${res})::TEXT[] <@ ARRAY[${ids.map((i: unknown) => `'${i}'`)}]) THEN (${res})
+      THEN (CASE WHEN ((${res})::TEXT[] <@ ARRAY[${ids.map((i: unknown) => `'${i}'`)}]) THEN (${res})::TEXT[]
         WHEN ((${res})::TEXT[] <@ ARRAY[${names.map((i: unknown) => `'${i}'`)}]) THEN (SELECT array_agg(id) FROM (SELECT id FROM ${fieldTitle} WHERE name = ANY((${res})::TEXT[])))
         ELSE NULL END)
       ELSE NULL END)`,
