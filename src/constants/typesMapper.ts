@@ -24,6 +24,11 @@ export const typesMapper = {
   [CHECKBOXES]: ARRAY_WITH_ITEMS_NODE,
 };
 
+export const castMapper = {
+  [DROPDOWN]: LITERAL_ARRAY_NODE_TYPE,
+  [CHECKBOXES]: LITERAL_ARRAY_NODE_TYPE,
+};
+
 export const ifTypesMapper: Record<string, string> = {
   [NUMBER_NODE_TYPE + LITERAL_NODE_TYPE]: LITERAL_NODE_TYPE,
   [LITERAL_NODE_TYPE + NUMBER_NODE_TYPE]: LITERAL_NODE_TYPE,

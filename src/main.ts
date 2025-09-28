@@ -10,6 +10,7 @@ import { defaultVarAttr } from './constants/defaults';
 import { NodeTypesValues } from './constants/nodeTypes';
 import { FORMATS } from './constants/formats';
 import {
+  castMapper,
   JS_CAST_TYPES,
   SQL_CAST_TYPES,
   typesMapper,
@@ -250,7 +251,10 @@ export default class Parser {
     to: NodeTypesValues,
     validate?: unknown,
   ): unknown {
-    const resultType = typesMapper[to as keyof typeof typesMapper] || to;
+    const resultType =
+      castMapper[to as keyof typeof castMapper] ||
+      typesMapper[to as keyof typeof typesMapper] ||
+      to;
     if (format === 'js') {
       const res = JS_CAST_TYPES[resultType](result, validate);
       const preparedResult = this._prepareJsResult(res);
