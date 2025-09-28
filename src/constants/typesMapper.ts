@@ -150,7 +150,7 @@ export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-expect-error
   [LITERAL_ARRAY_NODE_TYPE]: (res, [ids, names, fieldTitle]) =>
-    `(CASE WHEN PG_TYPEOF((${res})::TEXT[])::TEXT = 'text[]'
+    `(CASE WHEN ((${res})::TEXT ~ '^\\{.*\\}$' AND PG_TYPEOF((${res})::TEXT::TEXT[])::TEXT = 'text[]')
       THEN (CASE WHEN ((${res})::TEXT[] <@ ARRAY[${ids.map((i: unknown) => `'${i}'`)}]) THEN (${res})::TEXT[]
         WHEN ((${res})::TEXT[] <@ ARRAY[${names.map((i: unknown) => `'${i}'`)}]) THEN (SELECT array_agg(id) FROM (SELECT id FROM ${fieldTitle} WHERE name = ANY((${res})::TEXT[])))
         ELSE NULL END)
