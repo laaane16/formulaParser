@@ -1,7 +1,7 @@
 import { dateFunctions } from './dateFunctions';
 import { textFunctions } from './textFunctions';
 import { numberFunctions } from './numberFunctions';
-// import { bpiumFunctions } from './bpiumFunctions';
+import { bpiumFunctions } from './bpiumFunctions';
 import { logicFunctions } from './logicFunctions';
 import { arrayFunctions } from './arrayFunctions';
 
@@ -13,7 +13,7 @@ export const allFunctions: Record<ValidFunctionsNames, VariableFunction> = {
   ...dateFunctions,
   ...logicFunctions,
   ...arrayFunctions,
-  // ...bpiumFunctions,
+  ...bpiumFunctions,
 };
 
 // mutate all js funcs for supporting check nulls in arguments without large string

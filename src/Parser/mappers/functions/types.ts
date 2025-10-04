@@ -35,8 +35,8 @@ export type ValidFunctionsNames =
   | ValidTextFunctionsNames
   | ValidNumberFunctionsNames
   | ValidDateFunctionsNames
-  | ValidLogicFunctionsNames;
-// | ValidBpiumFunctionsNames
+  | ValidLogicFunctionsNames
+  | ValidBpiumFunctionsNames;
 
 export type VariableFunction = IFunction[];
 
