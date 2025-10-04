@@ -6,5 +6,5 @@ export const bpiumFunctionstoSqlMap: Record<
   IFormatterFunc
 > = {
   RECORDID: () => '"dbId"',
-  CATALOGID: (_, bpium) => `'${bpium?.catalogId ?? null}'`,
+  CATALOGID: (_, bpium) => `'${bpium?.catalogId ?? '#'}'`,
 };
