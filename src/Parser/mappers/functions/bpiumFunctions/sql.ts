@@ -5,6 +5,6 @@ export const bpiumFunctionstoSqlMap: Record<
   ValidBpiumFunctionsNamesWithSafe,
   IFormatterFunc
 > = {
-  RECORDID: () => '"dbId"',
+  RECORDID: () => '"dbId"::TEXT',
   CATALOGID: (_, bpium) => `'${bpium?.catalogId ?? '#'}'`,
 };

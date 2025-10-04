@@ -1,7 +1,4 @@
-import {
-  LITERAL_NODE_TYPE,
-  NUMBER_NODE_TYPE,
-} from '../../../../constants/nodeTypes';
+import { LITERAL_NODE_TYPE } from '../../../../constants/nodeTypes';
 import { VariableFunction } from '../types';
 
 import { bpiumFunctionsToJsMap } from './js';
@@ -15,7 +12,7 @@ export const bpiumFunctions: Record<
   RECORDID: [
     {
       args: [],
-      returnType: [NUMBER_NODE_TYPE],
+      returnType: [LITERAL_NODE_TYPE],
       jsFn: bpiumFunctionsToJsMap.RECORDID,
       sqlFn: bpiumFunctionstoSqlMap.RECORDID,
     },
