@@ -5,5 +5,6 @@ export const logicFunctionsToSqlMap: Record<
   ValidLogicFunctionsNamesWithSafe,
   IFormatterFunc
 > = {
-  ISEMPTY: ([arg]) => `((${arg}) IS NULL OR (${arg})::TEXT = '')`,
+  ISEMPTY: ([arg]) =>
+    `((${arg}) IS NULL OR (${arg})::TEXT = '' OR (${arg})::TEXT = '{}')`,
 };
