@@ -92,8 +92,8 @@ export default class Parser {
       const attr = varAttr ?? defaultVarAttr;
       return variables.reduce<Record<string, IVar>>((accumulator, current) => {
         const objAttr = current[attr];
-        if (objAttr && typeof objAttr === 'string') {
-          accumulator[objAttr] = current;
+        if (objAttr) {
+          accumulator[String(objAttr)] = current;
         }
         return accumulator;
       }, {});

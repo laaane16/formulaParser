@@ -67,7 +67,6 @@ import {
 import { operatorPrecedence } from '../constants/operatorPrecedence';
 import { defaultValues } from '../constants/defaultValues';
 import { FormulaError } from '../lib/exceptions';
-import { DROPDOWN } from '../constants/fieldTypes';
 
 export default class Parser {
   tokens: Token[];
