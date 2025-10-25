@@ -201,7 +201,8 @@ export const textFunctionsToJsMap: Record<
    * @example
    * TOSTRING([1]) // => 'String(1)'
    */
-  TOSTRING: ([val]) => `String(${val})`,
+  TOSTRING: ([val]) =>
+    `(Array.isArray(${val}) ? ('{' + String(${val}) + '}'): String(${val}))`,
   DATETOSTRING: ([val]) =>
     `DateTime.fromFormat(${val}, ${DATE_FORMAT}).toISO()`,
 };

@@ -80,7 +80,8 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
         : String(res) === 'false'
           ? 0
           : Number(res),
-  [LITERAL_NODE_TYPE]: (res: unknown) => (res === null ? null : String(res)),
+  [LITERAL_NODE_TYPE]: (res: unknown) =>
+    res === null ? null : Array.isArray(res) ? `{${res}}` : String(res),
   [DATE_NODE_TYPE]: (res: unknown): DateTime =>
     DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
   // null -> null
