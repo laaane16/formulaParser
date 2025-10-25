@@ -306,8 +306,8 @@ export const arrayFunctions: Record<
         { type: [NUMBER_NODE_TYPE], required: false },
       ],
       returnType: [BOOLEAN_ARRAY_NODE_TYPE],
-      jsFn: arrayFunctionsToJsMap.SORT,
-      sqlFn: arrayFunctionsToSqlMap.SORT,
+      jsFn: arrayFunctionsToJsMap.SORTNUMBERS,
+      sqlFn: arrayFunctionsToSqlMap.SORTNUMBERS,
     },
     {
       args: [
