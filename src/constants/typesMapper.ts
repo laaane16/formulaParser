@@ -83,7 +83,18 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
   [LITERAL_NODE_TYPE]: (res: unknown) => (res === null ? null : String(res)),
   [DATE_NODE_TYPE]: (res: unknown): DateTime =>
     DateTime.fromFormat(String(res), 'yyyy-LL-dd HH:mm:ssZZZ'),
-  [BOOLEAN_NODE_TYPE]: (res: unknown) => (res === null ? null : Boolean(res)),
+  // null -> null
+  // 0 | false | '0' | 'false' | 'FAlsE' -> false
+  // '' -> false
+  // '{ANY TEXT}' ->  true
+  [BOOLEAN_NODE_TYPE]: (res: unknown) =>
+    res === null
+      ? null
+      : /^(0|false)$/i.test(String(res))
+        ? false
+        : String(res) !== ''
+          ? true
+          : false,
   [LITERAL_ARRAY_NODE_TYPE]: (res, filter) => {
     if (Array.isArray(filter)) {
       const [ids, names] = filter;
@@ -145,8 +156,12 @@ export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
   [LITERAL_NODE_TYPE]: (res) => `(${res})::text`,
   [DATE_NODE_TYPE]: (res) =>
     `(CASE WHEN (${res})::text ~ '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(Z|[+-]\\d{2}(:\\d{2}:\\d{2})?)$' THEN (${res})::text::timestamptz ELSE NULL END)`,
+  // null -> null
+  // 0 | false | '0' | 'false' | 'FAlsE' -> false
+  // '' -> false
+  // '{ANY TEXT}' ->  true
   [BOOLEAN_NODE_TYPE]: (res) =>
-    `(CASE WHEN (${res})::text ~* '^(true|false|0|1)$' THEN (${res})::BOOLEAN ELSE NULL END)`,
+    `(CASE WHEN (${res})::text ~* '^(false|0)$' THEN FALSE WHEN (${res})::text != '' THEN TRUE ELSE NULL END)`,
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-expect-error
   [LITERAL_ARRAY_NODE_TYPE]: (res, [ids, names, fieldTitle]) =>
