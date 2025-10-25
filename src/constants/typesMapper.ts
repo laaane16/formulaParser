@@ -86,7 +86,7 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
   // null -> false
   // 0 | false | '0' | 'false' | 'FAlsE' -> false
   // '' -> false
-  // '{ANY TEXT}' ->  true
+  // {OTHER VALUE} ->  true
   [BOOLEAN_NODE_TYPE]: (res: unknown) =>
     res === null
       ? false
@@ -159,7 +159,7 @@ export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
   // null -> false
   // 0 | false | '0' | 'false' | 'FAlsE' -> false
   // '' -> false
-  // '{ANY TEXT}' ->  true
+  // {OTHER VALUE} ->  true
   [BOOLEAN_NODE_TYPE]: (res) =>
     `(CASE WHEN (${res}) IS NULL THEN FALSE WHEN (${res})::text ~* '^(false|0|)$' THEN FALSE ELSE TRUE END)`,
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
