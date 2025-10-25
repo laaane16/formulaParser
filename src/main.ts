@@ -296,67 +296,67 @@ export default class Parser {
 
 // Example usage:
 // key - value in {...}
-const variables: Record<string, IVar> = {
-  1: {
-    id: '1',
-    dbId: 2,
-    prevId: '3',
-    name: 'Поле 1',
-    type: 'date',
-  },
-  some: {
-    name: 'Поле 2',
-    dbId: 5,
-    id: '2',
-    type: 'number',
-  },
-  status: {
-    name: 'status',
-    id: '3',
-    type: 'dropdown',
-  },
-};
+// const variables: Record<string, IVar> = {
+//   1: {
+//     id: '1',
+//     dbId: 2,
+//     prevId: '3',
+//     name: 'Поле 1',
+//     type: 'date',
+//   },
+//   some: {
+//     name: 'Поле 2',
+//     dbId: 5,
+//     id: '2',
+//     type: 'number',
+//   },
+//   status: {
+//     name: 'status',
+//     id: '3',
+//     type: 'dropdown',
+//   },
+// };
 
-const values: Record<string, unknown> = {
-  1: '2012-12-12 00:00:00+03',
-  some: 5000,
-  status: [
-    { id: '2', dbId: 123, name: 'Завершено' },
-    { id: '3', dbId: 124, name: 'В процессе' },
-  ],
-};
+// const values: Record<string, unknown> = {
+//   1: '2012-12-12 00:00:00+03',
+//   some: 5000,
+//   status: [
+//     { id: '2', dbId: 123, name: 'Завершено' },
+//     { id: '3', dbId: 124, name: 'В процессе' },
+//   ],
+// };
 
-const sqlValues = {
-  1: 'field1',
-  some: 'field2',
-  status: 'field5',
-};
+// const sqlValues = {
+//   1: 'field1',
+//   some: 'field2',
+//   status: 'field5',
+// };
 
-const bpiumValues = {
-  catalogId: 'teeest',
-  recordDbId: 12,
-};
+// const bpiumValues = {
+//   catalogId: 'teeest',
+//   recordDbId: 12,
+// };
 
-const expression = 'TOSTRING(123)';
+// const expression = 'TOSTRING(123)';
 
-const parser = new Parser(expression, variables);
+// const parser = new Parser(expression, variables);
 
-const sqlQuery = parser.toSqlWithVariables(true, sqlValues, bpiumValues);
-console.log('SQL:', sqlQuery); // Outputs the generated SQL query
+// const sqlQuery = parser.toSqlWithVariables(true, sqlValues, bpiumValues);
+// console.log('SQL:', sqlQuery); // Outputs the generated SQL query
 
-const jsFormula = parser.toJs(true, bpiumValues);
-console.log('JS:', jsFormula); // Outputs the generated JS query
+// const jsFormula = parser.toJs(true, bpiumValues);
+// console.log('JS:', jsFormula); // Outputs the generated JS query
 
-console.log('RUN JS:', parser.runJs(jsFormula, values));
+// console.log('RUN JS:', parser.runJs(jsFormula, values));
 
-console.log(
-  parser.castResultType(parser.runJs(jsFormula, values), 'js', 'text', [
-    ['2', '3'],
-    ['Завершено', 'В процессе'],
-  ]),
-  parser.castResultType(sqlQuery, 'sql', 'text', [
-    ['2', '3'],
-    ['Завершено', 'В процессе'],
-    'field5_names',
-  ]),
-);
+// console.log(
+//   parser.castResultType(parser.runJs(jsFormula, values), 'js', 'text', [
+//     ['2', '3'],
+//     ['Завершено', 'В процессе'],
+//   ]),
+//   parser.castResultType(sqlQuery, 'sql', 'text', [
+//     ['2', '3'],
+//     ['Завершено', 'В процессе'],
+//     'field5_names',
+//   ]),
+// );
