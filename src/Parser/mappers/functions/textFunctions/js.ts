@@ -202,7 +202,12 @@ export const textFunctionsToJsMap: Record<
    * TOSTRING([1]) // => 'String(1)'
    */
   TOSTRING: ([val]) =>
-    `(Array.isArray(${val}) ? (typeof (${val})[0] === 'boolean') ? ('{' + String((${val}).map(i => String(i)[0])) + '}') : ('{' + String(${val}) + '}'): String(${val}))`,
+    `(Array.isArray(${val}) ? ('{' + String(${val}) + '}'): String(${val}))`,
   DATETOSTRING: ([val]) =>
     `DateTime.fromFormat(${val}, ${DATE_FORMAT}).toISO()`,
+  BOOLEANARRAYTOSTRING: ([val]) =>
+    `('{' + String((${val}).map(i => String(i)[0])) + '}')`,
+  // TODO: add attr support
+  ARRAYWITHITEMSNODETOSTRING: ([val]) =>
+    `('{' + String((${val}).map(i => i.id)) + '}')`,
 };

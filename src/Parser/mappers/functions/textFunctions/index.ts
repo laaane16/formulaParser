@@ -268,6 +268,18 @@ export const textFunctions: Record<ValidTextFunctionsNames, VariableFunction> =
         sqlFn: textFunctionsToSqlMap.DATETOSTRING,
       },
       {
+        args: [{ type: [BOOLEAN_ARRAY_NODE_TYPE] }],
+        returnType: [LITERAL_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.BOOLEANARRAYTOSTRING,
+        sqlFn: textFunctionsToSqlMap.BOOLEANARRAYTOSTRING,
+      },
+      {
+        args: [{ type: [ARRAY_WITH_ITEMS_NODE] }],
+        returnType: [LITERAL_NODE_TYPE],
+        jsFn: textFunctionsToJsMap.ARRAYWITHITEMSNODETOSTRING,
+        sqlFn: textFunctionsToSqlMap.ARRAYWITHITEMSNODETOSTRING,
+      },
+      {
         args: [
           {
             type: [],

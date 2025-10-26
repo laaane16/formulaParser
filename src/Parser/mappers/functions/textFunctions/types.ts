@@ -16,9 +16,15 @@ export type ValidTextFunctionsNamesWithSafe =
   | 'TOSTRING'
   | 'REGEXMATCH'
   | 'REGEXREPLACE'
-  | 'DATETOSTRING';
+  | 'DATETOSTRING'
+  | 'BOOLEANARRAYTOSTRING'
+  | 'ARRAYWITHITEMSNODETOSTRING';
 
 export type ValidTextFunctionsNames = Exclude<
   ValidTextFunctionsNamesWithSafe,
-  'SAFETRIM' | 'DATETOSTRING' | 'JOINFORITEMS'
+  | 'SAFETRIM'
+  | 'DATETOSTRING'
+  | 'JOINFORITEMS'
+  | 'BOOLEANARRAYTOSTRING'
+  | 'ARRAYWITHITEMSNODETOSTRING'
 >;

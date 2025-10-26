@@ -195,6 +195,8 @@ export const textFunctionsToSqlMap: Record<
    * TOSTRING([1]) // => '1::text'
    */
   TOSTRING: ([val]) => `(${val})::text`,
+  BOOLEANARRAYTOSTRING: ([val]) => `(${val})::text`,
+  ARRAYWITHITEMSNODETOSTRING: ([val]) => `(${val})::text`,
   DATETOSTRING: ([val]) =>
     `TO_CHAR(${val}, 'YYYY-MM-DD"T"HH24:MI:SS.MSTZH:TZM')`,
 };
