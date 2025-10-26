@@ -82,7 +82,7 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
           : Number(res),
   [LITERAL_NODE_TYPE]: (res: unknown) =>
     res === null
-      ? null
+      ? ''
       : Array.isArray(res)
         ? typeof res[0] === 'boolean'
           ? `{${res.map((i) => String(i)[0])}}`
@@ -123,7 +123,7 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
               ? 'name'
               : null;
           if (attr === null) {
-            return null;
+            return [];
           }
           includesCount++;
           const possibleFormat = attr === 'id' ? ids : names;
@@ -135,7 +135,7 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
               includesCount++;
               continue;
             }
-            return null;
+            return [];
           }
 
           if (includesCount === preparedRes.length) {
@@ -152,7 +152,7 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
         }
       }
 
-      return null;
+      return [];
     }
 
     throw new Error('filter should be array');
@@ -162,7 +162,8 @@ export const JS_CAST_TYPES: Record<string, CastTypeHandler> = {
 export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
   [NUMBER_NODE_TYPE]: (res) =>
     `(CASE WHEN (${res})::text ~ '^[-]*\\d+(\\.\\d+)?$' THEN (${res})::text::numeric WHEN (${res})::text ~ 'true' THEN 1 WHEN (${res})::text ~ 'false' THEN 0 ELSE NULL END)`,
-  [LITERAL_NODE_TYPE]: (res) => `(${res})::text`,
+  [LITERAL_NODE_TYPE]: (res) =>
+    `(CASE WHEN (${res}) IS NULL THEN NULL ELSE (${res})::text END)`,
   [DATE_NODE_TYPE]: (res) =>
     `(CASE WHEN (${res})::text ~ '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?(Z|[+-]\\d{2}(:\\d{2}:\\d{2})?)$' THEN (${res})::text::timestamptz ELSE NULL END)`,
   // null -> null
@@ -177,6 +178,6 @@ export const SQL_CAST_TYPES: Record<string, CastTypeHandler> = {
     `(CASE WHEN ((${res})::TEXT ~ '^\\{.*\\}$' AND PG_TYPEOF((${res})::TEXT::TEXT[])::TEXT = 'text[]')
       THEN (CASE WHEN ((${res})::TEXT[] <@ ARRAY[${ids.map((i: unknown) => `'${i}'`)}]) THEN (${res})::TEXT[]
         WHEN ((${res})::TEXT[] <@ ARRAY[${names.map((i: unknown) => `'${i}'`)}]) THEN (SELECT array_agg(id) FROM (SELECT id FROM ${fieldTitle} WHERE name = ANY((${res})::TEXT[])))
-        ELSE NULL END)
-      ELSE NULL END)`,
+        ELSE ARRAY[]::TEXT[] END)
+      ELSE ARRAY[]::TEXT[] END)`,
 };
