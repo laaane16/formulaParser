@@ -1222,7 +1222,10 @@ export default class Parser {
   // only map variables. it is supposed to be used before conversion to js or sql
   mapIdentifiers(
     node: ExpressionNode,
-    { from, to }: { from?: keyof IVar | (keyof IVar)[]; to: keyof IVar },
+    {
+      from,
+      to,
+    }: { from?: keyof IVar | (keyof IVar)[]; to: keyof IVar | (keyof IVar)[] },
   ): string | string[] {
     const variables = Object.values(this.variables);
 
@@ -1260,11 +1263,14 @@ export default class Parser {
           FormulaError.mapIdsFromError(varKey);
         }
 
-        if (!variable[to]) {
+        const executedVar = Array.isArray(to)
+          ? variable[to.find((t) => variable[t]) ?? '']
+          : variable[to];
+        if (!executedVar) {
           FormulaError.mapIdsToError(varKey, to);
         }
 
-        result += `${FORMULA_TEMPLATES.PREFIX}${variable[to]}${FORMULA_TEMPLATES.POSTFIX}`;
+        result += `${FORMULA_TEMPLATES.PREFIX}${executedVar}${FORMULA_TEMPLATES.POSTFIX}`;
       } else if (n instanceof ParenthesizedNode) {
         result += `(${traverse(n.expression)})`;
       } else if (n instanceof UnarOperationNode) {

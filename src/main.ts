@@ -179,7 +179,7 @@ export default class Parser {
     to,
   }: {
     from?: keyof IVar | (keyof IVar)[];
-    to: keyof IVar;
+    to: keyof IVar | (keyof IVar)[];
   }): string {
     const [parser, node] = this.prepareParser();
     return parser.mapIdentifiers(node, { from, to })[0];
